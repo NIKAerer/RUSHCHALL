@@ -21,6 +21,12 @@ final readonly class Moment
         public array $assists = [],
         /** Pour un objectif : infernal, ocean… pour un drake, sinon baron, herald, grubs ou atakhan. */
         public ?string $objective = null,
+        /**
+         * Ce qui rend le moment marquant : first_blood, double, triple, quadra, penta, ace, shutdown, soul.
+         *
+         * @var list<string>
+         */
+        public array $badges = [],
     ) {
     }
 }

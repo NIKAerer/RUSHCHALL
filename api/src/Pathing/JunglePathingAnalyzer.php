@@ -32,6 +32,14 @@ final class JunglePathingAnalyzer
         'ATAKHAN' => ['atakhan', 'Atakhan'],
     ];
 
+    private const MULTI_KILLS = [2 => 'double', 3 => 'triple', 4 => 'quadra', 5 => 'penta'];
+
+    /** Badges qui font d'un kill un moment fort même sans jungler dedans. */
+    private const KEY_BADGES = ['first_blood' => 'First blood', 'triple' => 'Triple kill', 'quadra' => 'Quadra kill', 'penta' => 'Penta kill', 'ace' => 'Ace'];
+
+    /** Écart toléré entre un CHAMPION_SPECIAL_KILL et le kill qu'il qualifie. */
+    private const SPECIAL_KILL_TOLERANCE_MS = 3000;
+
     private const DRAGONS = [
         'FIRE_DRAGON' => ['infernal', 'Infernal'],
         'EARTH_DRAGON' => ['mountain', 'Montagne'],
@@ -65,7 +73,7 @@ final class JunglePathingAnalyzer
         usort($junglers, static fn (array $a, array $b) => ($b['teamId'] === $trackedTeam) <=> ($a['teamId'] === $trackedTeam));
 
         $frames = $timeline['info']['frames'];
-        $events = array_merge(...array_map(static fn (array $frame) => $frame['events'] ?? [], $frames));
+        $events = $this->withBadges(array_merge(...array_map(static fn (array $frame) => $frame['events'] ?? [], $frames)));
 
         return new JunglePathing(
             matchId: $match['metadata']['matchId'],
@@ -75,6 +83,7 @@ final class JunglePathingAnalyzer
                 array_values($junglers),
             ),
             objectives: $this->objectives($events, $participants),
+            highlights: $this->highlights($events, $participants, array_column($junglers, 'participantId'), $trackedTeam ?? 100),
         );
     }
 
@@ -138,24 +147,10 @@ final class JunglePathingAnalyzer
         $y = $event['position']['y'];
         $zone = MapZone::of($x, $y, $team);
         $champion = static fn (int $participantId) => $participants[$participantId]['championName'] ?? '?';
-        $fighter = static fn (int $participantId) => isset($participants[$participantId])
-            ? new Fighter($participants[$participantId]['championName'], $participants[$participantId]['teamId'])
-            : null;
 
         if ('CHAMPION_KILL' === $event['type']) {
-            $assisting = $event['assistingParticipantIds'] ?? [];
-            $involved = $event['killerId'] === $id || \in_array($id, $assisting, true);
-            $moment = static fn (string $type, string $label) => new Moment(
-                t: $t,
-                type: $type,
-                label: $label,
-                x: $x,
-                y: $y,
-                zone: $zone->value,
-                killer: $fighter($event['killerId']),
-                victim: $fighter($event['victimId']),
-                assists: array_values(array_filter(array_map($fighter, $assisting))),
-            );
+            $involved = $event['killerId'] === $id || \in_array($id, $event['assistingParticipantIds'] ?? [], true);
+            $moment = fn (string $type, string $label) => $this->fight($event, $type, $label, $zone, $participants);
 
             if ($event['victimId'] === $id) {
                 return $moment('death', \sprintf('Mort contre %s (%s)', $champion($event['killerId']), $zone->label()));
@@ -179,8 +174,9 @@ final class JunglePathingAnalyzer
                 x: $x,
                 y: $y,
                 zone: $zone->value,
-                killer: $fighter($id),
+                killer: $this->fighter($id, $participants),
                 objective: self::DRAGONS[$event['monsterSubType'] ?? ''][0] ?? self::OBJECTIVES[$event['monsterType']][0],
+                badges: $event['badges'] ?? [],
             );
         }
 
@@ -220,6 +216,125 @@ final class JunglePathingAnalyzer
             minutesInEnemyJungle: $enemyJungleMinutes,
             objectives: $count('objective'),
         );
+    }
+
+    /**
+     * @param array<string, mixed>             $event       un CHAMPION_KILL
+     * @param array<int, array<string, mixed>> $participants
+     */
+    private function fight(array $event, string $type, string $label, MapZone $zone, array $participants): Moment
+    {
+        return new Moment(
+            t: intdiv($event['timestamp'], 1000),
+            type: $type,
+            label: $label,
+            x: $event['position']['x'],
+            y: $event['position']['y'],
+            zone: $zone->value,
+            killer: $this->fighter($event['killerId'], $participants),
+            victim: $this->fighter($event['victimId'], $participants),
+            assists: array_values(array_filter(array_map(
+                fn (int $participantId) => $this->fighter($participantId, $participants),
+                $event['assistingParticipantIds'] ?? [],
+            ))),
+            badges: [...$event['badges'] ?? [], ...(($event['shutdownBounty'] ?? 0) > 0 ? ['shutdown'] : [])],
+        );
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $participants
+     */
+    private function fighter(int $participantId, array $participants): ?Fighter
+    {
+        $p = $participants[$participantId] ?? null;
+
+        return null === $p ? null : new Fighter($p['championName'], $p['teamId']);
+    }
+
+    /**
+     * Kills marquants de la game (first blood, triple kill et plus, ace) auxquels aucun jungler n'a participé :
+     * ils ne sont dans la route de personne, mais on les veut dans les moments forts.
+     *
+     * @param list<array<string, mixed>>       $events
+     * @param array<int, array<string, mixed>> $participants
+     * @param list<int>                        $junglerIds
+     *
+     * @return list<Moment>
+     */
+    private function highlights(array $events, array $participants, array $junglerIds, int $trackedTeam): array
+    {
+        $highlights = [];
+        foreach ($events as $event) {
+            $key = array_values(array_intersect($event['badges'] ?? [], array_keys(self::KEY_BADGES)));
+            if ('CHAMPION_KILL' !== $event['type'] || [] === $key || !isset($event['position'])) {
+                continue;
+            }
+            $involved = array_intersect($junglerIds, [$event['killerId'], $event['victimId'], ...$event['assistingParticipantIds'] ?? []]);
+            if ([] !== $involved) {
+                continue;
+            }
+
+            $highlights[] = $this->fight(
+                $event,
+                'kill',
+                \sprintf('%s de %s', self::KEY_BADGES[$key[0]], $participants[$event['killerId']]['championName'] ?? '?'),
+                MapZone::of($event['position']['x'], $event['position']['y'], $trackedTeam),
+                $participants,
+            );
+        }
+
+        return $highlights;
+    }
+
+    /**
+     * Riot annonce first blood, multi-kills, aces et âme du dragon dans des événements à part :
+     * on les rattache, sous forme de badges, au kill ou au drake qu'ils qualifient.
+     *
+     * @param list<array<string, mixed>> $events
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function withBadges(array $events): array
+    {
+        foreach ($events as $soul) {
+            // L'âme va à l'équipe qui vient de tuer le drake : on la marque sur ce drake.
+            if ('DRAGON_SOUL_GIVEN' !== $soul['type']) {
+                continue;
+            }
+            $dragons = array_filter($events, static fn (array $e) => 'ELITE_MONSTER_KILL' === $e['type'] && 'DRAGON' === $e['monsterType'] && $e['timestamp'] <= $soul['timestamp'] + self::SPECIAL_KILL_TOLERANCE_MS);
+            if ([] !== $dragons) {
+                $events[array_key_last($dragons)]['badges'][] = 'soul';
+            }
+        }
+
+        foreach ($events as $special) {
+            if ('CHAMPION_SPECIAL_KILL' !== $special['type']) {
+                continue;
+            }
+            $badge = match ($special['killType'] ?? null) {
+                'KILL_FIRST_BLOOD' => 'first_blood',
+                'KILL_ACE' => 'ace',
+                'KILL_MULTI' => self::MULTI_KILLS[$special['multiKillLength'] ?? 0] ?? null,
+                default => null,
+            };
+            if (null === $badge) {
+                continue;
+            }
+
+            $best = null;
+            foreach ($events as $i => $kill) {
+                $gap = abs($kill['timestamp'] - $special['timestamp']);
+                if ('CHAMPION_KILL' === $kill['type'] && $kill['killerId'] === $special['killerId'] && $gap <= self::SPECIAL_KILL_TOLERANCE_MS
+                    && (null === $best || $gap < abs($events[$best]['timestamp'] - $special['timestamp']))) {
+                    $best = $i;
+                }
+            }
+            if (null !== $best) {
+                $events[$best]['badges'][] = $badge;
+            }
+        }
+
+        return $events;
     }
 
     /**

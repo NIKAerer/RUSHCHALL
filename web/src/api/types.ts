@@ -115,6 +115,8 @@ export interface PathPoint {
 
 export type MomentType = 'gank' | 'kill' | 'assist' | 'death' | 'objective'
 
+export type Badge = 'first_blood' | 'double' | 'triple' | 'quadra' | 'penta' | 'ace' | 'shutdown' | 'soul'
+
 /** Champion impliqué dans un moment fort. */
 export interface Fighter {
   championName: string
@@ -129,6 +131,8 @@ export interface Moment extends PathPoint {
   assists: Fighter[]
   /** Pour un objectif : infernal, ocean… pour un drake, sinon baron, herald, grubs ou atakhan. */
   objective: string | null
+  /** Ce qui rend le moment marquant : first_blood, double, triple, quadra, penta, ace, shutdown, soul. */
+  badges: Badge[]
   label: string
 }
 
@@ -198,4 +202,6 @@ export interface JunglePathing {
   durationSeconds: number
   junglers: JunglerPath[]
   objectives: Objective[]
+  /** Kills marquants sans jungler (first blood, triple kill…). */
+  highlights: Moment[]
 }

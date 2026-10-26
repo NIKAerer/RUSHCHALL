@@ -350,6 +350,16 @@
   background: var(--loss);
 }
 
+/* Moment clé : repère doré, un peu plus gros. */
+.tick[data-badge] {
+  bottom: -8px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  background: var(--gold);
+  box-shadow: 0 0 4px var(--gold);
+}
+
 .clock {
   min-width: 82px;
   font-weight: 600;

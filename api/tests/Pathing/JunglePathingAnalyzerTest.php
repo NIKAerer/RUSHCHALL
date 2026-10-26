@@ -67,6 +67,30 @@ final class JunglePathingAnalyzerTest extends TestCase
         self::assertSame(['grubs', 'infernal'], [$grubs->objective, $drake->objective]);
     }
 
+    public function testKeyMomentsCarryBadges(): void
+    {
+        $pathing = $this->analyze('EUW1_7412345678');
+        $badges = [];
+        foreach ($pathing->junglers[0]->moments as $moment) {
+            $badges[$moment->t] = $moment->badges;
+        }
+
+        self::assertSame(['first_blood'], $badges[200]);
+        self::assertSame(['shutdown'], $badges[700]);
+        self::assertSame(['soul'], $badges[1180]);
+        self::assertSame([], $badges[205]);
+    }
+
+    public function testKillsWithoutJunglersAreHighlightedWhenTheyMatter(): void
+    {
+        $highlights = $this->analyze('EUW1_7412345678')->highlights;
+
+        // Le triple kill de Jinx sans jungler dedans.
+        self::assertCount(1, $highlights);
+        self::assertSame([900, 'Triple kill de Jinx', ['triple']], [$highlights[0]->t, $highlights[0]->label, $highlights[0]->badges]);
+        self::assertSame('Azir', $highlights[0]->victim?->championName);
+    }
+
     public function testStatsCompareBothJunglers(): void
     {
         [$lee, $xin] = $this->analyze('EUW1_7412345678')->junglers;

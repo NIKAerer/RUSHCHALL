@@ -1,4 +1,4 @@
-import type { Fighter, Moment, Zone } from '../api/types'
+import type { Badge, Fighter, Moment, Zone } from '../api/types'
 import { ChampionIcon } from './GameIcons'
 import styles from './MomentFeed.module.css'
 
@@ -10,7 +10,7 @@ export function MomentFeed({ moment, allyTeam }: { moment: Moment; allyTeam: num
   const good = moment.killer ? moment.killer.teamId === allyTeam : moment.victim?.teamId !== allyTeam
 
   return (
-    <span className={styles.feed} data-good={good || undefined}>
+    <span className={styles.feed} data-good={good || undefined} data-epic={moment.badges.some((b) => EPIC.includes(b)) || undefined}>
       <Portrait fighter={moment.killer} allyTeam={allyTeam} />
       <ActionIcon type={moment.type} />
       {moment.type === 'objective' ? <ObjectiveIcon objective={moment.objective} /> : <Portrait fighter={moment.victim} allyTeam={allyTeam} victim />}
@@ -21,10 +21,34 @@ export function MomentFeed({ moment, allyTeam }: { moment: Moment; allyTeam: num
           ))}
         </span>
       )}
+      {moment.badges.length > 0 && (
+        <span className={styles.badges}>
+          {moment.badges.map((badge) => (
+            <span key={badge} className={styles.badge} data-badge={badge}>
+              {BADGES[badge]}
+            </span>
+          ))}
+        </span>
+      )}
       <ZoneIcon zone={moment.zone} />
     </span>
   )
 }
+
+/** Libellés courts, comme les annonces en jeu. */
+const BADGES: Record<Badge, string> = {
+  first_blood: 'First blood',
+  double: 'Double',
+  triple: 'Triple',
+  quadra: 'Quadra',
+  penta: 'Penta',
+  ace: 'Ace',
+  shutdown: 'Shutdown',
+  soul: 'Âme',
+}
+
+/** Les moments qui méritent d'être vus de loin dans la liste. */
+const EPIC: Badge[] = ['triple', 'quadra', 'penta', 'ace', 'soul']
 
 function Portrait({ fighter, allyTeam, victim = false, small = false }: { fighter: Fighter | null; allyTeam: number; victim?: boolean; small?: boolean }) {
   const size = small ? 20 : 30
