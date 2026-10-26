@@ -223,3 +223,96 @@ export interface GoldPoint {
   allyJungler: number | null
   enemyJungler: number | null
 }
+
+export interface WinRecord {
+  key: string
+  games: number
+  wins: number
+}
+
+export interface MatchupStats {
+  opponent: string
+  games: number
+  wins: number
+  goldDiffAt15: number | null
+}
+
+export interface ChampionStats {
+  championName: string
+  games: number
+  wins: number
+  kills: number
+  deaths: number
+  assists: number
+  csPerMinute: number
+  goldAt15: number | null
+  rating: number
+  matchups: MatchupStats[]
+}
+
+export interface DiffStats {
+  minute: number
+  games: number
+  gold: number
+  xp: number
+  cs: number
+  aheadRate: number
+}
+
+export interface JungleStats {
+  games: number
+  starts: WinRecord[]
+  routes: WinRecord[]
+  firstGanks: WinRecord[]
+  firstGankAt: number | null
+}
+
+export interface ObjectiveStats {
+  type: 'grubs' | 'herald' | 'dragon' | 'atakhan' | 'baron'
+  taken: number
+  lost: number
+  goldDiffTaken: number | null
+  goldDiffLost: number | null
+}
+
+export interface Heatmap {
+  size: number
+  /** colonne, ligne, nombre de relevés */
+  cells: [number, number, number][]
+  deaths: [number, number][]
+}
+
+export interface LpPoint {
+  t: number
+  tier: string
+  division: string | null
+  leaguePoints: number
+  ladder: number
+}
+
+export interface FormStats {
+  streak: number
+  longestWinStreak: number
+  longestLossStreak: number
+  recent: boolean[]
+  byHour: WinRecord[]
+  lp: LpPoint[]
+}
+
+export interface PlayerStats {
+  games: number
+  wins: number
+  kills: number
+  deaths: number
+  assists: number
+  rating: number
+  mvp: number
+  ace: number
+  champions: ChampionStats[]
+  matchups: MatchupStats[]
+  diffs: DiffStats[]
+  jungle: JungleStats
+  objectives: ObjectiveStats[]
+  heatmap: Heatmap
+  form: FormStats
+}

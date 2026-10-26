@@ -1,0 +1,79 @@
+.overview {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1.4fr;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.tile {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 14px 18px;
+}
+
+.tile + .tile {
+  border-left: 1px solid var(--line);
+}
+
+.badges {
+  display: flex;
+  gap: 6px;
+}
+
+.mvp,
+.ace {
+  padding: 1px 7px;
+  border-radius: 999px;
+  font: 700 11px var(--font-display);
+  letter-spacing: 0.04em;
+}
+
+.mvp {
+  color: #1a1305;
+  background: var(--gold);
+}
+
+.ace {
+  color: #12091d;
+  background: var(--path-enemy);
+}
+
+.recent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recent li {
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+}
+
+.recent .win {
+  background: var(--win);
+}
+
+.recent .loss {
+  background: var(--loss);
+}
+
+@media (max-width: 720px) {
+  .overview {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tile:nth-child(3) {
+    border-left: 0;
+  }
+
+  .tile:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+}

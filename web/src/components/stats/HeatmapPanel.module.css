@@ -1,0 +1,55 @@
+.map {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+
+.ground {
+  fill: var(--surface-2);
+}
+
+.cell {
+  fill: var(--gold);
+}
+
+.death circle {
+  fill: var(--loss);
+  stroke: var(--surface);
+  stroke-width: 60;
+  opacity: 0.85;
+}
+
+.death path {
+  stroke: #fff;
+  stroke-width: 60;
+  stroke-linecap: round;
+}
+
+.toggle {
+  display: flex;
+  gap: 4px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.toggle button {
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: 600 12px var(--font-body);
+  cursor: pointer;
+}
+
+.toggle button[aria-selected='true'] {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.toggle b {
+  color: var(--fg);
+}

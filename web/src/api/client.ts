@@ -1,4 +1,4 @@
-import type { JunglePathing, MatchDetail, MatchSummary, Profile, SyncReport } from './types'
+import type { JunglePathing, MatchDetail, MatchSummary, PlayerStats, Profile, SyncReport } from './types'
 
 export class ApiError extends Error {
   readonly status: number
@@ -32,5 +32,6 @@ export const api = {
   games: (start: number, count: number) => request<MatchSummary[]>(`/api/games?start=${start}&count=${count}`),
   game: (matchId: string) => request<MatchDetail>(`/api/games/${encodeURIComponent(matchId)}`),
   pathing: (matchId: string) => request<JunglePathing>(`/api/games/${encodeURIComponent(matchId)}/pathing`),
+  stats: () => request<PlayerStats>('/api/stats'),
   sync: () => request<SyncReport>('/api/games/sync', { method: 'POST' }),
 }

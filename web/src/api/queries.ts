@@ -33,6 +33,10 @@ export function usePathing(matchId: string) {
   })
 }
 
+export function useStats() {
+  return useQuery({ queryKey: ['stats'], queryFn: api.stats })
+}
+
 /** Récupère chez Riot les nouvelles games Solo/Duo, puis recharge le profil et l'historique. */
 export function useSync() {
   const queryClient = useQueryClient()
@@ -42,6 +46,7 @@ export function useSync() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['profile'] }),
         queryClient.resetQueries({ queryKey: ['games'] }),
+        queryClient.invalidateQueries({ queryKey: ['stats'] }),
       ])
     },
   })

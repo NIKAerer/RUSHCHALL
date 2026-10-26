@@ -7,6 +7,7 @@ namespace App\Storage;
 /**
  * Base SQLite des games classées Solo/Duo. Une game terminée ne change jamais :
  * on garde la réponse match-v5 complète pour calculer les stats plus tard sans redemander à Riot.
+ * Riot ne donne pas l'historique des LP : on garde aussi un relevé du rang à chaque changement.
  */
 final class MatchStore
 {
@@ -163,6 +164,45 @@ final class MatchStore
         return (int) $statement->fetchColumn();
     }
 
+    /**
+     * Identifiants des games du joueur, de la plus ancienne à la plus récente.
+     *
+     * @return list<string>
+     */
+    public function idsForPlayer(string $puuid): array
+    {
+        $statement = $this->pdo()->prepare('SELECT m.match_id FROM matches m JOIN match_participants p ON p.match_id = m.match_id WHERE p.puuid = ? ORDER BY m.game_start');
+        $statement->execute([$puuid]);
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * Enregistre le rang Solo/Duo s'il a changé depuis le dernier relevé.
+     */
+    public function recordLp(string $puuid, string $tier, ?string $division, int $leaguePoints, int $wins, int $losses, int $takenAt): void
+    {
+        $last = $this->pdo()->prepare('SELECT tier, division, league_points, wins, losses FROM lp_snapshots WHERE puuid = ? ORDER BY taken_at DESC LIMIT 1');
+        $last->execute([$puuid]);
+        if ($last->fetch(\PDO::FETCH_NUM) === [$tier, $division, $leaguePoints, $wins, $losses]) {
+            return;
+        }
+
+        $this->pdo()->prepare('INSERT INTO lp_snapshots (puuid, taken_at, tier, division, league_points, wins, losses) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            ->execute([$puuid, $takenAt, $tier, $division, $leaguePoints, $wins, $losses]);
+    }
+
+    /**
+     * @return list<array{taken_at: int, tier: string, division: ?string, league_points: int, wins: int, losses: int}>
+     */
+    public function lpSnapshots(string $puuid): array
+    {
+        $statement = $this->pdo()->prepare('SELECT taken_at, tier, division, league_points, wins, losses FROM lp_snapshots WHERE puuid = ? ORDER BY taken_at');
+        $statement->execute([$puuid]);
+
+        return $statement->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     private function pdo(): \PDO
     {
         if (null !== $this->pdo) {
@@ -199,6 +239,16 @@ final class MatchStore
                 match_id TEXT PRIMARY KEY REFERENCES matches (match_id) ON DELETE CASCADE,
                 payload TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS lp_snapshots (
+                puuid TEXT NOT NULL,
+                taken_at INTEGER NOT NULL,
+                tier TEXT NOT NULL,
+                division TEXT,
+                league_points INTEGER NOT NULL,
+                wins INTEGER NOT NULL,
+                losses INTEGER NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS lp_snapshots_puuid ON lp_snapshots (puuid, taken_at);
             SQL);
 
         return $this->pdo = $pdo;

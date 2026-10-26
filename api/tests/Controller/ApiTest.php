@@ -83,6 +83,33 @@ final class ApiTest extends WebTestCase
         self::assertSame('dragon', $pathing['objectives'][1]['type']);
     }
 
+    public function testStatsOverAllStoredGames(): void
+    {
+        $this->client->request('GET', '/api/profile');
+        $this->client->request('POST', '/api/games/sync');
+        $this->client->request('GET', '/api/stats');
+
+        self::assertResponseIsSuccessful();
+        $stats = $this->json();
+        self::assertSame(2, $stats['games']);
+        self::assertEqualsCanonicalizing(['LeeSin', 'Lillia'], array_column($stats['champions'], 'championName'));
+        self::assertEqualsCanonicalizing(['XinZhao', 'Viego'], array_column($stats['matchups'], 'opponent'));
+        self::assertSame([10, 15], array_column($stats['diffs'], 'minute'));
+        self::assertSame(['grubs', 'herald', 'dragon', 'atakhan', 'baron'], array_column($stats['objectives'], 'type'));
+        self::assertNotEmpty($stats['heatmap']['cells']);
+        self::assertCount(24, $stats['form']['byHour']);
+        self::assertSame(2800 + 1290, $stats['form']['lp'][0]['ladder']);
+    }
+
+    public function testLpIsRecordedOnlyWhenItChanges(): void
+    {
+        $this->client->request('GET', '/api/profile');
+        $this->client->request('GET', '/api/profile');
+        $this->client->request('GET', '/api/stats');
+
+        self::assertCount(1, $this->json()['form']['lp']);
+    }
+
     public function testUnknownGameAnswers404(): void
     {
         $this->client->request('GET', '/api/games/EUW1_1');

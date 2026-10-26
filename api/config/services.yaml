@@ -35,6 +35,10 @@ services:
     App\Storage\MatchStore:
         arguments: ['%env(resolve:DATABASE_PATH)%']
 
+    App\Stats\StatsProvider:
+        arguments:
+            $statsCache: '@cache.stats'
+
 when@test:
     services:
         App\Tests\Fixtures\FakeRiotApi: ~

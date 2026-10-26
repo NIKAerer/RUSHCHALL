@@ -1,0 +1,35 @@
+.page {
+  display: grid;
+  gap: 16px;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.thirds {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.skeleton {
+  height: 240px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.empty {
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .columns,
+  .thirds {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
