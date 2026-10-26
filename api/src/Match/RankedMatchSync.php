@@ -8,8 +8,8 @@ use App\Riot\RiotApiClient;
 use App\Storage\MatchStore;
 
 /**
- * Récupère les games classées Solo/Duo d'un joueur depuis une date et les range en base.
- * Seules les games absentes de la base coûtent une requête à Riot.
+ * Récupère les games classées Solo/Duo d'un joueur depuis une date et les range en base, avec leur timeline.
+ * Seules les games absentes de la base coûtent des requêtes à Riot (2 par game : la game et sa timeline).
  */
 final class RankedMatchSync
 {
@@ -22,10 +22,10 @@ final class RankedMatchSync
     }
 
     /**
-     * @param int|null                             $limit   nombre maximum de games à télécharger (les plus récentes d'abord)
-     * @param callable(string $matchId): void|null $onSaved appelé après chaque game enregistrée
+     * @param int|null                             $limit   nombre maximum de games à traiter (les plus récentes d'abord)
+     * @param callable(string $matchId): void|null $onSaved appelé après chaque game ou timeline enregistrée
      *
-     * @return array{found: int, alreadyStored: int, saved: int, remaining: int}
+     * @return array{found: int, alreadyStored: int, saved: int, timelines: int, remaining: int}
      */
     public function sync(string $puuid, \DateTimeImmutable $since, ?int $limit = null, ?callable $onSaved = null): array
     {
@@ -50,9 +50,20 @@ final class RankedMatchSync
                 continue;
             }
             $this->store->save($match);
+            $this->store->saveTimeline($this->riot->getTimeline($matchId));
             ++$saved;
             if (null !== $onSaved) {
                 $onSaved($matchId);
+            }
+        }
+
+        // Games stockées avant l'ajout des timelines : on les complète avec ce qu'il reste de la limite.
+        $withoutTimeline = $this->store->idsWithoutTimeline($puuid);
+        $timelinesToFetch = null === $limit ? $withoutTimeline : \array_slice($withoutTimeline, 0, max(0, $limit - \count($toFetch)));
+        foreach ($timelinesToFetch as $matchId) {
+            $this->store->saveTimeline($this->riot->getTimeline($matchId));
+            if (null !== $onSaved) {
+                $onSaved($matchId.' (timeline)');
             }
         }
 
@@ -60,7 +71,8 @@ final class RankedMatchSync
             'found' => \count($matchIds),
             'alreadyStored' => \count($matchIds) - \count($missing),
             'saved' => $saved,
-            'remaining' => \count($missing) - \count($toFetch),
+            'timelines' => \count($timelinesToFetch),
+            'remaining' => \count($missing) - \count($toFetch) + \count($withoutTimeline) - \count($timelinesToFetch),
         ];
     }
 }

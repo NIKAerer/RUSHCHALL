@@ -25,6 +25,14 @@ export function useGame(matchId: string) {
   })
 }
 
+export function usePathing(matchId: string) {
+  return useQuery({
+    queryKey: ['pathing', matchId],
+    queryFn: () => api.pathing(matchId),
+    staleTime: Infinity,
+  })
+}
+
 /** Récupère chez Riot les nouvelles games Solo/Duo, puis recharge le profil et l'historique. */
 export function useSync() {
   const queryClient = useQueryClient()

@@ -71,6 +71,18 @@ final class ApiTest extends WebTestCase
         self::assertSame(['saved' => 0, 'remaining' => 0, 'total' => 2], $this->json());
     }
 
+    public function testPathingOfAStoredGame(): void
+    {
+        $this->client->request('POST', '/api/games/sync');
+        $this->client->request('GET', '/api/games/EUW1_7412345678/pathing');
+
+        self::assertResponseIsSuccessful();
+        $pathing = $this->json();
+        self::assertSame(['LeeSin', 'XinZhao'], array_column($pathing['junglers'], 'championName'));
+        self::assertSame('gank', $pathing['junglers'][0]['moments'][0]['type']);
+        self::assertSame('dragon', $pathing['objectives'][1]['type']);
+    }
+
     public function testUnknownGameAnswers404(): void
     {
         $this->client->request('GET', '/api/games/EUW1_1');

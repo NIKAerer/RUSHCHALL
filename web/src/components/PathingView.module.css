@@ -1,0 +1,223 @@
+.pathing {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 18px;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.loading {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.mapColumn {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px 3px 3px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--color);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.legendItem[aria-pressed='false'] {
+  border-color: var(--line);
+  opacity: 0.5;
+}
+
+.map {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.schematic path {
+  fill: none;
+  stroke: var(--surface-3);
+  stroke-width: 700;
+  stroke-linecap: round;
+}
+
+.schematic .river {
+  stroke: color-mix(in srgb, var(--win) 18%, var(--surface-2));
+  stroke-width: 1600;
+}
+
+.blueBase {
+  fill: color-mix(in srgb, var(--win) 25%, var(--surface-2));
+}
+
+.redBase {
+  fill: color-mix(in srgb, var(--loss) 25%, var(--surface-2));
+}
+
+.objective rect {
+  opacity: 0.55;
+}
+
+.minute {
+  font: 600 260px var(--font-body);
+  pointer-events: none;
+}
+
+.timeControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  max-width: 520px;
+}
+
+.timeControls input {
+  flex: 1 1 200px;
+  accent-color: var(--gold);
+}
+
+.timeControls output {
+  min-width: 44px;
+  font-weight: 600;
+}
+
+.presets {
+  display: flex;
+  gap: 4px;
+}
+
+.presets button {
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.presets button:hover {
+  color: var(--fg);
+}
+
+.side {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  min-width: 0;
+}
+
+.heading {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.stats {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.stats th,
+.stats td {
+  padding: 6px 0;
+  text-align: right;
+}
+
+.stats thead th {
+  font: 600 14px var(--font-display);
+}
+
+.stats tbody th {
+  font-weight: 400;
+  color: var(--muted);
+  text-align: left;
+}
+
+.stats tbody tr {
+  border-top: 1px solid var(--line);
+}
+
+.moments {
+  display: grid;
+  gap: 2px;
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.moments li {
+  display: grid;
+  grid-template-columns: 40px 14px 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: var(--color);
+  font-size: 13px;
+}
+
+.moments li:hover {
+  background: var(--surface-2);
+}
+
+.moments time {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.moments span {
+  color: var(--fg);
+}
+
+.glyph {
+  width: 14px;
+  height: 14px;
+}
+
+.empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+@media (max-width: 860px) {
+  .pathing {
+    grid-template-columns: 1fr;
+  }
+}
