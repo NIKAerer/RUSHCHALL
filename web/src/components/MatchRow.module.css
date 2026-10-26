@@ -154,16 +154,10 @@
   border-radius: 4px !important;
 }
 
-.lineup a {
+.lineup li > span:last-child {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-decoration: none;
-}
-
-.lineup a:hover {
-  color: var(--fg);
-  text-decoration: underline;
 }
 
 .lineup .me {

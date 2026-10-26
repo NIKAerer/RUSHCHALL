@@ -38,13 +38,3 @@ const MULTIKILLS: Record<number, string> = { 2: 'Double kill', 3: 'Triple kill',
 export function multiKillLabel(largest: number): string | null {
   return MULTIKILLS[Math.min(largest, 5)] ?? null
 }
-
-/** « KGB#Мажор » ou « KGB-Мажор » → { gameName, tagLine } */
-export function parseRiotId(value: string): { gameName: string; tagLine: string } | null {
-  const match = value.trim().match(/^(.+?)\s*[#-]\s*([^#-]{2,5})$/u)
-  return match ? { gameName: match[1], tagLine: match[2] } : null
-}
-
-export function riotIdSlug(gameName: string, tagLine: string): string {
-  return `${gameName}-${tagLine}`
-}

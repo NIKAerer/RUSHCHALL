@@ -1,9 +1,8 @@
 import { useId, useState } from 'react'
-import { Link } from 'react-router-dom'
 import type { Lineup, MatchSummary } from '../api/types'
 import { useChampion } from '../ddragon/useStaticData'
 import { formatDuration, formatPercent, formatTimeAgo, kdaRatio } from '../lib/format'
-import { multiKillLabel, queueLabel, riotIdSlug } from '../lib/riot'
+import { multiKillLabel, queueLabel } from '../lib/riot'
 import { ChampionIcon, ItemSlots, SpellsAndRunes } from './GameIcons'
 import { MatchDetail } from './MatchDetail'
 import styles from './MatchRow.module.css'
@@ -101,9 +100,7 @@ function LineupEntry({ player, isMe }: { player: Lineup; isMe: boolean }) {
   return (
     <li className={isMe ? styles.me : undefined}>
       <ChampionIcon championName={player.championName} size={16} />
-      <Link to={`/joueur/${encodeURIComponent(riotIdSlug(player.gameName, player.tagLine))}`} title={`${player.gameName}#${player.tagLine}`}>
-        {player.gameName}
-      </Link>
+      <span title={`${player.gameName}#${player.tagLine}`}>{player.gameName}</span>
     </li>
   )
 }

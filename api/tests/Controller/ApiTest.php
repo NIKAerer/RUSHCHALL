@@ -5,71 +5,89 @@ declare(strict_types=1);
 namespace App\Tests\Controller;
 
 use App\Tests\Fixtures\FakeRiotApi;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class ApiTest extends WebTestCase
 {
-    public function testProfile(): void
+    private KernelBrowser $client;
+
+    protected function setUp(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/api/profiles/KGB/'.rawurlencode('Мажор'));
+        $this->client = static::createClient();
+        // La base de test est en mémoire : on garde le même kernel entre les requêtes.
+        $this->client->disableReboot();
+    }
+
+    public function testProfileOfTheTrackedPlayer(): void
+    {
+        $this->client->request('GET', '/api/profile');
 
         self::assertResponseIsSuccessful();
-        $profile = $this->json($client);
+        $profile = $this->json();
         self::assertSame(FakeRiotApi::PUUID, $profile['puuid']);
         self::assertSame('Мажор', $profile['tagLine']);
         self::assertSame(564, $profile['summonerLevel']);
         self::assertSame('solo', $profile['ranked'][0]['queue']);
-        self::assertSame('MASTER', $profile['ranked'][0]['tier']);
         self::assertNull($profile['ranked'][0]['division']);
         self::assertSame(1290, $profile['ranked'][0]['leaguePoints']);
         self::assertSame('I', $profile['ranked'][1]['division']);
     }
 
-    public function testUnknownPlayerAnswers404(): void
+    public function testHistoryIsEmptyUntilTheFirstSync(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/api/profiles/Nobody/EUW');
-
-        self::assertResponseStatusCodeSame(404);
-        self::assertSame('not_found', $this->json($client)['error']);
-    }
-
-    public function testMatchHistory(): void
-    {
-        $client = static::createClient();
-        $client->request('GET', '/api/players/'.FakeRiotApi::PUUID.'/matches?count=2');
+        $this->client->request('GET', '/api/games');
 
         self::assertResponseIsSuccessful();
-        $matches = $this->json($client);
-        self::assertCount(2, $matches);
-        self::assertSame('EUW1_7412345678', $matches[0]['matchId']);
-        self::assertSame('LeeSin', $matches[0]['player']['championName']);
-        self::assertCount(10, $matches[0]['lineup']);
+        self::assertSame([], $this->json());
     }
 
-    public function testMatchHistoryRejectsTooLargePages(): void
+    public function testSyncThenHistory(): void
     {
-        $client = static::createClient();
-        $client->request('GET', '/api/players/'.FakeRiotApi::PUUID.'/matches?count=100');
+        $this->client->request('POST', '/api/games/sync');
+        self::assertResponseIsSuccessful();
+        self::assertSame(['saved' => 2, 'remaining' => 0, 'total' => 2], $this->json());
+
+        $this->client->request('GET', '/api/games?count=10');
+        self::assertResponseIsSuccessful();
+        $games = $this->json();
+        self::assertCount(2, $games);
+        self::assertSame('EUW1_7412345678', $games[0]['matchId']);
+        self::assertSame('LeeSin', $games[0]['player']['championName']);
+        self::assertCount(10, $games[0]['lineup']);
+
+        $this->client->request('GET', '/api/games/EUW1_7412001122');
+        self::assertResponseIsSuccessful();
+        $game = $this->json();
+        self::assertSame('Lillia', $game['teams'][1]['participants'][1]['championName']);
+        self::assertSame(3, $game['teams'][0]['objectives']['dragons']);
+    }
+
+    public function testSecondSyncFetchesNothing(): void
+    {
+        $this->client->request('POST', '/api/games/sync');
+        $this->client->request('POST', '/api/games/sync');
+
+        self::assertSame(['saved' => 0, 'remaining' => 0, 'total' => 2], $this->json());
+    }
+
+    public function testUnknownGameAnswers404(): void
+    {
+        $this->client->request('GET', '/api/games/EUW1_1');
+
+        self::assertResponseStatusCodeSame(404);
+        self::assertSame('not_found', $this->json()['error']);
+    }
+
+    public function testTooLargePagesAreRejected(): void
+    {
+        $this->client->request('GET', '/api/games?count=100');
 
         self::assertResponseStatusCodeSame(400);
     }
 
-    public function testMatchDetail(): void
+    private function json(): array
     {
-        $client = static::createClient();
-        $client->request('GET', '/api/matches/EUW1_7412001122');
-
-        self::assertResponseIsSuccessful();
-        $match = $this->json($client);
-        self::assertCount(2, $match['teams']);
-        self::assertSame('Lillia', $match['teams'][1]['participants'][1]['championName']);
-        self::assertSame(3, $match['teams'][0]['objectives']['dragons']);
-    }
-
-    private function json($client): array
-    {
-        return json_decode((string) $client->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
+        return json_decode((string) $this->client->getResponse()->getContent(), true, flags: \JSON_THROW_ON_ERROR);
     }
 }

@@ -159,16 +159,13 @@
   margin-left: 4px;
 }
 
-.who a {
+.who .gameName {
   overflow: hidden;
+  color: var(--fg);
+  font-size: 14px;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-decoration: none;
-}
-
-.who a:hover {
-  text-decoration: underline;
 }
 
 .who span,
