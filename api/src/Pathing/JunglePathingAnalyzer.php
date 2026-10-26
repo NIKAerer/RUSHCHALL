@@ -17,6 +17,10 @@ use App\Pathing\Dto\PathPoint;
  */
 final class JunglePathingAnalyzer
 {
+    public function __construct(private readonly EarlyGameAnalyzer $earlyGame = new EarlyGameAnalyzer())
+    {
+    }
+
     private const GANK_WINDOW_SECONDS = 14 * 60;
 
     private const OBJECTIVES = [
@@ -114,6 +118,7 @@ final class JunglePathingAnalyzer
             points: $points,
             moments: $moments,
             stats: $this->stats($id, $team, $frames, $moments),
+            earlyGame: $this->earlyGame->analyze($id, $team, $frames, $events, $moments),
         );
     }
 

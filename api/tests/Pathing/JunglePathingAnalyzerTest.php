@@ -65,6 +65,57 @@ final class JunglePathingAnalyzerTest extends TestCase
         self::assertSame(1, $viego->stats->minutesInEnemyJungle);
     }
 
+    public function testFirstClearEndsOnTheFirstGank(): void
+    {
+        $early = $this->analyze('EUW1_7412345678')->junglers[0]->earlyGame;
+
+        self::assertSame(
+            [[60, 'blue', 'ally'], [120, 'wolves', 'ally'], [180, 'red', 'ally']],
+            array_map(static fn ($s) => [$s->t, $s->camp, $s->side], $early->clear),
+        );
+        self::assertSame(200, $early->clearEnd);
+        self::assertSame('gank', $early->clearEndReason);
+        self::assertSame(18, $early->jungleCsAtClearEnd);
+        self::assertSame('Gank bot : Varus', $early->firstGank?->label);
+    }
+
+    public function testLevelsAndFirstBackComeFromEvents(): void
+    {
+        $early = $this->analyze('EUW1_7412345678')->junglers[0]->earlyGame;
+
+        self::assertSame([3 => 170, 4 => 345, 6 => 560], $early->levels);
+        self::assertSame(431, $early->firstBack?->t);
+        // Les items de départ et l'achat de la minute 10 ne font pas partie du back.
+        self::assertSame([1036, 2003], $early->firstBack->itemIds);
+        self::assertSame(100, $early->firstBack->gold);
+    }
+
+    public function testClearEndsOnAFightWhenThereIsNoBack(): void
+    {
+        $xin = $this->analyze('EUW1_7412345678')->junglers[1]->earlyGame;
+
+        // Il tue Lee Sin à 6:50 dans la rivière : fin du clear.
+        self::assertSame([410, 'kill'], [$xin->clearEnd, $xin->clearEndReason]);
+        self::assertSame(
+            ['Rouge', 'Raptors', 'Loups', 'Gromp', 'Bleu', 'Carapateur'],
+            array_map(static fn ($s) => $s->label, $xin->clear),
+        );
+        self::assertSame('river', $xin->clear[5]->side);
+        self::assertNull($xin->firstBack);
+        // Sans LEVEL_UP, le relevé de minute sert de borne haute.
+        self::assertSame(240, $xin->levels[3]);
+    }
+
+    public function testInvadeIsSpottedDuringTheClear(): void
+    {
+        $viego = $this->analyze('EUW1_7412001122')->junglers[1]->earlyGame;
+
+        self::assertSame(360, $viego->firstInvade);
+        self::assertSame(['raptors', 'enemy'], [$viego->clear[5]->camp, $viego->clear[5]->side]);
+        self::assertSame(370, $viego->clearEnd);
+        self::assertSame('kill', $viego->clearEndReason);
+    }
+
     public function testObjectivesOfBothTeamsAreListed(): void
     {
         $objectives = $this->analyze('EUW1_7412001122')->objectives;

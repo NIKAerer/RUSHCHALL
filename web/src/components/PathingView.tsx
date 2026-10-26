@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePathing } from '../api/queries'
-import type { JunglePathing, JunglerPath, Moment, Objective } from '../api/types'
+import type { JunglePathing, JunglerPath, Moment, Objective, PathPoint } from '../api/types'
 import { mapImage } from '../ddragon/ddragon'
 import { useChampion, useStaticData } from '../ddragon/useStaticData'
 import { formatDuration, formatNumber } from '../lib/format'
 import { ErrorState } from './ErrorState'
+import { FirstClear } from './FirstClear'
 import { ChampionIcon } from './GameIcons'
 import styles from './PathingView.module.css'
 
@@ -13,6 +14,22 @@ const MAP_SIZE = 15000
 const EARLY_GAME = 15 * 60
 
 const COLORS = ['var(--path-ally)', 'var(--path-enemy)']
+
+/** Longueur de la traînée affichée derrière chaque jungler. */
+const TRAILS = [
+  { label: '3′', seconds: 180 },
+  { label: '5′', seconds: 300 },
+  { label: 'Tout', seconds: Infinity },
+]
+
+/** Secondes de jeu jouées par seconde réelle pendant la lecture. */
+const SPEEDS = [15, 30, 60]
+
+interface ListedMoment {
+  key: string
+  moment: Moment
+  index: number
+}
 
 export function PathingView({ matchId }: { matchId: string }) {
   const { data, isPending, isError, error } = usePathing(matchId)
@@ -25,92 +42,167 @@ export function PathingView({ matchId }: { matchId: string }) {
 }
 
 function Pathing({ pathing }: { pathing: JunglePathing }) {
-  const [until, setUntil] = useState(Math.min(EARLY_GAME, pathing.durationSeconds))
+  const duration = pathing.durationSeconds
+  const [until, setUntil] = useState(Math.min(EARLY_GAME, duration))
+  const [trail, setTrail] = useState(TRAILS[0].seconds)
   const [hidden, setHidden] = useState<string[]>([])
-  const [focused, setFocused] = useState<Moment | null>(null)
+  const [focused, setFocused] = useState<string | null>(null)
+  const [hovered, setHovered] = useState<string | null>(null)
+  const [playing, setPlaying] = useState(false)
+  const [speed, setSpeed] = useState(SPEEDS[1])
+  const listRef = useRef<HTMLOListElement>(null)
 
-  const visible = pathing.junglers.filter((j) => !hidden.includes(j.puuid))
-  const moments = useMemo(
+  usePlayback(playing, speed, duration, until, setUntil, () => setPlaying(false))
+
+  const visible = pathing.junglers.filter((j) => !hidden.includes(j.puuid)).map((j) => j.puuid)
+  const moments: ListedMoment[] = useMemo(
     () =>
       pathing.junglers
-        .flatMap((jungler, index) => jungler.moments.map((moment) => ({ moment, index, jungler })))
-        .filter(({ moment, jungler }) => moment.t <= until && !hidden.includes(jungler.puuid))
+        .flatMap((jungler, index) =>
+          hidden.includes(jungler.puuid) ? [] : jungler.moments.map((moment) => ({ key: `${index}-${moment.t}-${moment.type}`, moment, index })),
+        )
         .sort((a, b) => a.moment.t - b.moment.t),
-    [pathing, until, hidden],
+    [pathing, hidden],
   )
 
+  // Pendant la lecture, la liste suit le dernier moment passé.
+  const latestKey = [...moments].reverse().find(({ moment }) => moment.t <= until)?.key ?? null
+  const highlighted = hovered ?? focused ?? (playing ? latestKey : null)
+  useEffect(() => {
+    if (!highlighted) return
+    listRef.current?.querySelector(`[data-key="${highlighted}"]`)?.scrollIntoView({ block: 'nearest' })
+  }, [highlighted])
+
   const toggle = (puuid: string) => setHidden((h) => (h.includes(puuid) ? h.filter((p) => p !== puuid) : [...h, puuid]))
+  const showOnly = (puuid: string) => setHidden(pathing.junglers.map((j) => j.puuid).filter((p) => p !== puuid))
+  const seek = (t: number) => {
+    setPlaying(false)
+    setFocused(null)
+    setUntil(Math.min(Math.max(t, 0), duration))
+  }
+  const jumpTo = ({ key, moment }: ListedMoment) => {
+    setPlaying(false)
+    setFocused(key)
+    setUntil(moment.t)
+  }
+  const play = () => {
+    if (until >= duration) setUntil(0)
+    setFocused(null)
+    setPlaying((p) => !p)
+  }
 
   return (
     <div className={styles.pathing}>
       <div className={styles.mapColumn}>
         <div className={styles.legend}>
           {pathing.junglers.map((jungler, index) => (
-            <button
-              key={jungler.puuid}
-              type="button"
-              className={styles.legendItem}
-              style={{ ['--color' as string]: COLORS[index] }}
-              aria-pressed={!hidden.includes(jungler.puuid)}
-              onClick={() => toggle(jungler.puuid)}
-            >
-              <ChampionIcon championName={jungler.championName} size={22} />
-              <JunglerName jungler={jungler} />
-            </button>
+            <span key={jungler.puuid} className={styles.legendGroup}>
+              <button
+                type="button"
+                className={styles.legendItem}
+                style={{ ['--color' as string]: COLORS[index] }}
+                aria-pressed={!hidden.includes(jungler.puuid)}
+                onClick={() => toggle(jungler.puuid)}
+              >
+                <ChampionIcon championName={jungler.championName} size={22} />
+                <JunglerName jungler={jungler} />
+              </button>
+              <button type="button" className={styles.only} onClick={() => showOnly(jungler.puuid)} title="Voir seulement ce jungler">
+                seul
+              </button>
+            </span>
           ))}
+          {hidden.length > 0 && (
+            <button type="button" className={styles.only} onClick={() => setHidden([])}>
+              les deux
+            </button>
+          )}
         </div>
 
         <MiniMap
+          matchId={pathing.matchId}
           junglers={pathing.junglers}
-          visible={visible.map((j) => j.puuid)}
+          visible={visible}
           objectives={pathing.objectives.filter((o) => o.t <= until)}
+          moments={moments}
           until={until}
-          focused={focused}
+          trail={trail}
+          highlighted={highlighted}
+          onHover={setHovered}
+          onSelect={jumpTo}
         />
 
         <div className={styles.timeControls}>
+          <button type="button" className={styles.play} onClick={play} aria-label={playing ? 'Pause' : 'Lecture'}>
+            {playing ? '❚❚' : '▶'}
+          </button>
           <input
             id={`until-${pathing.matchId}`}
             type="range"
-            min={60}
-            max={pathing.durationSeconds}
-            step={30}
+            min={0}
+            max={duration}
+            step={1}
             value={until}
-            onChange={(e) => setUntil(Number(e.target.value))}
-            aria-label="Afficher la route jusqu'à"
+            onChange={(e) => seek(Number(e.target.value))}
+            aria-label="Moment de la game"
           />
-          <output htmlFor={`until-${pathing.matchId}`}>{formatDuration(Math.min(until, pathing.durationSeconds))}</output>
-          <div className={styles.presets}>
-            {[5, 10, 15].map((minute) => (
-              <button key={minute} type="button" onClick={() => setUntil(Math.min(minute * 60, pathing.durationSeconds))}>
+          <output htmlFor={`until-${pathing.matchId}`}>{formatDuration(Math.round(until))}</output>
+        </div>
+        <div className={styles.timeControls}>
+          <div className={styles.presets} role="group" aria-label="Aller à">
+            {[3, 5, 10, 15].map((minute) => (
+              <button key={minute} type="button" onClick={() => seek(minute * 60)}>
                 {minute}′
               </button>
             ))}
-            <button type="button" onClick={() => setUntil(pathing.durationSeconds)}>
+            <button type="button" onClick={() => seek(duration)}>
               Fin
             </button>
+          </div>
+          <div className={styles.presets} role="group" aria-label="Traînée">
+            <span className={styles.presetLabel}>Traînée</span>
+            {TRAILS.map((option) => (
+              <button key={option.label} type="button" aria-pressed={trail === option.seconds} onClick={() => setTrail(option.seconds)}>
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <div className={styles.presets} role="group" aria-label="Vitesse de lecture">
+            <span className={styles.presetLabel}>Vitesse</span>
+            {SPEEDS.map((value) => (
+              <button key={value} type="button" aria-pressed={speed === value} onClick={() => setSpeed(value)}>
+                ×{value}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
       <div className={styles.side}>
+        <FirstClear junglers={pathing.junglers} colors={COLORS} />
         <StatsTable junglers={pathing.junglers} />
         <div>
           <h4 className={styles.heading}>Moments forts</h4>
           {moments.length === 0 ? (
-            <p className={styles.empty}>Rien avant {formatDuration(until)}.</p>
+            <p className={styles.empty}>Aucun moment fort.</p>
           ) : (
-            <ol className={styles.moments}>
-              {moments.map(({ moment, index }) => (
-                <li
-                  key={`${index}-${moment.t}-${moment.type}`}
-                  style={{ ['--color' as string]: COLORS[index] }}
-                  onMouseEnter={() => setFocused(moment)}
-                  onMouseLeave={() => setFocused(null)}
-                >
-                  <time>{formatDuration(moment.t)}</time>
-                  <MomentGlyph type={moment.type} />
-                  <span>{moment.label}</span>
+            <ol className={styles.moments} ref={listRef}>
+              {moments.map((listed) => (
+                <li key={listed.key} data-key={listed.key}>
+                  <button
+                    type="button"
+                    style={{ ['--color' as string]: COLORS[listed.index] }}
+                    className={styles.moment}
+                    data-future={listed.moment.t > until || undefined}
+                    data-highlighted={highlighted === listed.key || undefined}
+                    onClick={() => jumpTo(listed)}
+                    onMouseEnter={() => setHovered(listed.key)}
+                    onMouseLeave={() => setHovered(null)}
+                  >
+                    <time>{formatDuration(listed.moment.t)}</time>
+                    <MomentGlyph type={listed.moment.type} />
+                    <span>{listed.moment.label}</span>
+                  </button>
                 </li>
               ))}
             </ol>
@@ -121,22 +213,75 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
   )
 }
 
+/** Fait avancer le temps à `speed` secondes de jeu par seconde réelle. */
+function usePlayback(playing: boolean, speed: number, duration: number, until: number, setUntil: (t: number) => void, onEnd: () => void) {
+  const untilRef = useRef(until)
+  const onEndRef = useRef(onEnd)
+  useEffect(() => {
+    untilRef.current = until
+    onEndRef.current = onEnd
+  })
+
+  useEffect(() => {
+    if (!playing) return
+    let frame = 0
+    let last = performance.now()
+    const tick = (now: number) => {
+      const next = Math.min(untilRef.current + ((now - last) / 1000) * speed, duration)
+      last = now
+      untilRef.current = next
+      setUntil(next)
+      if (next >= duration) onEndRef.current()
+      else frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [playing, speed, duration, setUntil])
+}
+
+/** Position estimée à l'instant `t`, entre les deux points connus qui l'encadrent. */
+function positionAt(points: PathPoint[], t: number): { x: number; y: number } | null {
+  if (points.length === 0) return null
+  if (t <= points[0].t) return points[0]
+  for (let i = 1; i < points.length; i++) {
+    const a = points[i - 1]
+    const b = points[i]
+    if (t <= b.t) {
+      const ratio = b.t === a.t ? 1 : (t - a.t) / (b.t - a.t)
+      return { x: a.x + (b.x - a.x) * ratio, y: a.y + (b.y - a.y) * ratio }
+    }
+  }
+  return points[points.length - 1]
+}
+
 function MiniMap({
+  matchId,
   junglers,
   visible,
   objectives,
+  moments,
   until,
-  focused,
+  trail,
+  highlighted,
+  onHover,
+  onSelect,
 }: {
+  matchId: string
   junglers: JunglerPath[]
   visible: string[]
   objectives: Objective[]
+  moments: ListedMoment[]
   until: number
-  focused: Moment | null
+  trail: number
+  highlighted: string | null
+  onHover: (key: string | null) => void
+  onSelect: (moment: ListedMoment) => void
 }) {
   const data = useStaticData()
   const [imageFailed, setImageFailed] = useState(false)
   const y = (value: number) => MAP_SIZE - value
+  const from = until - trail
+  const shownMoments = moments.filter(({ key, moment }) => (moment.t <= until && moment.t >= from) || key === highlighted)
 
   return (
     <svg className={styles.map} viewBox={`0 0 ${MAP_SIZE} ${MAP_SIZE}`} role="img" aria-label="Route des junglers sur la carte">
@@ -154,46 +299,85 @@ function MiniMap({
 
       {junglers.map((jungler, index) => {
         if (!visible.includes(jungler.puuid)) return null
-        const points = jungler.points.filter((p) => p.t <= until)
-        const color = COLORS[index]
+        const now = positionAt(jungler.points, until)
+        const start = positionAt(jungler.points, Math.max(from, 0))
+        const inside = jungler.points.filter((p) => p.t > from && p.t < until)
+        const route = [...(start ? [{ ...start, t: Math.max(from, 0) }] : []), ...inside, ...(now ? [{ ...now, t: until }] : [])]
+        const span = Number.isFinite(trail) ? trail : Math.max(until, 1)
         return (
-          <g key={jungler.puuid} style={{ color }}>
-            {/* Les segments anciens s'effacent pour que la fin de la route reste lisible. */}
-            {points.slice(1).map((p, i) => (
+          <g key={jungler.puuid} style={{ color: COLORS[index] }}>
+            {/* Plus un segment est ancien, plus il s'efface. */}
+            {route.slice(1).map((p, i) => (
               <line
-                key={p.t}
-                x1={points[i].x}
-                y1={y(points[i].y)}
+                key={`${route[i].t}-${p.t}`}
+                x1={route[i].x}
+                y1={y(route[i].y)}
                 x2={p.x}
                 y2={y(p.y)}
                 stroke="currentColor"
-                strokeWidth={110}
+                strokeWidth={130}
                 strokeLinecap="round"
-                opacity={0.2 + 0.8 * (p.t / until)}
+                opacity={0.15 + 0.85 * Math.max(0, 1 - (until - p.t) / span)}
               />
             ))}
-            {points
+            {inside
               .filter((p) => p.t % 60 === 0)
               .map((p) => (
-                <g key={p.t} transform={`translate(${p.x} ${y(p.y)})`}>
-                  <circle r={230} fill="var(--bg)" stroke="currentColor" strokeWidth={60} />
-                  <text className={styles.minute} dy={95} textAnchor="middle" fill="var(--fg)">
+                <g key={p.t} transform={`translate(${p.x} ${y(p.y)})`} opacity={0.4 + 0.6 * Math.max(0, 1 - (until - p.t) / span)}>
+                  <circle r={210} fill="var(--bg)" stroke="currentColor" strokeWidth={55} />
+                  <text className={styles.minute} dy={90} textAnchor="middle" fill="var(--fg)">
                     {p.t / 60}
                   </text>
-                </g>
-              ))}
-            {jungler.moments
-              .filter((m) => m.t <= until)
-              .map((m) => (
-                <g key={`${m.t}-${m.type}`} transform={`translate(${m.x} ${y(m.y)}) scale(${focused === m ? 1.8 : 1})`}>
-                  <MomentShape type={m.type} />
-                  <title>{`${formatDuration(m.t)} · ${m.label}`}</title>
                 </g>
               ))}
           </g>
         )
       })}
+
+      {shownMoments.map((listed) => (
+        <g
+          key={listed.key}
+          className={styles.mapMoment}
+          style={{ color: COLORS[listed.index] }}
+          transform={`translate(${listed.moment.x} ${y(listed.moment.y)})`}
+          onMouseEnter={() => onHover(listed.key)}
+          onMouseLeave={() => onHover(null)}
+          onClick={() => onSelect(listed)}
+        >
+          {highlighted === listed.key && <circle className={styles.pulse} r={520} fill="none" stroke="currentColor" strokeWidth={90} />}
+          <g transform={`scale(${highlighted === listed.key ? 1.6 : 1})`}>
+            <MomentShape type={listed.moment.type} />
+          </g>
+          <title>{`${formatDuration(listed.moment.t)} · ${listed.moment.label}`}</title>
+        </g>
+      ))}
+
+      {junglers.map((jungler, index) => {
+        if (!visible.includes(jungler.puuid)) return null
+        const now = positionAt(jungler.points, until)
+        return now ? <ChampionMarker key={jungler.puuid} id={`${matchId}-${index}`} jungler={jungler} color={COLORS[index]} x={now.x} y={y(now.y)} /> : null
+      })}
     </svg>
+  )
+}
+
+/** Icône du champion à sa position estimée, entourée de la couleur de son équipe. */
+function ChampionMarker({ id, jungler, color, x, y }: { id: string; jungler: JunglerPath; color: string; x: number; y: number }) {
+  const { name, icon } = useChampion(jungler.championName)
+  const radius = 520
+  return (
+    <g transform={`translate(${x} ${y})`} className={styles.marker}>
+      <clipPath id={`marker-${id}`}>
+        <circle r={radius} />
+      </clipPath>
+      <circle r={radius + 90} fill={color} />
+      {icon ? (
+        <image href={icon} x={-radius} y={-radius} width={radius * 2} height={radius * 2} clipPath={`url(#marker-${id})`} />
+      ) : (
+        <circle r={radius} fill="var(--surface-3)" />
+      )}
+      <title>{name}</title>
+    </g>
   )
 }
 
