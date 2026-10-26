@@ -316,3 +316,8 @@ export interface PlayerStats {
   heatmap: Heatmap
   form: FormStats
 }
+
+export interface StatsFilters {
+  champion?: string
+  days?: number
+}

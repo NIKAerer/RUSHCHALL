@@ -101,6 +101,19 @@ final class ApiTest extends WebTestCase
         self::assertSame(2800 + 1290, $stats['form']['lp'][0]['ladder']);
     }
 
+    public function testStatsCanBeFilteredByChampion(): void
+    {
+        $this->client->request('POST', '/api/games/sync');
+        $this->client->request('GET', '/api/stats?champion=LeeSin');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(1, $this->json()['games']);
+        self::assertSame(['LeeSin'], array_column($this->json()['champions'], 'championName'));
+
+        $this->client->request('GET', '/api/stats?champion=Lee%20Sin');
+        self::assertResponseStatusCodeSame(400);
+    }
+
     public function testLpIsRecordedOnlyWhenItChanges(): void
     {
         $this->client->request('GET', '/api/profile');

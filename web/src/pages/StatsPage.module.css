@@ -1,6 +1,11 @@
 .page {
   display: grid;
   gap: 16px;
+  transition: opacity 0.15s;
+}
+
+.page[aria-busy='true'] {
+  opacity: 0.6;
 }
 
 .columns {

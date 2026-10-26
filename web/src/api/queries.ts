@@ -1,5 +1,6 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from './client'
+import type { StatsFilters } from './types'
 
 export const PAGE_SIZE = 10
 
@@ -33,8 +34,8 @@ export function usePathing(matchId: string) {
   })
 }
 
-export function useStats() {
-  return useQuery({ queryKey: ['stats'], queryFn: api.stats })
+export function useStats(filters: StatsFilters = {}) {
+  return useQuery({ queryKey: ['stats', filters], queryFn: () => api.stats(filters), placeholderData: keepPreviousData })
 }
 
 /** Récupère chez Riot les nouvelles games Solo/Duo, puis recharge le profil et l'historique. */

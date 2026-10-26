@@ -25,7 +25,11 @@ final class StatsProvider
     ) {
     }
 
-    public function forPlayer(string $puuid): PlayerStats
+    /**
+     * @param string|null $champion seulement les games sur ce champion
+     * @param int|null    $days     seulement les games des N derniers jours
+     */
+    public function forPlayer(string $puuid, ?string $champion = null, ?int $days = null): PlayerStats
     {
         $withoutTimeline = array_flip($this->store->idsWithoutTimeline($puuid));
         $games = array_map(
@@ -33,7 +37,11 @@ final class StatsProvider
             $this->store->idsForPlayer($puuid),
         );
 
-        return $this->aggregator->aggregate($games, $this->store->lpSnapshots($puuid));
+        $since = null === $days ? null : (time() - $days * 86400) * 1000;
+        $games = array_values(array_filter($games, static fn (GameFacts $g) => (null === $champion || $g->championName === $champion) && (null === $since || $g->startedAt >= $since)));
+        $lp = array_values(array_filter($this->store->lpSnapshots($puuid), static fn (array $s) => null === $since || $s['taken_at'] * 1000 >= $since));
+
+        return $this->aggregator->aggregate($games, $lp);
     }
 
     private function facts(string $matchId, string $puuid, bool $hasTimeline): GameFacts
