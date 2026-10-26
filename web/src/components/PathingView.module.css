@@ -467,3 +467,20 @@
     position: static;
   }
 }
+
+.momentsPanel {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.momentsPanel .segmented {
+  justify-self: start;
+  flex-wrap: wrap;
+}
+
+.filterCount {
+  margin-left: 5px;
+  color: var(--faint);
+  font-size: 11px;
+}

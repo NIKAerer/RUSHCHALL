@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePathing } from '../api/queries'
-import type { JunglePathing, JunglerPath, JunglerStats, Moment, Objective, PathPoint } from '../api/types'
+import type { JunglePathing, JunglerPath, JunglerStats, Moment, MomentType, Objective, PathPoint } from '../api/types'
 import { mapImage } from '../ddragon/ddragon'
 import { useChampion, useStaticData } from '../ddragon/useStaticData'
 import { formatDuration, formatNumber } from '../lib/format'
@@ -35,6 +35,14 @@ const PANELS = [
 
 type Panel = (typeof PANELS)[number]['value']
 
+/** Filtres de la liste des moments forts ; la carte suit le même filtre. */
+const FILTERS: { value: string; label: string; types: MomentType[] }[] = [
+  { value: 'all', label: 'Tout', types: ['gank', 'kill', 'assist', 'death', 'objective'] },
+  { value: 'gank', label: 'Ganks', types: ['gank'] },
+  { value: 'fight', label: 'Kills / morts', types: ['kill', 'assist', 'death'] },
+  { value: 'objective', label: 'Objectifs', types: ['objective'] },
+]
+
 interface ListedMoment {
   key: string
   moment: Moment
@@ -60,13 +68,14 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(SPEEDS[1])
   const [trail, setTrail] = useState(TRAILS[1].seconds)
+  const [filter, setFilter] = useState(FILTERS[0].value)
   const [panel, setPanel] = useState<Panel>('moments')
   const listRef = useRef<HTMLOListElement>(null)
 
   usePlayback(playing, speed, duration, until, setUntil, () => setPlaying(false))
 
   const visible = pathing.junglers.filter((j) => !hidden.includes(j.puuid)).map((j) => j.puuid)
-  const moments: ListedMoment[] = useMemo(
+  const allMoments: ListedMoment[] = useMemo(
     () =>
       pathing.junglers
         .flatMap((jungler, index) =>
@@ -75,6 +84,8 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
         .sort((a, b) => a.moment.t - b.moment.t),
     [pathing, hidden],
   )
+  const types = FILTERS.find((f) => f.value === filter)?.types ?? []
+  const moments = allMoments.filter(({ moment }) => types.includes(moment.type))
 
   // Pendant la lecture, la liste suit le dernier moment passé.
   const latestKey = [...moments].reverse().find(({ moment }) => moment.t <= until)?.key ?? null
@@ -211,7 +222,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
           {PANELS.map(({ value, label }) => (
             <button key={value} type="button" role="tab" aria-selected={panel === value} onClick={() => setPanel(value)}>
               {label}
-              {value === 'moments' && <span className={styles.count}>{moments.length}</span>}
+              {value === 'moments' && <span className={styles.count}>{allMoments.length}</span>}
             </button>
           ))}
         </div>
@@ -219,9 +230,17 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
         {panel === 'clear' && <FirstClear junglers={pathing.junglers} colors={COLORS} />}
         {panel === 'stats' && <StatsTable junglers={pathing.junglers} />}
         {panel === 'moments' && (
-        <div>
+        <div className={styles.momentsPanel}>
+          <div className={styles.segmented} role="group" aria-label="Filtrer les moments forts">
+            {FILTERS.map((f) => (
+              <button key={f.value} type="button" aria-pressed={filter === f.value} onClick={() => setFilter(f.value)}>
+                {f.label}
+                <span className={styles.filterCount}>{allMoments.filter(({ moment }) => f.types.includes(moment.type)).length}</span>
+              </button>
+            ))}
+          </div>
           {moments.length === 0 ? (
-            <p className={styles.empty}>Aucun moment fort.</p>
+            <p className={styles.empty}>Aucun moment de ce type.</p>
           ) : (
             <ol className={styles.moments} ref={listRef}>
               {moments.map((listed) => (
