@@ -62,6 +62,40 @@ final class MatchStore
     }
 
     /**
+     * @param array{metadata: array<string, mixed>, info: array<string, mixed>} $timeline
+     */
+    public function saveTimeline(array $timeline): void
+    {
+        $this->pdo()->prepare('INSERT OR REPLACE INTO timelines (match_id, payload) VALUES (?, ?)')
+            ->execute([$timeline['metadata']['matchId'], json_encode($timeline, \JSON_THROW_ON_ERROR)]);
+    }
+
+    /**
+     * @return array{metadata: array<string, mixed>, info: array<string, mixed>}|null
+     */
+    public function findTimeline(string $matchId): ?array
+    {
+        $statement = $this->pdo()->prepare('SELECT payload FROM timelines WHERE match_id = ?');
+        $statement->execute([$matchId]);
+        $payload = $statement->fetchColumn();
+
+        return false === $payload ? null : json_decode($payload, true, flags: \JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * Games du joueur sans timeline, de la plus récente à la plus ancienne.
+     *
+     * @return list<string>
+     */
+    public function idsWithoutTimeline(string $puuid): array
+    {
+        $statement = $this->pdo()->prepare('SELECT m.match_id FROM matches m JOIN match_participants p ON p.match_id = m.match_id LEFT JOIN timelines t ON t.match_id = m.match_id WHERE p.puuid = ? AND t.match_id IS NULL ORDER BY m.game_start DESC');
+        $statement->execute([$puuid]);
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
      * @return array{metadata: array<string, mixed>, info: array<string, mixed>}|null
      */
     public function find(string $matchId): ?array
@@ -161,6 +195,10 @@ final class MatchStore
                 PRIMARY KEY (match_id, puuid)
             );
             CREATE INDEX IF NOT EXISTS match_participants_puuid ON match_participants (puuid);
+            CREATE TABLE IF NOT EXISTS timelines (
+                match_id TEXT PRIMARY KEY REFERENCES matches (match_id) ON DELETE CASCADE,
+                payload TEXT NOT NULL
+            );
             SQL);
 
         return $this->pdo = $pdo;

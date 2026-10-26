@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
+use App\Pathing\TimelineNotStoredException;
 use App\Riot\Exception\InvalidApiKeyException;
 use App\Riot\Exception\NotFoundException;
 use App\Riot\Exception\RateLimitedException;
@@ -28,6 +29,7 @@ final class ApiExceptionListener
 
         $e = $event->getThrowable();
         [$status, $code, $message] = match (true) {
+            $e instanceof TimelineNotStoredException => [Response::HTTP_NOT_FOUND, 'timeline_missing', "La timeline de cette game n'est pas encore en base : lance npm run sync."],
             $e instanceof NotFoundException => [Response::HTTP_NOT_FOUND, 'not_found', 'Joueur ou game introuvable sur ce serveur.'],
             $e instanceof InvalidApiKeyException => [Response::HTTP_BAD_GATEWAY, 'invalid_api_key', 'Clé API Riot absente, invalide ou expirée. Mets à jour RIOT_API_KEY dans api/.env.local.'],
             $e instanceof RateLimitedException => [Response::HTTP_TOO_MANY_REQUESTS, 'rate_limited', \sprintf('Limite de requêtes Riot atteinte, réessaie dans %d s.', $e->retryAfter ?? 10)],

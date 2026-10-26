@@ -82,6 +82,10 @@ export function profileIcon(version: string, iconId: number): string {
   return `${BASE}/cdn/${version}/img/profileicon/${iconId}.png`
 }
 
+export function mapImage(version: string): string {
+  return `${BASE}/cdn/${version}/img/map/map11.png`
+}
+
 export function rankEmblem(tier: string): string {
   return `https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-static-assets/global/default/images/ranked-emblem/emblem-${tier.toLowerCase()}.png`
 }

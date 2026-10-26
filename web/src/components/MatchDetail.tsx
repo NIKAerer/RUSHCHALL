@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useGame } from '../api/queries'
 import type { Participant, Team } from '../api/types'
 import { useChampion } from '../ddragon/useStaticData'
 import { formatNumber, formatPercent, formatThousands, kdaRatio } from '../lib/format'
 import { ErrorState } from './ErrorState'
 import { ChampionIcon, ItemSlots, SpellsAndRunes } from './GameIcons'
+import { PathingView } from './PathingView'
 import styles from './MatchDetail.module.css'
 
 const OBJECTIVES: { key: keyof Team['objectives']; label: string }[] = [
@@ -16,11 +18,35 @@ const OBJECTIVES: { key: keyof Team['objectives']; label: string }[] = [
   { key: 'inhibitors', label: 'Inhibs' },
 ]
 
+type Tab = 'scoreboard' | 'pathing'
+
 export function MatchDetail({ matchId, puuid }: { matchId: string; puuid: string }) {
+  const [tab, setTab] = useState<Tab>('scoreboard')
+
+  return (
+    <div className={styles.detail}>
+      <div className={styles.tabs} role="tablist" aria-label="Détail de la game">
+        {(
+          [
+            ['scoreboard', 'Tableau'],
+            ['pathing', 'Pathing jungle'],
+          ] as const
+        ).map(([value, label]) => (
+          <button key={value} type="button" role="tab" aria-selected={tab === value} onClick={() => setTab(value)}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {tab === 'scoreboard' ? <Scoreboard matchId={matchId} puuid={puuid} /> : <PathingView matchId={matchId} />}
+    </div>
+  )
+}
+
+function Scoreboard({ matchId, puuid }: { matchId: string; puuid: string }) {
   const { data, isPending, isError, error } = useGame(matchId)
 
-  if (isPending) return <div className={styles.loading}>Chargement de la game…</div>
-  if (isError) return <div className={styles.detail}><ErrorState title="Détail indisponible" message={error.message} /></div>
+  if (isPending) return <p className={styles.loading}>Chargement de la game…</p>
+  if (isError) return <ErrorState title="Détail indisponible" message={error.message} />
 
   const [blue, red] = data.teams
   const maxDamage = Math.max(...data.teams.flatMap((t) => t.participants.map((p) => p.damageToChampions)))
@@ -28,12 +54,12 @@ export function MatchDetail({ matchId, puuid }: { matchId: string; puuid: string
   const ordered = playerTeam === blue ? [blue, red] : [red, blue]
 
   return (
-    <div className={styles.detail}>
+    <>
       <TeamBalance blue={blue} red={red} />
       {ordered.map((team) => (
         <TeamTable key={team.teamId} team={team} puuid={puuid} maxDamage={maxDamage} remake={data.remake} />
       ))}
-    </div>
+    </>
   )
 }
 

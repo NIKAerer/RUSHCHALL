@@ -103,3 +103,56 @@ export interface SyncReport {
   remaining: number
   total: number
 }
+
+export type Zone = 'base' | 'top' | 'mid' | 'bot' | 'river' | 'allyJungle' | 'enemyJungle'
+
+export interface PathPoint {
+  t: number
+  x: number
+  y: number
+  zone: Zone
+}
+
+export type MomentType = 'gank' | 'kill' | 'assist' | 'death' | 'objective'
+
+export interface Moment extends PathPoint {
+  type: MomentType
+  label: string
+}
+
+export interface JunglerStats {
+  startSide: 'haut' | 'bas' | null
+  csAt10: number | null
+  goldAt10: number | null
+  levelAt10: number | null
+  ganksBefore14: number
+  minutesInEnemyJungle: number
+  objectives: number
+}
+
+export interface JunglerPath {
+  puuid: string
+  gameName: string
+  championName: string
+  teamId: number
+  isTrackedPlayer: boolean
+  points: PathPoint[]
+  moments: Moment[]
+  stats: JunglerStats
+}
+
+export interface Objective {
+  t: number
+  type: 'dragon' | 'baron' | 'herald' | 'grubs' | 'atakhan'
+  label: string
+  teamId: number
+  x: number
+  y: number
+}
+
+export interface JunglePathing {
+  matchId: string
+  durationSeconds: number
+  junglers: JunglerPath[]
+  objectives: Objective[]
+}

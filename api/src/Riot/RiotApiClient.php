@@ -90,6 +90,16 @@ final class RiotApiClient
         );
     }
 
+    /**
+     * Positions des joueurs minute par minute et événements de la game (kills, objectifs…).
+     *
+     * @return array{metadata: array<string, mixed>, info: array<string, mixed>}
+     */
+    public function getTimeline(string $matchId): array
+    {
+        return $this->request(\sprintf('%s/lol/match/v5/matches/%s/timeline', $this->riotPlatform->regionBaseUri(), rawurlencode($matchId)));
+    }
+
     private function get(string $url, int $ttl): array
     {
         return $this->cache->get('riot.'.sha1($url), function (ItemInterface $item) use ($url, $ttl): array {

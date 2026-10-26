@@ -29,6 +29,7 @@ final class FakeRiotApi
             'euw1.api.riotgames.com' === $host && '/lol/league/v4/entries/by-puuid/'.self::PUUID === $path => 'league',
             'europe.api.riotgames.com' === $host && '/lol/match/v5/matches/by-puuid/'.self::PUUID.'/ids' === $path => 'match_ids',
             'europe.api.riotgames.com' === $host && 1 === preg_match('#^/lol/match/v5/matches/(EUW1_\d+)$#', $path, $m) => 'match_'.$m[1],
+            'europe.api.riotgames.com' === $host && 1 === preg_match('#^/lol/match/v5/matches/(EUW1_\d+)/timeline$#', $path, $m) => 'timeline_'.$m[1],
             default => null,
         };
 

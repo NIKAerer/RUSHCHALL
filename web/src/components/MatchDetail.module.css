@@ -7,10 +7,35 @@
 }
 
 .loading {
-  padding: 18px;
-  border-top: 1px solid var(--line);
+  margin: 0;
   color: var(--muted);
   font-size: 13px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.tabs button {
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tabs button:hover {
+  color: var(--fg);
+}
+
+.tabs button[aria-selected='true'] {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--fg);
 }
 
 .balances {
