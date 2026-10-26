@@ -6,13 +6,15 @@ namespace App\Match;
 
 use App\Match\Dto\MatchDetail;
 use App\Match\Dto\MatchSummary;
-use App\Riot\RiotApiClient;
+use App\Riot\Exception\NotFoundException;
 use App\Storage\MatchStore;
 
+/**
+ * Historique lu uniquement dans la base : afficher une page ne coûte aucune requête à Riot.
+ */
 final class MatchHistoryProvider
 {
     public function __construct(
-        private readonly RiotApiClient $riot,
         private readonly MatchMapper $mapper,
         private readonly MatchStore $store,
     ) {
@@ -21,27 +23,18 @@ final class MatchHistoryProvider
     /**
      * @return list<MatchSummary>
      */
-    public function history(string $puuid, int $start, int $count, ?int $queue): array
+    public function history(string $puuid, int $start, int $count): array
     {
         return array_map(
-            fn (string $matchId) => $this->mapper->toSummary($this->match($matchId), $puuid),
-            $this->riot->getMatchIds($puuid, $start, $count, $queue),
+            fn (array $match) => $this->mapper->toSummary($match, $puuid),
+            $this->store->findPageForPlayer($puuid, $start, $count),
         );
     }
 
     public function detail(string $matchId): MatchDetail
     {
-        return $this->mapper->toDetail($this->match($matchId));
-    }
+        $match = $this->store->find($matchId) ?? throw new NotFoundException(\sprintf('Game %s is not stored.', $matchId));
 
-    /**
-     * Lit la game en base si elle y est, sinon la demande à Riot.
-     * Le site n'écrit jamais en base : seule la synchronisation (app:ranked:sync) y range des games.
-     *
-     * @return array{metadata: array<string, mixed>, info: array<string, mixed>}
-     */
-    private function match(string $matchId): array
-    {
-        return $this->store->find($matchId) ?? $this->riot->getMatch($matchId);
+        return $this->mapper->toDetail($match);
     }
 }

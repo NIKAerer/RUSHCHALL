@@ -97,3 +97,9 @@ export interface MatchDetail {
   gameVersion: string
   teams: [Team, Team]
 }
+
+export interface SyncReport {
+  saved: number
+  remaining: number
+  total: number
+}

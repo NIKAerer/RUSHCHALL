@@ -1,9 +1,7 @@
-import { Link } from 'react-router-dom'
-import { useMatchDetail } from '../api/queries'
+import { useGame } from '../api/queries'
 import type { Participant, Team } from '../api/types'
 import { useChampion } from '../ddragon/useStaticData'
 import { formatNumber, formatPercent, formatThousands, kdaRatio } from '../lib/format'
-import { riotIdSlug } from '../lib/riot'
 import { ErrorState } from './ErrorState'
 import { ChampionIcon, ItemSlots, SpellsAndRunes } from './GameIcons'
 import styles from './MatchDetail.module.css'
@@ -19,7 +17,7 @@ const OBJECTIVES: { key: keyof Team['objectives']; label: string }[] = [
 ]
 
 export function MatchDetail({ matchId, puuid }: { matchId: string; puuid: string }) {
-  const { data, isPending, isError, error } = useMatchDetail(matchId, true)
+  const { data, isPending, isError, error } = useGame(matchId)
 
   if (isPending) return <div className={styles.loading}>Chargement de la game…</div>
   if (isError) return <div className={styles.detail}><ErrorState title="Détail indisponible" message={error.message} /></div>
@@ -112,7 +110,7 @@ function PlayerRow({ player, isMe, maxDamage }: { player: Participant; isMe: boo
           <ChampionIcon championName={player.championName} size={34} level={player.championLevel} />
           <SpellsAndRunes spells={player.summonerSpells} keystone={player.keystone} secondaryStyle={player.secondaryRuneStyle} size={16} />
           <div className={styles.who}>
-            <Link to={`/joueur/${encodeURIComponent(riotIdSlug(player.gameName, player.tagLine))}`}>{player.gameName}</Link>
+            <span className={styles.gameName} title={`${player.gameName}#${player.tagLine}`}>{player.gameName}</span>
             <span>{champion.name}</span>
           </div>
         </div>

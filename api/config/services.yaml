@@ -39,5 +39,3 @@ when@test:
     services:
         App\Tests\Fixtures\FakeRiotApi: ~
 
-        App\Storage\MatchStore:
-            arguments: [':memory:']

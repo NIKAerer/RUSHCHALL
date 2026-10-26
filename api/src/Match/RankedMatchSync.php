@@ -22,11 +22,12 @@ final class RankedMatchSync
     }
 
     /**
+     * @param int|null                             $limit   nombre maximum de games à télécharger (les plus récentes d'abord)
      * @param callable(string $matchId): void|null $onSaved appelé après chaque game enregistrée
      *
-     * @return array{found: int, alreadyStored: int, saved: int}
+     * @return array{found: int, alreadyStored: int, saved: int, remaining: int}
      */
-    public function sync(string $puuid, \DateTimeImmutable $since, ?callable $onSaved = null): array
+    public function sync(string $puuid, \DateTimeImmutable $since, ?int $limit = null, ?callable $onSaved = null): array
     {
         $matchIds = [];
         for ($start = 0; ; $start += self::PAGE_SIZE) {
@@ -40,8 +41,10 @@ final class RankedMatchSync
         $matchIds = array_values(array_unique($matchIds));
         $missing = array_values(array_diff($matchIds, $this->store->existing($matchIds)));
 
+        $toFetch = null === $limit ? $missing : \array_slice($missing, 0, $limit);
+
         $saved = 0;
-        foreach ($missing as $matchId) {
+        foreach ($toFetch as $matchId) {
             $match = $this->riot->getMatch($matchId);
             if (MatchStore::QUEUE_RANKED_SOLO !== $match['info']['queueId']) {
                 continue;
@@ -53,6 +56,11 @@ final class RankedMatchSync
             }
         }
 
-        return ['found' => \count($matchIds), 'alreadyStored' => \count($matchIds) - \count($missing), 'saved' => $saved];
+        return [
+            'found' => \count($matchIds),
+            'alreadyStored' => \count($matchIds) - \count($missing),
+            'saved' => $saved,
+            'remaining' => \count($missing) - \count($toFetch),
+        ];
     }
 }

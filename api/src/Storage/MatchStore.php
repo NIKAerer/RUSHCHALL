@@ -74,6 +74,25 @@ final class MatchStore
     }
 
     /**
+     * Les games du joueur, de la plus récente à la plus ancienne.
+     *
+     * @return list<array{metadata: array<string, mixed>, info: array<string, mixed>}>
+     */
+    public function findPageForPlayer(string $puuid, int $offset, int $limit): array
+    {
+        $statement = $this->pdo()->prepare('SELECT m.payload FROM matches m JOIN match_participants p ON p.match_id = m.match_id WHERE p.puuid = ? ORDER BY m.game_start DESC LIMIT ? OFFSET ?');
+        $statement->bindValue(1, $puuid);
+        $statement->bindValue(2, $limit, \PDO::PARAM_INT);
+        $statement->bindValue(3, $offset, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return array_map(
+            static fn (string $payload) => json_decode($payload, true, flags: \JSON_THROW_ON_ERROR),
+            $statement->fetchAll(\PDO::FETCH_COLUMN),
+        );
+    }
+
+    /**
      * @param list<string> $matchIds
      *
      * @return list<string> les identifiants déjà en base

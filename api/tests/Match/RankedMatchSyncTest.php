@@ -32,7 +32,7 @@ final class RankedMatchSyncTest extends TestCase
     {
         $report = $this->sync->sync(FakeRiotApi::PUUID, new \DateTimeImmutable('2026-10-04 00:00', new \DateTimeZone('Europe/Paris')));
 
-        self::assertSame(['found' => 2, 'alreadyStored' => 0, 'saved' => 2], $report);
+        self::assertSame(['found' => 2, 'alreadyStored' => 0, 'saved' => 2, 'remaining' => 0], $report);
         self::assertStringContainsString('queue=420&startTime=1791064800', $this->riot->requestedUrls[0]);
         self::assertSame(2, $this->store->countForPlayer(FakeRiotApi::PUUID));
         self::assertSame('EUW1_7412345678', $this->store->find('EUW1_7412345678')['metadata']['matchId']);
@@ -46,8 +46,17 @@ final class RankedMatchSyncTest extends TestCase
 
         $report = $this->sync->sync(FakeRiotApi::PUUID, $since);
 
-        self::assertSame(['found' => 2, 'alreadyStored' => 2, 'saved' => 0], $report);
+        self::assertSame(['found' => 2, 'alreadyStored' => 2, 'saved' => 0, 'remaining' => 0], $report);
         self::assertCount(1, $this->riot->requestedUrls, 'Seule la liste des games doit être redemandée.');
+    }
+
+    public function testLimitKeepsTheMostRecentGames(): void
+    {
+        $report = $this->sync->sync(FakeRiotApi::PUUID, new \DateTimeImmutable('2026-10-04'), limit: 1);
+
+        self::assertSame(['found' => 2, 'alreadyStored' => 0, 'saved' => 1, 'remaining' => 1], $report);
+        self::assertNotNull($this->store->find('EUW1_7412345678'));
+        self::assertNull($this->store->find('EUW1_7412001122'));
     }
 
     public function testLatestGameStartIsKnownAfterASync(): void

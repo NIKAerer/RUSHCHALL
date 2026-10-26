@@ -6,7 +6,7 @@
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: end;
+  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   margin-top: 8px;
@@ -16,27 +16,22 @@
   font-size: 22px;
 }
 
-.filters {
-  display: flex;
-  gap: 4px;
-  padding: 3px;
-  border-radius: 9px;
+.count {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.notice {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius);
   background: var(--surface);
   border: 1px solid var(--line);
-}
-
-.filters button {
-  padding: 5px 12px;
-  border: 0;
-  border-radius: 6px;
-  background: none;
   color: var(--muted);
   font-size: 13px;
-  cursor: pointer;
 }
 
-.filters button[aria-pressed='true'] {
-  background: var(--surface-3);
+.notice code {
   color: var(--fg);
 }
 
