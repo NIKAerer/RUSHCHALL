@@ -42,6 +42,11 @@ export function SpellsAndRunes({ spells, keystone, secondaryStyle, size = 22 }: 
   )
 }
 
+export function ItemIcon({ itemId, size = 24 }: { itemId: number; size?: number }) {
+  const item = useStaticData()?.items.get(itemId)
+  return <Icon src={item?.icon} label={item?.name ?? `Objet ${itemId}`} size={size} />
+}
+
 export function ItemSlots({ items, trinket, size = 24 }: { items: number[]; trinket: number; size?: number }) {
   const data = useStaticData()
 

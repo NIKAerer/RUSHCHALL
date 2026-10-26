@@ -130,6 +130,36 @@ export interface JunglerStats {
   objectives: number
 }
 
+export type CampSide = 'ally' | 'enemy' | 'river'
+
+export interface ClearStep {
+  t: number
+  camp: 'blue' | 'gromp' | 'wolves' | 'raptors' | 'red' | 'krugs' | 'scuttle' | null
+  label: string
+  side: CampSide | null
+  jungleCs: number
+  x: number
+  y: number
+}
+
+export interface FirstBack {
+  t: number
+  itemIds: number[]
+  gold: number | null
+}
+
+export interface EarlyGame {
+  clear: ClearStep[]
+  clearEnd: number | null
+  clearEndReason: 'back' | Exclude<MomentType, 'objective'> | null
+  jungleCsAtClearEnd: number
+  /** Seconde où le niveau 3, 4 et 6 est atteint. */
+  levels: Record<'3' | '4' | '6', number | null>
+  firstBack: FirstBack | null
+  firstGank: Moment | null
+  firstInvade: number | null
+}
+
 export interface JunglerPath {
   puuid: string
   gameName: string
@@ -139,6 +169,7 @@ export interface JunglerPath {
   points: PathPoint[]
   moments: Moment[]
   stats: JunglerStats
+  earlyGame: EarlyGame
 }
 
 export interface Objective {
