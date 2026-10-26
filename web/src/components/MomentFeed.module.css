@@ -1,0 +1,216 @@
+/* Une ligne de kill feed : liseré rouge par défaut, bleu quand le moment profite à ton équipe. */
+.feed {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, var(--loss-bg), transparent 75%);
+  box-shadow: inset 2px 0 0 var(--loss);
+}
+
+.feed[data-good] {
+  background: linear-gradient(90deg, var(--win-bg), transparent 75%);
+  box-shadow: inset 2px 0 0 var(--win);
+}
+
+/* Triple kill, ace, âme… : lueur dorée pour sauter aux yeux. */
+.feed[data-epic] {
+  box-shadow:
+    inset 2px 0 0 var(--gold),
+    0 0 0 1px color-mix(in srgb, var(--gold) 45%, transparent),
+    0 0 14px -4px var(--gold);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-left: 4px;
+}
+
+.badge {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--gold) 16%, transparent);
+  color: var(--gold);
+  font: 700 10px var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge[data-badge='triple'],
+.badge[data-badge='quadra'],
+.badge[data-badge='penta'],
+.badge[data-badge='ace'] {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.badge[data-badge='first_blood'] {
+  background: color-mix(in srgb, var(--loss) 22%, transparent);
+  color: var(--loss);
+}
+
+.badge[data-badge='soul'] {
+  background: color-mix(in srgb, var(--path-enemy) 22%, transparent);
+  color: var(--path-enemy);
+}
+
+.portrait {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: var(--surface-3);
+  box-shadow: 0 0 0 2px var(--loss);
+}
+
+.portrait[data-ally] {
+  box-shadow: 0 0 0 2px var(--win);
+}
+
+/* Victime grisée et barrée. */
+.portrait[data-victim] {
+  position: relative;
+}
+
+.portrait[data-victim] > * {
+  filter: grayscale(1) brightness(0.65);
+}
+
+.portrait[data-victim]::after {
+  content: '';
+  position: absolute;
+  inset: 45% -2px auto;
+  height: 2px;
+  background: var(--loss);
+  transform: rotate(-35deg);
+}
+
+.portrait[data-small] {
+  box-shadow: 0 0 0 1.5px var(--loss);
+}
+
+.portrait[data-small][data-ally] {
+  box-shadow: 0 0 0 1.5px var(--win);
+}
+
+.assists {
+  display: flex;
+  margin-left: 4px;
+}
+
+/* Les assists se chevauchent un peu, comme une pile. */
+.assists .portrait + .portrait {
+  margin-left: -5px;
+}
+
+.tower {
+  width: 70%;
+  fill: var(--muted);
+}
+
+.actionWrap {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.action {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: var(--fg);
+  opacity: 0.85;
+}
+
+.swords {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: none;
+  stroke: var(--fg);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+
+.swords[data-type='objective'] {
+  stroke: var(--gold);
+}
+
+.action[data-type='death'] {
+  fill: var(--loss);
+  opacity: 1;
+}
+
+.gank {
+  position: absolute;
+  right: -6px;
+  bottom: -5px;
+  width: 12px;
+  height: 12px;
+  fill: var(--gold);
+  filter: drop-shadow(0 0 2px var(--bg));
+}
+
+.objective {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--objective) 22%, var(--surface-3));
+  box-shadow: 0 0 0 2px var(--objective);
+}
+
+.objective svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--objective);
+}
+
+.zone {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  margin-left: auto;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.zoneMap {
+  fill: var(--surface-3);
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.zone[data-zone='allyJungle'],
+.zone[data-zone='base'] {
+  stroke: none;
+  fill: var(--good);
+}
+
+.zone[data-zone='enemyJungle'] {
+  stroke: none;
+  fill: var(--loss);
+}
+
+.zone[data-zone='allyJungle'] .zoneMap,
+.zone[data-zone='enemyJungle'] .zoneMap,
+.zone[data-zone='base'] .zoneMap {
+  fill: var(--surface-3);
+}
+
+.zone[data-zone='river'] {
+  stroke: var(--win);
+}

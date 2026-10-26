@@ -172,11 +172,6 @@
   color: var(--fg);
 }
 
-.glyph {
-  width: 14px;
-  height: 14px;
-}
-
 .empty {
   margin: 0;
   color: var(--muted);
@@ -269,9 +264,9 @@
 
 .moment {
   display: grid;
-  grid-template-columns: 40px 14px 1fr;
+  grid-template-columns: 38px minmax(0, 1fr);
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   padding: 4px 6px;
   border: none;
@@ -282,15 +277,6 @@
   font-size: 13px;
   text-align: left;
   cursor: pointer;
-}
-
-.momentLabel {
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 12px;
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .moment:hover,
@@ -362,6 +348,16 @@
 
 .tick[data-death] {
   background: var(--loss);
+}
+
+/* Moment clé : repère doré, un peu plus gros. */
+.tick[data-badge] {
+  bottom: -8px;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  background: var(--gold);
+  box-shadow: 0 0 4px var(--gold);
 }
 
 .clock {

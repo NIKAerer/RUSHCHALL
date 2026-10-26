@@ -1,12 +1,13 @@
 import { type Dispatch, type SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathing } from '../api/queries'
-import type { JunglePathing, JunglerPath, JunglerStats, Moment, MomentType, Objective, PathPoint } from '../api/types'
+import type { JunglePathing, JunglerPath, JunglerStats, Moment, Objective, PathPoint } from '../api/types'
 import { mapImage } from '../ddragon/ddragon'
 import { useChampion, useStaticData } from '../ddragon/useStaticData'
 import { formatDuration, formatNumber } from '../lib/format'
 import { ErrorState } from './ErrorState'
 import { FirstClear } from './FirstClear'
-import { MomentFighters } from './MomentFighters'
+import { GoldGauge } from './GoldGauge'
+import { MomentFeed } from './MomentFeed'
 import { ChampionIcon } from './GameIcons'
 import { aheadOf } from '../lib/compare'
 import { JunglerName, VersusTable, type VersusRow } from './Versus'
@@ -36,11 +37,12 @@ const PANELS = [
 type Panel = (typeof PANELS)[number]['value']
 
 /** Filtres de la liste des moments forts ; la carte suit le même filtre. */
-const FILTERS: { value: string; label: string; types: MomentType[] }[] = [
-  { value: 'all', label: 'Tout', types: ['gank', 'kill', 'assist', 'death', 'objective'] },
-  { value: 'gank', label: 'Ganks', types: ['gank'] },
-  { value: 'fight', label: 'Kills / morts', types: ['kill', 'assist', 'death'] },
-  { value: 'objective', label: 'Objectifs', types: ['objective'] },
+const FILTERS: { value: string; label: string; keeps: (moment: Moment) => boolean }[] = [
+  { value: 'all', label: 'Tout', keeps: () => true },
+  { value: 'key', label: 'Clés', keeps: (m) => m.badges.length > 0 },
+  { value: 'gank', label: 'Ganks', keeps: (m) => m.type === 'gank' },
+  { value: 'fight', label: 'Kills / morts', keeps: (m) => ['kill', 'assist', 'death'].includes(m.type) },
+  { value: 'objective', label: 'Objectifs', keeps: (m) => m.type === 'objective' },
 ]
 
 interface ListedMoment {
@@ -85,11 +87,21 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
         .flatMap((jungler, index) =>
           hidden.includes(jungler.puuid) ? [] : jungler.moments.map((moment) => ({ key: `${index}-${moment.t}-${moment.type}`, moment, index })),
         )
+        // Kills marquants sans jungler, rangés du côté de l'équipe du tueur.
+        .concat(
+          pathing.highlights.map((moment) => ({
+            key: `highlight-${moment.t}`,
+            moment,
+            index: Math.max(0, pathing.junglers.findIndex((j) => j.teamId === moment.killer?.teamId)),
+          })),
+        )
+        // Un kill entre les deux junglers est un moment pour chacun : on n'en garde qu'un, celui du joueur suivi (listé en premier).
+        .filter((listed, i, all) => all.findIndex((other) => eventId(other.moment) === eventId(listed.moment)) === i)
         .sort((a, b) => a.moment.t - b.moment.t),
     [pathing, hidden],
   )
-  const types = FILTERS.find((f) => f.value === filter)?.types ?? []
-  const moments = allMoments.filter(({ moment }) => types.includes(moment.type))
+  const keeps = FILTERS.find((f) => f.value === filter)?.keeps ?? (() => true)
+  const moments = allMoments.filter(({ moment }) => keeps(moment))
 
   // Pendant la lecture, la liste suit le dernier moment passé.
   const latestKey = [...moments].reverse().find(({ moment }) => moment.t <= until)?.key ?? null
@@ -176,6 +188,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
                   className={styles.tick}
                   style={{ left: `${(listed.moment.t / duration) * 100}%`, ['--color' as string]: COLORS[listed.index] }}
                   data-death={listed.moment.type === 'death' || undefined}
+                  data-badge={listed.moment.badges.length > 0 || undefined}
                 />
               ))}
               <input
@@ -194,6 +207,8 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
               <small> / {formatDuration(duration)}</small>
             </output>
           </div>
+
+          <GoldGauge gold={pathing.gold} junglers={pathing.junglers} until={until} duration={duration} onSeek={seek} />
 
           <div className={styles.toolbar}>
             <div className={styles.segmented} role="group" aria-label="Aller à">
@@ -244,7 +259,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
             {FILTERS.map((f) => (
               <button key={f.value} type="button" aria-pressed={filter === f.value} onClick={() => setFilter(f.value)}>
                 {f.label}
-                <span className={styles.filterCount}>{allMoments.filter(({ moment }) => f.types.includes(moment.type)).length}</span>
+                <span className={styles.filterCount}>{allMoments.filter(({ moment }) => f.keeps(moment)).length}</span>
               </button>
             ))}
           </div>
@@ -258,6 +273,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
                     type="button"
                     style={{ ['--color' as string]: COLORS[listed.index] }}
                     className={styles.moment}
+                    title={listed.moment.label}
                     data-future={listed.moment.t > until || undefined}
                     data-highlighted={highlighted === listed.key || undefined}
                     onClick={() => jumpTo(listed)}
@@ -265,8 +281,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
                     onMouseLeave={() => setHovered(null)}
                   >
                     <time>{formatDuration(listed.moment.t)}</time>
-                    <MomentFighters moment={listed.moment} allyTeam={allyTeam} glyph={<MomentGlyph type={listed.moment.type} />} />
-                    <span className={styles.momentLabel}>{listed.moment.label}</span>
+                    <MomentFeed moment={listed.moment} allyTeam={allyTeam} />
                   </button>
                 </li>
               ))}
@@ -298,6 +313,11 @@ function usePlayback(playing: boolean, speed: number, duration: number, setUntil
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
   }, [playing, speed, duration, setUntil])
+}
+
+/** Identifie l'événement Riot derrière un moment, quel que soit le jungler qui le rapporte. */
+function eventId({ t, killer, victim, objective }: Moment): string {
+  return [t, killer?.championName, victim?.championName, objective].join('|')
 }
 
 /** Fontaine de chaque équipe : point de départ de la route avant le premier relevé (minute 1). */
@@ -485,14 +505,6 @@ function MomentShape({ type }: { type: Moment['type'] }) {
     default:
       return <circle r={300} fill="currentColor" stroke="var(--bg)" strokeWidth={70} opacity={type === 'assist' ? 0.6 : 1} />
   }
-}
-
-function MomentGlyph({ type }: { type: Moment['type'] }) {
-  return (
-    <svg className={styles.glyph} viewBox="-500 -500 1000 1000" aria-hidden="true">
-      <MomentShape type={type} />
-    </svg>
-  )
 }
 
 function StatsTable({ junglers }: { junglers: JunglerPath[] }) {
