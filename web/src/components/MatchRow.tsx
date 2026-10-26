@@ -5,6 +5,7 @@ import { formatDuration, formatPercent, formatTimeAgo, kdaRatio } from '../lib/f
 import { multiKillLabel, queueLabel } from '../lib/riot'
 import { ChampionIcon, ItemSlots, SpellsAndRunes } from './GameIcons'
 import { MatchDetail } from './MatchDetail'
+import { RatingBadge } from './RatingBadge'
 import styles from './MatchRow.module.css'
 
 type Outcome = 'win' | 'loss' | 'remake'
@@ -39,6 +40,7 @@ export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string 
             {player.kills} <span>/</span> <em>{player.deaths}</em> <span>/</span> {player.assists}
           </div>
           <div className={styles.ratio}>{kdaRatio(player.kills, player.deaths, player.assists)} KDA</div>
+          {!match.remake && <RatingBadge rating={player.rating} />}
           {multiKill && <span className={styles.multikill}>{multiKill}</span>}
         </div>
 
