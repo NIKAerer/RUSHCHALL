@@ -19,6 +19,8 @@ final readonly class Moment
         public ?Fighter $victim = null,
         /** @var list<Fighter> */
         public array $assists = [],
+        /** Pour un objectif : infernal, ocean… pour un drake, sinon baron, herald, grubs ou atakhan. */
+        public ?string $objective = null,
     ) {
     }
 }

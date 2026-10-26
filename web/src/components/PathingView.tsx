@@ -6,7 +6,7 @@ import { useChampion, useStaticData } from '../ddragon/useStaticData'
 import { formatDuration, formatNumber } from '../lib/format'
 import { ErrorState } from './ErrorState'
 import { FirstClear } from './FirstClear'
-import { MomentFighters } from './MomentFighters'
+import { MomentFeed } from './MomentFeed'
 import { ChampionIcon } from './GameIcons'
 import { aheadOf } from '../lib/compare'
 import { JunglerName, VersusTable, type VersusRow } from './Versus'
@@ -258,6 +258,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
                     type="button"
                     style={{ ['--color' as string]: COLORS[listed.index] }}
                     className={styles.moment}
+                    title={listed.moment.label}
                     data-future={listed.moment.t > until || undefined}
                     data-highlighted={highlighted === listed.key || undefined}
                     onClick={() => jumpTo(listed)}
@@ -265,8 +266,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
                     onMouseLeave={() => setHovered(null)}
                   >
                     <time>{formatDuration(listed.moment.t)}</time>
-                    <MomentFighters moment={listed.moment} allyTeam={allyTeam} glyph={<MomentGlyph type={listed.moment.type} />} />
-                    <span className={styles.momentLabel}>{listed.moment.label}</span>
+                    <MomentFeed moment={listed.moment} allyTeam={allyTeam} />
                   </button>
                 </li>
               ))}
@@ -485,14 +485,6 @@ function MomentShape({ type }: { type: Moment['type'] }) {
     default:
       return <circle r={300} fill="currentColor" stroke="var(--bg)" strokeWidth={70} opacity={type === 'assist' ? 0.6 : 1} />
   }
-}
-
-function MomentGlyph({ type }: { type: Moment['type'] }) {
-  return (
-    <svg className={styles.glyph} viewBox="-500 -500 1000 1000" aria-hidden="true">
-      <MomentShape type={type} />
-    </svg>
-  )
 }
 
 function StatsTable({ junglers }: { junglers: JunglerPath[] }) {

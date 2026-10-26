@@ -127,6 +127,8 @@ export interface Moment extends PathPoint {
   killer: Fighter | null
   victim: Fighter | null
   assists: Fighter[]
+  /** Pour un objectif : infernal, ocean… pour un drake, sinon baron, herald, grubs ou atakhan. */
+  objective: string | null
   label: string
 }
 
