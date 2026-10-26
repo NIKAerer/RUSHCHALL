@@ -137,32 +137,6 @@
   color: var(--muted);
 }
 
-.stats {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.stats th,
-.stats td {
-  padding: 6px 0;
-  text-align: right;
-}
-
-.stats thead th {
-  font: 600 14px var(--font-display);
-}
-
-.stats tbody th {
-  font-weight: 400;
-  color: var(--muted);
-  text-align: left;
-}
-
-.stats tbody tr {
-  border-top: 1px solid var(--line);
-}
-
 .moments {
   display: grid;
   gap: 2px;
@@ -206,14 +180,6 @@
   margin: 0;
   color: var(--muted);
   font-size: 13px;
-}
-
-.visuallyHidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
 }
 
 @media (max-width: 860px) {

@@ -1,6 +1,6 @@
 .firstClear {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .heading {
@@ -14,7 +14,12 @@
 
 .route {
   display: grid;
-  gap: 6px;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color) 10%, transparent), transparent 60%);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--color);
 }
 
 .routeHeader {
@@ -22,34 +27,59 @@
   align-items: center;
   gap: 8px;
   color: var(--color);
-  font: 600 14px var(--font-display);
+  font: 600 15px var(--font-display);
 }
 
-.summary {
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
   margin-left: auto;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
   color: var(--muted);
   font: 400 12px var(--font-body);
 }
 
+.badge strong {
+  color: var(--fg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Les camps se suivent sur un fil, comme une route. */
 .camps {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px 14px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .camp {
+  position: relative;
   display: grid;
   gap: 1px;
-  min-width: 58px;
-  padding: 4px 8px;
+  min-width: 56px;
+  padding: 4px 9px;
   border-radius: 6px;
   background: var(--surface-2);
-  border-left: 3px solid var(--color);
-  font-size: 12px;
-  font-weight: 500;
+  box-shadow: inset 0 -2px 0 var(--color);
+}
+
+.camp + .camp::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -12px;
+  width: 10px;
+  border-top: 2px dotted var(--faint);
 }
 
 .camp time {
@@ -58,80 +88,39 @@
   font-variant-numeric: tabular-nums;
 }
 
+.campName {
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* Camp adverse : invade ou contre-jungle. */
 .camp[data-side='enemy'] {
   background: var(--loss-bg);
-  border-left-color: var(--loss);
+  box-shadow: inset 0 -2px 0 var(--loss);
+}
+
+.camp[data-side='enemy'] .campName {
+  color: var(--loss);
 }
 
 .camp[data-side='river'] {
-  border-left-color: var(--win);
+  box-shadow: inset 0 -2px 0 var(--win);
 }
 
 /* Entre deux camps ou en lane. */
 .camp[data-side='none'] {
-  border-left-color: var(--line);
-  color: var(--muted);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 
-.note {
-  margin: 0;
-  color: var(--faint);
+.camp[data-side='none'] .campName {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.gold,
+.lane {
+  color: var(--muted);
   font-size: 11px;
-}
-
-.milestones {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.milestones th,
-.milestones td {
-  padding: 6px 0;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.milestones thead th {
-  font: 600 14px var(--font-display);
-}
-
-.milestones tbody th {
   font-weight: 400;
-  color: var(--muted);
-  text-align: left;
-}
-
-.milestones tbody tr {
-  border-top: 1px solid var(--line);
-}
-
-.fastest {
-  color: var(--good);
-  font-weight: 600;
-}
-
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-right: 8px;
-  vertical-align: middle;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.detail {
-  margin-right: 8px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.visuallyHidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
 }
