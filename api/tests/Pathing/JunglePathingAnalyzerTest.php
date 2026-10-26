@@ -61,9 +61,10 @@ final class JunglePathingAnalyzerTest extends TestCase
         self::assertSame('Varus', $gank->victim?->championName);
         self::assertSame(['LeeSin', 'Leona'], $champions($gank->assists));
 
-        $drake = array_values(array_filter($lee->moments, static fn ($m) => 'objective' === $m->type))[0];
-        self::assertSame('LeeSin', $drake->killer?->championName);
-        self::assertNull($drake->victim);
+        [$grubs, $drake] = array_values(array_filter($lee->moments, static fn ($m) => 'objective' === $m->type));
+        self::assertSame('LeeSin', $grubs->killer?->championName);
+        self::assertNull($grubs->victim);
+        self::assertSame(['grubs', 'infernal'], [$grubs->objective, $drake->objective]);
     }
 
     public function testStatsCompareBothJunglers(): void

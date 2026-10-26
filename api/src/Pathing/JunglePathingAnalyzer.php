@@ -33,13 +33,13 @@ final class JunglePathingAnalyzer
     ];
 
     private const DRAGONS = [
-        'FIRE_DRAGON' => 'Infernal',
-        'EARTH_DRAGON' => 'Montagne',
-        'WATER_DRAGON' => 'Océan',
-        'AIR_DRAGON' => 'Nuages',
-        'HEXTECH_DRAGON' => 'Hextech',
-        'CHEMTECH_DRAGON' => 'Chemtech',
-        'ELDER_DRAGON' => 'Ancien',
+        'FIRE_DRAGON' => ['infernal', 'Infernal'],
+        'EARTH_DRAGON' => ['mountain', 'Montagne'],
+        'WATER_DRAGON' => ['ocean', 'Océan'],
+        'AIR_DRAGON' => ['cloud', 'Nuages'],
+        'HEXTECH_DRAGON' => ['hextech', 'Hextech'],
+        'CHEMTECH_DRAGON' => ['chemtech', 'Chemtech'],
+        'ELDER_DRAGON' => ['elder', 'Ancien'],
     ];
 
     /**
@@ -172,7 +172,16 @@ final class JunglePathingAnalyzer
         }
 
         if ('ELITE_MONSTER_KILL' === $event['type'] && $event['killerId'] === $id && isset(self::OBJECTIVES[$event['monsterType']])) {
-            return new Moment($t, 'objective', $this->objectiveLabel($event), $x, $y, $zone->value, killer: $fighter($id));
+            return new Moment(
+                t: $t,
+                type: 'objective',
+                label: $this->objectiveLabel($event),
+                x: $x,
+                y: $y,
+                zone: $zone->value,
+                killer: $fighter($id),
+                objective: self::DRAGONS[$event['monsterSubType'] ?? ''][0] ?? self::OBJECTIVES[$event['monsterType']][0],
+            );
         }
 
         return null;
@@ -248,7 +257,7 @@ final class JunglePathingAnalyzer
     private function objectiveLabel(array $event): string
     {
         $label = self::OBJECTIVES[$event['monsterType']][1];
-        $dragon = self::DRAGONS[$event['monsterSubType'] ?? ''] ?? null;
+        $dragon = self::DRAGONS[$event['monsterSubType'] ?? ''][1] ?? null;
 
         return null !== $dragon ? \sprintf('%s %s', $label, $dragon) : $label;
     }
