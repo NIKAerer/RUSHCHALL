@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Pathing;
 
+use App\Pathing\Dto\Fighter;
 use App\Pathing\Dto\JunglePathing;
 use App\Pathing\Dto\JunglerPath;
 use App\Pathing\Dto\JunglerStats;
@@ -137,25 +138,41 @@ final class JunglePathingAnalyzer
         $y = $event['position']['y'];
         $zone = MapZone::of($x, $y, $team);
         $champion = static fn (int $participantId) => $participants[$participantId]['championName'] ?? '?';
+        $fighter = static fn (int $participantId) => isset($participants[$participantId])
+            ? new Fighter($participants[$participantId]['championName'], $participants[$participantId]['teamId'])
+            : null;
 
         if ('CHAMPION_KILL' === $event['type']) {
-            $involved = $event['killerId'] === $id || \in_array($id, $event['assistingParticipantIds'] ?? [], true);
+            $assisting = $event['assistingParticipantIds'] ?? [];
+            $involved = $event['killerId'] === $id || \in_array($id, $assisting, true);
+            $moment = static fn (string $type, string $label) => new Moment(
+                t: $t,
+                type: $type,
+                label: $label,
+                x: $x,
+                y: $y,
+                zone: $zone->value,
+                killer: $fighter($event['killerId']),
+                victim: $fighter($event['victimId']),
+                assists: array_values(array_filter(array_map($fighter, $assisting))),
+            );
+
             if ($event['victimId'] === $id) {
-                return new Moment($t, 'death', \sprintf('Mort contre %s (%s)', $champion($event['killerId']), $zone->label()), $x, $y, $zone->value);
+                return $moment('death', \sprintf('Mort contre %s (%s)', $champion($event['killerId']), $zone->label()));
             }
             if (!$involved) {
                 return null;
             }
             if ($zone->isLane() && $t < self::GANK_WINDOW_SECONDS) {
-                return new Moment($t, 'gank', \sprintf('Gank %s : %s', $zone->label(), $champion($event['victimId'])), $x, $y, $zone->value);
+                return $moment('gank', \sprintf('Gank %s : %s', $zone->label(), $champion($event['victimId'])));
             }
             $type = $event['killerId'] === $id ? 'kill' : 'assist';
 
-            return new Moment($t, $type, \sprintf('%s %s (%s)', 'kill' === $type ? 'Kill sur' : 'Assist sur', $champion($event['victimId']), $zone->label()), $x, $y, $zone->value);
+            return $moment($type, \sprintf('%s %s (%s)', 'kill' === $type ? 'Kill sur' : 'Assist sur', $champion($event['victimId']), $zone->label()));
         }
 
         if ('ELITE_MONSTER_KILL' === $event['type'] && $event['killerId'] === $id && isset(self::OBJECTIVES[$event['monsterType']])) {
-            return new Moment($t, 'objective', $this->objectiveLabel($event), $x, $y, $zone->value);
+            return new Moment($t, 'objective', $this->objectiveLabel($event), $x, $y, $zone->value, killer: $fighter($id));
         }
 
         return null;

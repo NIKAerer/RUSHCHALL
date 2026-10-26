@@ -6,6 +6,7 @@ import { useChampion, useStaticData } from '../ddragon/useStaticData'
 import { formatDuration, formatNumber } from '../lib/format'
 import { ErrorState } from './ErrorState'
 import { FirstClear } from './FirstClear'
+import { MomentFighters } from './MomentFighters'
 import { ChampionIcon } from './GameIcons'
 import { aheadOf } from '../lib/compare'
 import { JunglerName, VersusTable, type VersusRow } from './Versus'
@@ -60,6 +61,7 @@ export function PathingView({ matchId }: { matchId: string }) {
 
 function Pathing({ pathing }: { pathing: JunglePathing }) {
   const duration = pathing.durationSeconds
+  const allyTeam = (pathing.junglers.find((j) => j.isTrackedPlayer) ?? pathing.junglers[0]).teamId
   // L'onglet rejoue la game depuis le début dès son ouverture.
   const [until, setUntil] = useState(0)
   const [hidden, setHidden] = useState<string[]>([])
@@ -92,7 +94,12 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
   const highlighted = hovered ?? focused ?? (playing ? latestKey : null)
   useEffect(() => {
     if (!highlighted) return
-    listRef.current?.querySelector(`[data-key="${highlighted}"]`)?.scrollIntoView({ block: 'nearest' })
+    // On fait défiler la liste seule : scrollIntoView ferait aussi sauter la page.
+    const list = listRef.current
+    const item = list?.querySelector<HTMLElement>(`[data-key="${highlighted}"]`)
+    if (!list || !item) return
+    if (item.offsetTop < list.scrollTop) list.scrollTop = item.offsetTop
+    else if (item.offsetTop + item.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = item.offsetTop + item.offsetHeight - list.clientHeight
   }, [highlighted])
 
   const toggle = (puuid: string) => setHidden((h) => (h.includes(puuid) ? h.filter((p) => p !== puuid) : [...h, puuid]))
@@ -256,8 +263,8 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
                     onMouseLeave={() => setHovered(null)}
                   >
                     <time>{formatDuration(listed.moment.t)}</time>
-                    <MomentGlyph type={listed.moment.type} />
-                    <span>{listed.moment.label}</span>
+                    <MomentFighters moment={listed.moment} allyTeam={allyTeam} glyph={<MomentGlyph type={listed.moment.type} />} />
+                    <span className={styles.momentLabel}>{listed.moment.label}</span>
                   </button>
                 </li>
               ))}
@@ -284,7 +291,8 @@ function usePlayback(playing: boolean, speed: number, duration: number, until: n
     let frame = 0
     let last = performance.now()
     const tick = (now: number) => {
-      const next = Math.min(untilRef.current + ((now - last) / 1000) * speed, duration)
+      // L'horodatage de la frame peut précéder `last` : jamais de retour en arrière.
+      const next = Math.min(untilRef.current + (Math.max(0, now - last) / 1000) * speed, duration)
       last = now
       untilRef.current = next
       setUntil(next)
@@ -296,8 +304,16 @@ function usePlayback(playing: boolean, speed: number, duration: number, until: n
   }, [playing, speed, duration, setUntil])
 }
 
+/** Fontaine de chaque équipe : point de départ de la route avant le premier relevé (minute 1). */
+const FOUNTAINS: Record<number, PathPoint> = {
+  100: { t: 0, x: 560, y: 580, zone: 'base' },
+  200: { t: 0, x: 14300, y: 14400, zone: 'base' },
+}
+
 /** Position estimée à l'instant `t`, entre les deux points connus qui l'encadrent. */
-function positionAt(points: PathPoint[], t: number): { x: number; y: number } | null {
+function positionAt({ points, teamId }: JunglerPath, t: number): { x: number; y: number } | null {
+  const fountain = FOUNTAINS[teamId]
+  if (fountain && points.length > 0 && t < points[0].t) points = [fountain, ...points]
   if (points.length === 0) return null
   if (t <= points[0].t) return points[0]
   for (let i = 1; i < points.length; i++) {
@@ -342,7 +358,7 @@ function MiniMap({
   const fade = (t: number) => Math.max(0, 1 - (until - t) / trail)
   // Deux junglers au même endroit (gank, fight) : on écarte leurs icônes pour voir les deux.
   const markers = junglers.flatMap((jungler, index) => {
-    const now = visible.includes(jungler.puuid) ? positionAt(jungler.points, until) : null
+    const now = visible.includes(jungler.puuid) ? positionAt(jungler, until) : null
     return now ? [{ jungler, index, x: now.x, y: now.y }] : []
   })
   if (markers.length === 2 && Math.hypot(markers[0].x - markers[1].x, markers[0].y - markers[1].y) < MARKER_GAP) {
@@ -367,8 +383,8 @@ function MiniMap({
 
       {junglers.map((jungler, index) => {
         if (!visible.includes(jungler.puuid)) return null
-        const now = positionAt(jungler.points, until)
-        const start = positionAt(jungler.points, Math.max(from, 0))
+        const now = positionAt(jungler, until)
+        const start = positionAt(jungler, Math.max(from, 0))
         const inside = jungler.points.filter((p) => p.t > from && p.t < until)
         const route = [...(start ? [{ ...start, t: Math.max(from, 0) }] : []), ...inside, ...(now ? [{ ...now, t: until }] : [])]
         return (

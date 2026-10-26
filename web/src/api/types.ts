@@ -115,8 +115,18 @@ export interface PathPoint {
 
 export type MomentType = 'gank' | 'kill' | 'assist' | 'death' | 'objective'
 
+/** Champion impliqué dans un moment fort. */
+export interface Fighter {
+  championName: string
+  teamId: number
+}
+
 export interface Moment extends PathPoint {
   type: MomentType
+  /** Auteur du kill ou du smite ; null pour une tourelle ou des sbires. */
+  killer: Fighter | null
+  victim: Fighter | null
+  assists: Fighter[]
   label: string
 }
 
