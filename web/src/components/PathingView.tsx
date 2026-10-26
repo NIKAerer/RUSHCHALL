@@ -59,7 +59,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
   const [hovered, setHovered] = useState<string | null>(null)
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(SPEEDS[1])
-  const [trail, setTrail] = useState(TRAILS[0].seconds)
+  const [trail, setTrail] = useState(TRAILS[1].seconds)
   const [panel, setPanel] = useState<Panel>('moments')
   const listRef = useRef<HTMLOListElement>(null)
 
