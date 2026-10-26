@@ -2,6 +2,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     env(RIOT_PLATFORM): 'euw1'
+    env(RIOT_RATE_LIMITS): '20:1,100:120'
+    env(DATABASE_PATH): '%kernel.project_dir%/var/challenger.db'
 
 services:
     _defaults:
@@ -22,11 +24,20 @@ services:
         factory: ['App\Riot\Platform', 'from']
         arguments: ['%env(RIOT_PLATFORM)%']
 
+    App\Riot\RateLimiter:
+        arguments: ['%env(RIOT_RATE_LIMITS)%']
+
     App\Riot\RiotApiClient:
         arguments:
             $httpClient: '@riot.client'
             $cache: '@cache.riot'
 
+    App\Storage\MatchStore:
+        arguments: ['%env(resolve:DATABASE_PATH)%']
+
 when@test:
     services:
         App\Tests\Fixtures\FakeRiotApi: ~
+
+        App\Storage\MatchStore:
+            arguments: [':memory:']

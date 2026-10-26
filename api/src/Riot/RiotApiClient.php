@@ -27,6 +27,7 @@ final class RiotApiClient
         private readonly HttpClientInterface $httpClient,
         private readonly CacheInterface $cache,
         private readonly Platform $riotPlatform,
+        private readonly ?RateLimiter $rateLimiter = null,
     ) {
     }
 
@@ -64,11 +65,13 @@ final class RiotApiClient
     }
 
     /**
+     * @param int|null $startTime ne garde que les games commencées après ce timestamp (en secondes)
+     *
      * @return list<string>
      */
-    public function getMatchIds(string $puuid, int $start, int $count, ?int $queue = null): array
+    public function getMatchIds(string $puuid, int $start, int $count, ?int $queue = null, ?int $startTime = null): array
     {
-        $query = http_build_query(array_filter(['start' => $start, 'count' => $count, 'queue' => $queue], static fn ($v) => null !== $v));
+        $query = http_build_query(array_filter(['start' => $start, 'count' => $count, 'queue' => $queue, 'startTime' => $startTime], static fn ($v) => null !== $v));
 
         return $this->get(
             \sprintf('%s/lol/match/v5/matches/by-puuid/%s/ids?%s', $this->riotPlatform->regionBaseUri(), rawurlencode($puuid), $query),
@@ -98,6 +101,8 @@ final class RiotApiClient
 
     private function request(string $url): array
     {
+        $this->rateLimiter?->wait();
+
         try {
             $response = $this->httpClient->request('GET', $url);
             $status = $response->getStatusCode();

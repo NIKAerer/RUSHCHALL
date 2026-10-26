@@ -4,6 +4,7 @@
   "scripts": {
     "setup": "composer install --working-dir=api && npm install --prefix web",
     "dev": "concurrently -n api,web -c yellow,cyan \"php -S 127.0.0.1:8000 -t api/public\" \"npm run dev --prefix web\"",
+    "sync": "php api/bin/console app:ranked:sync",
     "test": "cd api && php bin/phpunit",
     "lint": "npm run lint --prefix web && npx tsc -b web"
   },

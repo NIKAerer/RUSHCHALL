@@ -37,6 +37,17 @@ npm run dev
 
 Ouvre http://localhost:5173. Le joueur affiché par défaut se règle dans `web/.env` (`VITE_DEFAULT_RIOT_ID`), le serveur dans `api/.env` (`RIOT_PLATFORM`, `euw1` par défaut).
 
+## Base des games classées
+
+Les games classées Solo/Duo (file 420) sont gardées dans une base SQLite, `api/var/challenger.db`, créée toute seule. On y stocke la réponse complète de Riot pour chaque game : les stats se calculeront à partir de la base, sans redemander à Riot.
+
+```bash
+npm run sync -- KGB Мажор --since=2026-10-04   # première fois : toutes les games depuis le 4 octobre
+npm run sync -- KGB Мажор                      # ensuite : seulement les games jouées depuis la dernière en base
+```
+
+Seule cette commande écrit en base, et uniquement les games du joueur synchronisé : le site lit la base en premier mais n'y ajoute jamais rien, même quand on regarde le profil d'un autre joueur. Une game déjà en base ne coûte plus aucune requête. Les appels sont espacés pour rester sous les limites de la clé de développement (20 requêtes par seconde, 100 toutes les 2 minutes, réglables avec `RIOT_RATE_LIMITS` dans `api/.env.local`).
+
 ## Tests
 
 ```bash
