@@ -5,6 +5,7 @@ import { mapImage } from '../ddragon/ddragon'
 import { useChampion, useStaticData } from '../ddragon/useStaticData'
 import { formatDuration, formatNumber } from '../lib/format'
 import { ErrorState } from './ErrorState'
+import { FirstClear } from './FirstClear'
 import { ChampionIcon } from './GameIcons'
 import styles from './PathingView.module.css'
 
@@ -178,6 +179,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
       </div>
 
       <div className={styles.side}>
+        <FirstClear junglers={pathing.junglers} colors={COLORS} />
         <StatsTable junglers={pathing.junglers} />
         <div>
           <h4 className={styles.heading}>Moments forts</h4>

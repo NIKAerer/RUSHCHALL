@@ -19,6 +19,7 @@ final readonly class JunglerPath
         public array $points,
         public array $moments,
         public JunglerStats $stats,
+        public EarlyGame $earlyGame,
     ) {
     }
 }

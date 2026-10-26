@@ -1,0 +1,137 @@
+.firstClear {
+  display: grid;
+  gap: 10px;
+}
+
+.heading {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.route {
+  display: grid;
+  gap: 6px;
+}
+
+.routeHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color);
+  font: 600 14px var(--font-display);
+}
+
+.summary {
+  margin-left: auto;
+  color: var(--muted);
+  font: 400 12px var(--font-body);
+}
+
+.camps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.camp {
+  display: grid;
+  gap: 1px;
+  min-width: 58px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border-left: 3px solid var(--color);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.camp time {
+  color: var(--faint);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Camp adverse : invade ou contre-jungle. */
+.camp[data-side='enemy'] {
+  background: var(--loss-bg);
+  border-left-color: var(--loss);
+}
+
+.camp[data-side='river'] {
+  border-left-color: var(--win);
+}
+
+/* Entre deux camps ou en lane. */
+.camp[data-side='none'] {
+  border-left-color: var(--line);
+  color: var(--muted);
+}
+
+.note {
+  margin: 0;
+  color: var(--faint);
+  font-size: 11px;
+}
+
+.milestones {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.milestones th,
+.milestones td {
+  padding: 6px 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.milestones thead th {
+  font: 600 14px var(--font-display);
+}
+
+.milestones tbody th {
+  font-weight: 400;
+  color: var(--muted);
+  text-align: left;
+}
+
+.milestones tbody tr {
+  border-top: 1px solid var(--line);
+}
+
+.fastest {
+  color: var(--good);
+  font-weight: 600;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 8px;
+  vertical-align: middle;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.detail {
+  margin-right: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
