@@ -13,7 +13,6 @@ import styles from './PathingView.module.css'
 
 /** Les coordonnées Riot vont de 0 à ~15 000, avec la base bleue en bas à gauche. */
 const MAP_SIZE = 15000
-const EARLY_GAME = 15 * 60
 const MARKER_GAP = 1300
 
 const COLORS = ['var(--path-ally)', 'var(--path-enemy)']
@@ -61,11 +60,12 @@ export function PathingView({ matchId }: { matchId: string }) {
 
 function Pathing({ pathing }: { pathing: JunglePathing }) {
   const duration = pathing.durationSeconds
-  const [until, setUntil] = useState(Math.min(EARLY_GAME, duration))
+  // L'onglet rejoue la game depuis le début dès son ouverture.
+  const [until, setUntil] = useState(0)
   const [hidden, setHidden] = useState<string[]>([])
   const [focused, setFocused] = useState<string | null>(null)
   const [hovered, setHovered] = useState<string | null>(null)
-  const [playing, setPlaying] = useState(false)
+  const [playing, setPlaying] = useState(true)
   const [speed, setSpeed] = useState(SPEEDS[1])
   const [trail, setTrail] = useState(TRAILS[1].seconds)
   const [filter, setFilter] = useState(FILTERS[0].value)
