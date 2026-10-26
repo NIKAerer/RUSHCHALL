@@ -1,0 +1,13 @@
+framework:
+    cache:
+        pools:
+            # Les réponses Riot (une game terminée ne change jamais) sont gardées sur disque.
+            cache.riot:
+                adapter: cache.adapter.filesystem
+
+when@test:
+    framework:
+        cache:
+            pools:
+                cache.riot:
+                    adapter: cache.adapter.array

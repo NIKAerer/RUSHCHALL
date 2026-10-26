@@ -1,0 +1,623 @@
+{
+ "metadata": {
+  "matchId": "EUW1_7412345678",
+  "participants": [
+   "puuid-nyxar",
+   "puuid-kgb",
+   "puuid-velkan",
+   "puuid-morrow",
+   "puuid-saelith",
+   "puuid-torvik",
+   "puuid-draven-main",
+   "puuid-lunaire",
+   "puuid-kestrel",
+   "puuid-oskar"
+  ]
+ },
+ "info": {
+  "gameStartTimestamp": 1792990800000,
+  "gameDuration": 1578,
+  "queueId": 420,
+  "gameVersion": "16.21.712.4512",
+  "participants": [
+   {
+    "puuid": "puuid-nyxar",
+    "riotIdGameName": "Nyxar",
+    "riotIdTagline": "EUW",
+    "participantId": 1,
+    "teamId": 100,
+    "teamPosition": "TOP",
+    "championName": "Renekton",
+    "champLevel": 16,
+    "win": true,
+    "kills": 4,
+    "deaths": 3,
+    "assists": 6,
+    "largestMultiKill": 1,
+    "totalMinionsKilled": 201,
+    "neutralMinionsKilled": 8,
+    "goldEarned": 11800,
+    "totalDamageDealtToChampions": 18200,
+    "totalDamageTaken": 20020,
+    "visionScore": 14,
+    "wardsPlaced": 7,
+    "wardsKilled": 2,
+    "visionWardsBoughtInGame": 1,
+    "item0": 3071,
+    "item1": 3047,
+    "item2": 6333,
+    "item3": 3053,
+    "item4": 0,
+    "item5": 0,
+    "item6": 3340,
+    "summoner1Id": 4,
+    "summoner2Id": 12,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8010
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8400,
+       "selections": []
+      }
+     ]
+    }
+   },
+   {
+    "puuid": "puuid-kgb",
+    "riotIdGameName": "KGB",
+    "riotIdTagline": "Мажор",
+    "participantId": 2,
+    "teamId": 100,
+    "teamPosition": "JUNGLE",
+    "championName": "LeeSin",
+    "champLevel": 16,
+    "win": true,
+    "kills": 9,
+    "deaths": 2,
+    "assists": 11,
+    "largestMultiKill": 2,
+    "totalMinionsKilled": 58,
+    "neutralMinionsKilled": 98,
+    "goldEarned": 12900,
+    "totalDamageDealtToChampions": 19800,
+    "totalDamageTaken": 21780,
+    "visionScore": 28,
+    "wardsPlaced": 14,
+    "wardsKilled": 4,
+    "visionWardsBoughtInGame": 2,
+    "item0": 6692,
+    "item1": 6610,
+    "item2": 3071,
+    "item3": 3047,
+    "item4": 3026,
+    "item5": 0,
+    "item6": 3364,
+    "summoner1Id": 4,
+    "summoner2Id": 11,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8010
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8300,
+       "selections": []
+      }
+     ]
+    }
+   },
+   {
+    "puuid": "puuid-velkan",
+    "riotIdGameName": "Velkan",
+    "riotIdTagline": "0001",
+    "participantId": 3,
+    "teamId": 100,
+    "teamPosition": "MIDDLE",
+    "championName": "Orianna",
+    "champLevel": 16,
+    "win": true,
+    "kills": 5,
+    "deaths": 2,
+    "assists": 12,
+    "largestMultiKill": 1,
+    "totalMinionsKilled": 224,
+    "neutralMinionsKilled": 10,
+    "goldEarned": 11900,
+    "totalDamageDealtToChampions": 24100,
+    "totalDamageTaken": 26510,
+    "visionScore": 19,
+    "wardsPlaced": 9,
+    "wardsKilled": 3,
+    "visionWardsBoughtInGame": 1,
+    "item0": 6655,
+    "item1": 3020,
+    "item2": 4645,
+    "item3": 3089,
+    "item4": 0,
+    "item5": 0,
+    "item6": 3340,
+    "summoner1Id": 4,
+    "summoner2Id": 12,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8229
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8300,
+       "selections": []
+      }
+     ]
+    }
+   },
+   {
+    "puuid": "puuid-morrow",
+    "riotIdGameName": "Morrow",
+    "riotIdTagline": "EUW",
+    "participantId": 4,
+    "teamId": 100,
+    "teamPosition": "BOTTOM",
+    "championName": "Jinx",
+    "champLevel": 16,
+    "win": true,
+    "kills": 7,
+    "deaths": 3,
+    "assists": 8,
+    "largestMultiKill": 3,
+    "totalMinionsKilled": 241,
+    "neutralMinionsKilled": 4,
+    "goldEarned": 13100,
+    "totalDamageDealtToChampions": 27400,
+    "totalDamageTaken": 30140,
+    "visionScore": 12,
+    "wardsPlaced": 6,
+    "wardsKilled": 2,
+    "visionWardsBoughtInGame": 1,
+    "item0": 6672,
+    "item1": 3006,
+    "item2": 3031,
+    "item3": 3094,
+    "item4": 3036,
+    "item5": 0,
+    "item6": 3340,
+    "summoner1Id": 4,
+    "summoner2Id": 7,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8008
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8300,
+       "selections": []
+      }
+     ]
+    }
+   },
+   {
+    "puuid": "puuid-saelith",
+    "riotIdGameName": "Saelith",
+    "riotIdTagline": "LEO",
+    "participantId": 5,
+    "teamId": 100,
+    "teamPosition": "UTILITY",
+    "championName": "Leona",
+    "champLevel": 14,
+    "win": true,
+    "kills": 1,
+    "deaths": 3,
+    "assists": 19,
+    "largestMultiKill": 1,
+    "totalMinionsKilled": 28,
+    "neutralMinionsKilled": 0,
+    "goldEarned": 8400,
+    "totalDamageDealtToChampions": 6900,
+    "totalDamageTaken": 7590,
+    "visionScore": 61,
+    "wardsPlaced": 30,
+    "wardsKilled": 10,
+    "visionWardsBoughtInGame": 6,
+    "item0": 3190,
+    "item1": 3047,
+    "item2": 3109,
+    "item3": 3050,
+    "item4": 0,
+    "item5": 0,
+    "item6": 3364,
+    "summoner1Id": 4,
+    "summoner2Id": 14,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8439
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8300,
+       "selections": []
+      }
+     ]
+    }
+   },
+   {
+    "puuid": "puuid-torvik",
+    "riotIdGameName": "Torvik",
+    "riotIdTagline": "EUW",
+    "participantId": 6,
+    "teamId": 200,
+    "teamPosition": "TOP",
+    "championName": "Gnar",
+    "champLevel": 15,
+    "win": false,
+    "kills": 3,
+    "deaths": 5,
+    "assists": 3,
+    "largestMultiKill": 1,
+    "totalMinionsKilled": 188,
+    "neutralMinionsKilled": 6,
+    "goldEarned": 9800,
+    "totalDamageDealtToChampions": 15600,
+    "totalDamageTaken": 17160,
+    "visionScore": 11,
+    "wardsPlaced": 5,
+    "wardsKilled": 1,
+    "visionWardsBoughtInGame": 1,
+    "item0": 3078,
+    "item1": 3047,
+    "item2": 6333,
+    "item3": 0,
+    "item4": 0,
+    "item5": 0,
+    "item6": 3340,
+    "summoner1Id": 4,
+    "summoner2Id": 12,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8010
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8400,
+       "selections": []
+      }
+     ]
+    }
+   },
+   {
+    "puuid": "puuid-draven-main",
+    "riotIdGameName": "Draven Main",
+    "riotIdTagline": "999",
+    "participantId": 7,
+    "teamId": 200,
+    "teamPosition": "JUNGLE",
+    "championName": "XinZhao",
+    "champLevel": 14,
+    "win": false,
+    "kills": 2,
+    "deaths": 6,
+    "assists": 4,
+    "largestMultiKill": 1,
+    "totalMinionsKilled": 49,
+    "neutralMinionsKilled": 84,
+    "goldEarned": 9100,
+    "totalDamageDealtToChampions": 11200,
+    "totalDamageTaken": 12320,
+    "visionScore": 21,
+    "wardsPlaced": 10,
+    "wardsKilled": 3,
+    "visionWardsBoughtInGame": 2,
+    "item0": 6692,
+    "item1": 3047,
+    "item2": 3053,
+    "item3": 0,
+    "item4": 0,
+    "item5": 0,
+    "item6": 3364,
+    "summoner1Id": 4,
+    "summoner2Id": 11,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8010
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8300,
+       "selections": []
+      }
+     ]
+    }
+   },
+   {
+    "puuid": "puuid-lunaire",
+    "riotIdGameName": "Lunaire",
+    "riotIdTagline": "EUW",
+    "participantId": 8,
+    "teamId": 200,
+    "teamPosition": "MIDDLE",
+    "championName": "Azir",
+    "champLevel": 15,
+    "win": false,
+    "kills": 3,
+    "deaths": 5,
+    "assists": 4,
+    "largestMultiKill": 1,
+    "totalMinionsKilled": 219,
+    "neutralMinionsKilled": 6,
+    "goldEarned": 10200,
+    "totalDamageDealtToChampions": 19800,
+    "totalDamageTaken": 21780,
+    "visionScore": 16,
+    "wardsPlaced": 8,
+    "wardsKilled": 2,
+    "visionWardsBoughtInGame": 1,
+    "item0": 3115,
+    "item1": 3020,
+    "item2": 4645,
+    "item3": 0,
+    "item4": 0,
+    "item5": 0,
+    "item6": 3340,
+    "summoner1Id": 4,
+    "summoner2Id": 12,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8214
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8300,
+       "selections": []
+      }
+     ]
+    }
+   },
+   {
+    "puuid": "puuid-kestrel",
+    "riotIdGameName": "Kestrel",
+    "riotIdTagline": "EUW",
+    "participantId": 9,
+    "teamId": 200,
+    "teamPosition": "BOTTOM",
+    "championName": "Varus",
+    "champLevel": 15,
+    "win": false,
+    "kills": 2,
+    "deaths": 4,
+    "assists": 5,
+    "largestMultiKill": 1,
+    "totalMinionsKilled": 226,
+    "neutralMinionsKilled": 2,
+    "goldEarned": 10600,
+    "totalDamageDealtToChampions": 17400,
+    "totalDamageTaken": 19140,
+    "visionScore": 10,
+    "wardsPlaced": 5,
+    "wardsKilled": 1,
+    "visionWardsBoughtInGame": 1,
+    "item0": 6672,
+    "item1": 3006,
+    "item2": 3036,
+    "item3": 0,
+    "item4": 0,
+    "item5": 0,
+    "item6": 3340,
+    "summoner1Id": 4,
+    "summoner2Id": 7,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8008
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8300,
+       "selections": []
+      }
+     ]
+    }
+   },
+   {
+    "puuid": "puuid-oskar",
+    "riotIdGameName": "Oskar",
+    "riotIdTagline": "777",
+    "participantId": 10,
+    "teamId": 200,
+    "teamPosition": "UTILITY",
+    "championName": "Braum",
+    "champLevel": 13,
+    "win": false,
+    "kills": 0,
+    "deaths": 6,
+    "assists": 7,
+    "largestMultiKill": 1,
+    "totalMinionsKilled": 31,
+    "neutralMinionsKilled": 0,
+    "goldEarned": 7100,
+    "totalDamageDealtToChampions": 4800,
+    "totalDamageTaken": 5280,
+    "visionScore": 52,
+    "wardsPlaced": 26,
+    "wardsKilled": 8,
+    "visionWardsBoughtInGame": 5,
+    "item0": 3190,
+    "item1": 3111,
+    "item2": 3109,
+    "item3": 0,
+    "item4": 0,
+    "item5": 0,
+    "item6": 3364,
+    "summoner1Id": 4,
+    "summoner2Id": 3,
+    "gameEndedInEarlySurrender": false,
+    "perks": {
+     "styles": [
+      {
+       "description": "primaryStyle",
+       "style": 8000,
+       "selections": [
+        {
+         "perk": 8439
+        }
+       ]
+      },
+      {
+       "description": "subStyle",
+       "style": 8300,
+       "selections": []
+      }
+     ]
+    }
+   }
+  ],
+  "teams": [
+   {
+    "teamId": 100,
+    "win": true,
+    "objectives": {
+     "baron": {
+      "first": false,
+      "kills": 1
+     },
+     "champion": {
+      "first": false,
+      "kills": 26
+     },
+     "dragon": {
+      "first": false,
+      "kills": 3
+     },
+     "horde": {
+      "first": false,
+      "kills": 6
+     },
+     "inhibitor": {
+      "first": false,
+      "kills": 1
+     },
+     "riftHerald": {
+      "first": false,
+      "kills": 0
+     },
+     "tower": {
+      "first": false,
+      "kills": 8
+     },
+     "atakhan": {
+      "first": false,
+      "kills": 1
+     }
+    }
+   },
+   {
+    "teamId": 200,
+    "win": false,
+    "objectives": {
+     "baron": {
+      "first": false,
+      "kills": 0
+     },
+     "champion": {
+      "first": false,
+      "kills": 10
+     },
+     "dragon": {
+      "first": false,
+      "kills": 0
+     },
+     "horde": {
+      "first": false,
+      "kills": 0
+     },
+     "inhibitor": {
+      "first": false,
+      "kills": 0
+     },
+     "riftHerald": {
+      "first": false,
+      "kills": 1
+     },
+     "tower": {
+      "first": false,
+      "kills": 2
+     },
+     "atakhan": {
+      "first": false,
+      "kills": 0
+     }
+    }
+   }
+  ]
+ }
+}

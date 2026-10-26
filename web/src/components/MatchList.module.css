@@ -1,0 +1,42 @@
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.placeholder {
+  height: 96px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.empty {
+  color: var(--muted);
+}
+
+.more {
+  padding: 11px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.more:hover {
+  color: var(--fg);
+  background: var(--surface-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .placeholder {
+    animation: none;
+  }
+}

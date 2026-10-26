@@ -1,0 +1,70 @@
+:root {
+  --bg: #0d111b;
+  --surface: #151a28;
+  --surface-2: #1c2233;
+  --surface-3: #232a3e;
+  --line: #262e44;
+  --fg: #e6e9f2;
+  --muted: #8a93ab;
+  --faint: #5b647d;
+  --win: #4c8dff;
+  --win-bg: #17233f;
+  --win-line: #2a4374;
+  --loss: #ec5b5b;
+  --loss-bg: #2a1820;
+  --loss-line: #5a2a35;
+  --remake: #8a93ab;
+  --gold: #e3b34f;
+  --good: #5ccf8f;
+  --font-display: 'Saira Semi Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --radius: 10px;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.45 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+}

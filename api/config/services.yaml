@@ -1,0 +1,32 @@
+# This file is the entry point to configure your own services.
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    env(RIOT_PLATFORM): 'euw1'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            $riotPlatform: '@App\Riot\Platform'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/**/Dto/'
+            - '../src/Riot/Platform.php'
+            - '../src/Riot/Exception/'
+
+    App\Riot\Platform:
+        factory: ['App\Riot\Platform', 'from']
+        arguments: ['%env(RIOT_PLATFORM)%']
+
+    App\Riot\RiotApiClient:
+        arguments:
+            $httpClient: '@riot.client'
+            $cache: '@cache.riot'
+
+when@test:
+    services:
+        App\Tests\Fixtures\FakeRiotApi: ~

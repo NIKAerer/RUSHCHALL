@@ -1,0 +1,15 @@
+.error {
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: var(--loss-bg);
+  border: 1px solid var(--loss-line);
+}
+
+.error strong {
+  color: var(--loss);
+}
+
+.error p {
+  margin: 4px 0 0;
+  color: var(--fg);
+}

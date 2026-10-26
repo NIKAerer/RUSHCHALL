@@ -1,0 +1,25 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    secret: '%env(APP_SECRET)%'
+    session: false
+
+    http_client:
+        scoped_clients:
+            riot.client:
+                scope: 'https://[a-z0-9]+\.api\.riotgames\.com'
+                headers:
+                    X-Riot-Token: '%env(RIOT_API_KEY)%'
+                    Accept: 'application/json'
+                timeout: 10
+                # Respecte l'en-tête Retry-After renvoyé par Riot en cas de 429.
+                retry_failed:
+                    max_retries: 2
+                    http_codes:
+                        429: ['GET']
+                        503: ['GET']
+
+when@test:
+    framework:
+        test: true
+        http_client:
+            mock_response_factory: App\Tests\Fixtures\FakeRiotApi

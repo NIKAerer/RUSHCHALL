@@ -1,0 +1,16 @@
+.home {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding-top: 18vh;
+  text-align: center;
+}
+
+.home h1 {
+  font-size: 32px;
+}
+
+.home p {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
