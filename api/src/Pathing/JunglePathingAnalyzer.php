@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Pathing;
 
 use App\Pathing\Dto\Fighter;
+use App\Pathing\Dto\GoldPoint;
 use App\Pathing\Dto\JunglePathing;
 use App\Pathing\Dto\JunglerPath;
 use App\Pathing\Dto\JunglerStats;
@@ -84,6 +85,7 @@ final class JunglePathingAnalyzer
             ),
             objectives: $this->objectives($events, $participants),
             highlights: $this->highlights($events, $participants, array_column($junglers, 'participantId'), $trackedTeam ?? 100),
+            gold: $this->gold($frames, $participants, $trackedTeam ?? 100, array_values($junglers)),
         );
     }
 
@@ -249,6 +251,48 @@ final class JunglePathingAnalyzer
         $p = $participants[$participantId] ?? null;
 
         return null === $p ? null : new Fighter($p['championName'], $p['teamId']);
+    }
+
+    /**
+     * Gold total de chaque équipe et des deux junglers, minute par minute.
+     *
+     * @param list<array<string, mixed>>       $frames
+     * @param array<int, array<string, mixed>> $participants
+     * @param list<array<string, mixed>>       $junglers     celui de l'équipe suivie d'abord
+     *
+     * @return list<GoldPoint>
+     */
+    private function gold(array $frames, array $participants, int $trackedTeam, array $junglers): array
+    {
+        $junglerOf = static function (int $team) use ($junglers): ?int {
+            foreach ($junglers as $jungler) {
+                if ($jungler['teamId'] === $team) {
+                    return $jungler['participantId'];
+                }
+            }
+
+            return null;
+        };
+        [$allyJungler, $enemyJungler] = [$junglerOf($trackedTeam), $junglerOf(300 - $trackedTeam)];
+
+        return array_map(static function (array $frame) use ($participants, $trackedTeam, $allyJungler, $enemyJungler): GoldPoint {
+            $totals = [100 => 0, 200 => 0];
+            foreach ($frame['participantFrames'] as $id => $state) {
+                $team = $participants[(int) $id]['teamId'] ?? null;
+                if (null !== $team) {
+                    $totals[$team] += $state['totalGold'] ?? 0;
+                }
+            }
+            $goldOf = static fn (?int $id) => null === $id ? null : ($frame['participantFrames'][(string) $id]['totalGold'] ?? null);
+
+            return new GoldPoint(
+                t: intdiv($frame['timestamp'], 1000),
+                ally: $totals[$trackedTeam],
+                enemy: $totals[300 - $trackedTeam],
+                allyJungler: $goldOf($allyJungler),
+                enemyJungler: $goldOf($enemyJungler),
+            );
+        }, $frames);
     }
 
     /**

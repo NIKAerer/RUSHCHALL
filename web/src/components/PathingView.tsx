@@ -6,6 +6,7 @@ import { useChampion, useStaticData } from '../ddragon/useStaticData'
 import { formatDuration, formatNumber } from '../lib/format'
 import { ErrorState } from './ErrorState'
 import { FirstClear } from './FirstClear'
+import { GoldGauge } from './GoldGauge'
 import { MomentFeed } from './MomentFeed'
 import { ChampionIcon } from './GameIcons'
 import { aheadOf } from '../lib/compare'
@@ -206,6 +207,8 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
               <small> / {formatDuration(duration)}</small>
             </output>
           </div>
+
+          <GoldGauge gold={pathing.gold} junglers={pathing.junglers} until={until} duration={duration} onSeek={seek} />
 
           <div className={styles.toolbar}>
             <div className={styles.segmented} role="group" aria-label="Aller à">

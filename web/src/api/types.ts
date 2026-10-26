@@ -204,4 +204,14 @@ export interface JunglePathing {
   objectives: Objective[]
   /** Kills marquants sans jungler (first blood, triple kill…). */
   highlights: Moment[]
+  gold: GoldPoint[]
+}
+
+/** Gold total à une minute : ton équipe contre l'adverse, ton jungler contre celui d'en face. */
+export interface GoldPoint {
+  t: number
+  ally: number
+  enemy: number
+  allyJungler: number | null
+  enemyJungler: number | null
 }

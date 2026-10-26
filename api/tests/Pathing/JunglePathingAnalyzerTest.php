@@ -91,6 +91,17 @@ final class JunglePathingAnalyzerTest extends TestCase
         self::assertSame('Azir', $highlights[0]->victim?->championName);
     }
 
+    public function testGoldIsSplitByTeamAndJungler(): void
+    {
+        $gold = $this->analyze('EUW1_7412345678')->gold;
+
+        self::assertCount(27, $gold);
+        self::assertSame([0, 500], [$gold[0]->t, $gold[0]->allyJungler]);
+        $tenMinutes = $gold[10];
+        self::assertSame([600, 4300, 4300], [$tenMinutes->t, $tenMinutes->allyJungler, $tenMinutes->enemyJungler]);
+        self::assertGreaterThan($tenMinutes->allyJungler, $tenMinutes->ally);
+    }
+
     public function testStatsCompareBothJunglers(): void
     {
         [$lee, $xin] = $this->analyze('EUW1_7412345678')->junglers;
