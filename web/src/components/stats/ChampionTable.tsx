@@ -9,8 +9,13 @@ import styles from './ChampionTable.module.css'
 import common from './stats.module.css'
 
 /** Stats par champion ; un clic ouvre ses matchups contre l'adversaire au même poste. */
+/** Champions affichés avant « Voir tout ». */
+const CHAMPIONS_SHOWN = 8
+const MATCHUPS_SHOWN = 12
+
 export function ChampionTable({ champions }: { champions: ChampionStats[] }) {
   const [open, setOpen] = useState<string | null>(null)
+  const [all, setAll] = useState(false)
 
   return (
     <section className={common.panel}>
@@ -32,7 +37,7 @@ export function ChampionTable({ champions }: { champions: ChampionStats[] }) {
             </tr>
           </thead>
           <tbody>
-            {champions.map((champion) => (
+            {(all ? champions : champions.slice(0, CHAMPIONS_SHOWN)).map((champion) => (
               <Fragment key={champion.championName}>
                 <ChampionRow
                   champion={champion}
@@ -51,6 +56,7 @@ export function ChampionTable({ champions }: { champions: ChampionStats[] }) {
           </tbody>
         </table>
       </div>
+      <MoreButton hidden={champions.length - CHAMPIONS_SHOWN} all={all} onToggle={() => setAll((a) => !a)} />
     </section>
   )
 }
@@ -84,14 +90,27 @@ function ChampionRow({ champion, open, onToggle }: { champion: ChampionStats; op
 
 /** Adversaires au même poste : icône, winrate et écart de gold moyen à 15 minutes. */
 export function Matchups({ matchups }: { matchups: MatchupStats[] }) {
+  const [all, setAll] = useState(false)
   if (matchups.length === 0) return <p className={common.empty}>Aucun adversaire connu.</p>
 
   return (
-    <ul className={styles.matchups}>
-      {matchups.map((m) => (
-        <MatchupChip key={m.opponent} matchup={m} />
-      ))}
-    </ul>
+    <>
+      <ul className={styles.matchups}>
+        {(all ? matchups : matchups.slice(0, MATCHUPS_SHOWN)).map((m) => (
+          <MatchupChip key={m.opponent} matchup={m} />
+        ))}
+      </ul>
+      <MoreButton hidden={matchups.length - MATCHUPS_SHOWN} all={all} onToggle={() => setAll((a) => !a)} />
+    </>
+  )
+}
+
+function MoreButton({ hidden, all, onToggle }: { hidden: number; all: boolean; onToggle: () => void }) {
+  if (hidden <= 0) return null
+  return (
+    <button type="button" className={styles.more} onClick={onToggle}>
+      {all ? 'Réduire' : `Voir tout (+${hidden})`}
+    </button>
   )
 }
 

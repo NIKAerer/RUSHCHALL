@@ -22,7 +22,9 @@ final class StatsAggregator
 {
     private const TIMEZONE = 'Europe/Paris';
     private const MAP_SIZE = 15000;
-    private const HEATMAP_SIZE = 30;
+    private const HEATMAP_SIZE = 60;
+    /** Un premier clear relevé sur moins de camps (relevés minute par minute) ne dit rien de la route. */
+    private const ROUTE_MIN_CAMPS = 3;
     private const RECENT_GAMES = 20;
     private const OBJECTIVES = ['grubs', 'herald', 'dragon', 'atakhan', 'baron'];
     private const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND'];
@@ -134,7 +136,10 @@ final class StatsAggregator
         return new JungleStats(
             games: \count($jungle),
             starts: $this->records($jungle, static fn (GameFacts $g) => $g->clear[0]),
-            routes: $this->records($jungle, static fn (GameFacts $g) => implode('>', $g->clear)),
+            routes: $this->records(
+                array_values(array_filter($jungle, static fn (GameFacts $g) => \count($g->clear) >= self::ROUTE_MIN_CAMPS)),
+                static fn (GameFacts $g) => implode('>', $g->clear),
+            ),
             firstGanks: $this->records($ganked, static fn (GameFacts $g) => $g->firstGankLane),
             firstGankAt: $this->averageInt($ganked, static fn (GameFacts $g) => $g->firstGankAt),
         );

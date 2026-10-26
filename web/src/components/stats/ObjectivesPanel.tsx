@@ -27,7 +27,7 @@ export function ObjectivesPanel({ objectives }: { objectives: ObjectiveStats[] }
           <span>pris</span>
           <span>perdu</span>
         </li>
-        {objectives.map((o) => {
+        {objectives.filter((o) => o.taken + o.lost > 0).map((o) => {
           const total = o.taken + o.lost
           return (
             <li key={o.type} className={styles.objective}>

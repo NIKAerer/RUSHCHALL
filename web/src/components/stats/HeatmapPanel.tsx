@@ -32,8 +32,14 @@ export function HeatmapPanel({ heatmap }: { heatmap: Heatmap }) {
       <svg className={styles.map} viewBox={`0 0 ${MAP_SIZE} ${MAP_SIZE}`} role="img" aria-label={layer === 'positions' ? 'Positions sur la carte' : 'Morts sur la carte'}>
         <rect width={MAP_SIZE} height={MAP_SIZE} className={styles.ground} />
         {data && <image href={mapImage(data.version)} width={MAP_SIZE} height={MAP_SIZE} opacity={0.45} />}
-        {layer === 'positions' &&
-          heatmap.cells.map(([column, row, count]) => (
+        <defs>
+          <filter id="heat-blur">
+            <feGaussianBlur stdDeviation={cell * 0.6} />
+          </filter>
+        </defs>
+        {layer === 'positions' && (
+          <g filter="url(#heat-blur)">
+            {heatmap.cells.map(([column, row, count]) => (
             <rect
               key={`${column}:${row}`}
               x={column * cell}
@@ -43,9 +49,11 @@ export function HeatmapPanel({ heatmap }: { heatmap: Heatmap }) {
               className={styles.cell}
               style={{ opacity: 0.15 + Math.sqrt(count / most) * 0.75 }}
             >
-              <title>{count} relevés</title>
-            </rect>
-          ))}
+                <title>{count} relevés</title>
+              </rect>
+            ))}
+          </g>
+        )}
         {layer === 'deaths' &&
           heatmap.deaths.map(([x, y], index) => (
             <g key={index} transform={`translate(${x} ${MAP_SIZE - y})`} className={styles.death}>
