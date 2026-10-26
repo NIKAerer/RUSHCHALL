@@ -14,14 +14,26 @@ import styles from './PathingView.module.css'
 /** Les coordonnées Riot vont de 0 à ~15 000, avec la base bleue en bas à gauche. */
 const MAP_SIZE = 15000
 const EARLY_GAME = 15 * 60
+const MARKER_GAP = 1300
 
 const COLORS = ['var(--path-ally)', 'var(--path-enemy)']
 
-/** Au-delà de 5 minutes, la route s'est entièrement effacée : la carte reste propre. */
-const TRAIL_SECONDS = 5 * 60
+/** Longueur de la traînée derrière chaque jungler : au-delà de 5 minutes, la route disparaît. */
+const TRAILS = [
+  { label: '3′', seconds: 180 },
+  { label: '5′', seconds: 300 },
+]
 
 /** Secondes de jeu jouées par seconde réelle pendant la lecture. */
 const SPEEDS = [15, 30, 60]
+
+const PANELS = [
+  { value: 'moments', label: 'Moments forts' },
+  { value: 'clear', label: 'Premier clear' },
+  { value: 'stats', label: 'Stats' },
+] as const
+
+type Panel = (typeof PANELS)[number]['value']
 
 interface ListedMoment {
   key: string
@@ -47,6 +59,8 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
   const [hovered, setHovered] = useState<string | null>(null)
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(SPEEDS[1])
+  const [trail, setTrail] = useState(TRAILS[0].seconds)
+  const [panel, setPanel] = useState<Panel>('moments')
   const listRef = useRef<HTMLOListElement>(null)
 
   usePlayback(playing, speed, duration, until, setUntil, () => setPlaying(false))
@@ -123,54 +137,89 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
           objectives={pathing.objectives.filter((o) => o.t <= until)}
           moments={moments}
           until={until}
+          trail={trail}
           highlighted={highlighted}
           onHover={setHovered}
           onSelect={jumpTo}
         />
 
-        <div className={styles.timeControls}>
-          <button type="button" className={styles.play} onClick={play} aria-label={playing ? 'Pause' : 'Lecture'}>
-            {playing ? '❚❚' : '▶'}
-          </button>
-          <input
-            id={`until-${pathing.matchId}`}
-            type="range"
-            min={0}
-            max={duration}
-            step={1}
-            value={until}
-            onChange={(e) => seek(Number(e.target.value))}
-            aria-label="Moment de la game"
-          />
-          <output htmlFor={`until-${pathing.matchId}`}>{formatDuration(Math.round(until))}</output>
-        </div>
-        <div className={styles.timeControls}>
-          <div className={styles.presets} role="group" aria-label="Aller à">
-            {[3, 5, 10, 15].map((minute) => (
-              <button key={minute} type="button" onClick={() => seek(minute * 60)}>
-                {minute}′
-              </button>
-            ))}
-            <button type="button" onClick={() => seek(duration)}>
-              Fin
+        <div className={styles.player}>
+          <div className={styles.timeline}>
+            <button type="button" className={styles.play} onClick={play} aria-label={playing ? 'Pause' : 'Lecture'}>
+              {playing ? '❚❚' : '▶'}
             </button>
+            <div className={styles.track}>
+              {/* Repères des moments forts sous le curseur. */}
+              {moments.map((listed) => (
+                <span
+                  key={listed.key}
+                  className={styles.tick}
+                  style={{ left: `${(listed.moment.t / duration) * 100}%`, ['--color' as string]: COLORS[listed.index] }}
+                  data-death={listed.moment.type === 'death' || undefined}
+                />
+              ))}
+              <input
+                id={`until-${pathing.matchId}`}
+                type="range"
+                min={0}
+                max={duration}
+                step={1}
+                value={until}
+                onChange={(e) => seek(Number(e.target.value))}
+                aria-label="Moment de la game"
+              />
+            </div>
+            <output htmlFor={`until-${pathing.matchId}`} className={styles.clock}>
+              {formatDuration(Math.round(until))}
+              <small> / {formatDuration(duration)}</small>
+            </output>
           </div>
-          <div className={styles.presets} role="group" aria-label="Vitesse de lecture">
-            <span className={styles.presetLabel}>Vitesse</span>
-            {SPEEDS.map((value) => (
-              <button key={value} type="button" aria-pressed={speed === value} onClick={() => setSpeed(value)}>
-                ×{value}
+
+          <div className={styles.toolbar}>
+            <div className={styles.segmented} role="group" aria-label="Aller à">
+              {[3, 5, 10, 15].map((minute) => (
+                <button key={minute} type="button" aria-pressed={Math.round(until) === minute * 60} onClick={() => seek(minute * 60)}>
+                  {minute}′
+                </button>
+              ))}
+              <button type="button" aria-pressed={until >= duration} onClick={() => seek(duration)}>
+                Fin
               </button>
-            ))}
+            </div>
+            <div className={styles.segmented} role="group" aria-label="Traînée">
+              <span className={styles.presetLabel}>Traînée</span>
+              {TRAILS.map((option) => (
+                <button key={option.label} type="button" aria-pressed={trail === option.seconds} onClick={() => setTrail(option.seconds)}>
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              className={styles.speed}
+              onClick={() => setSpeed(SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length])}
+              title="Vitesse de lecture"
+            >
+              ×{speed}
+            </button>
           </div>
         </div>
       </div>
 
       <div className={styles.side}>
-        <FirstClear junglers={pathing.junglers} colors={COLORS} />
-        <StatsTable junglers={pathing.junglers} />
+        <div className={styles.panelTabs} role="tablist" aria-label="Analyse du pathing">
+          {PANELS.map(({ value, label }) => (
+            <button key={value} type="button" role="tab" aria-selected={panel === value} onClick={() => setPanel(value)}>
+              {label}
+              {value === 'moments' && <span className={styles.count}>{moments.length}</span>}
+            </button>
+          ))}
+        </div>
+
+        {panel === 'clear' && <FirstClear junglers={pathing.junglers} colors={COLORS} />}
+        {panel === 'stats' && <StatsTable junglers={pathing.junglers} />}
+        {panel === 'moments' && (
         <div>
-          <h4 className={styles.heading}>Moments forts</h4>
           {moments.length === 0 ? (
             <p className={styles.empty}>Aucun moment fort.</p>
           ) : (
@@ -196,6 +245,7 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
             </ol>
           )}
         </div>
+        )}
       </div>
     </div>
   )
@@ -249,6 +299,7 @@ function MiniMap({
   objectives,
   moments,
   until,
+  trail,
   highlighted,
   onHover,
   onSelect,
@@ -259,6 +310,7 @@ function MiniMap({
   objectives: Objective[]
   moments: ListedMoment[]
   until: number
+  trail: number
   highlighted: string | null
   onHover: (key: string | null) => void
   onSelect: (moment: ListedMoment) => void
@@ -266,9 +318,18 @@ function MiniMap({
   const data = useStaticData()
   const [imageFailed, setImageFailed] = useState(false)
   const y = (value: number) => MAP_SIZE - value
-  const from = until - TRAIL_SECONDS
-  /** Opacité d'un point de la route selon son âge : 1 maintenant, 0 il y a 5 minutes. */
-  const fade = (t: number) => Math.max(0, 1 - (until - t) / TRAIL_SECONDS)
+  const from = until - trail
+  /** Opacité d'un point de la route selon son âge : 1 maintenant, 0 au bout de la traînée. */
+  const fade = (t: number) => Math.max(0, 1 - (until - t) / trail)
+  // Deux junglers au même endroit (gank, fight) : on écarte leurs icônes pour voir les deux.
+  const markers = junglers.flatMap((jungler, index) => {
+    const now = visible.includes(jungler.puuid) ? positionAt(jungler.points, until) : null
+    return now ? [{ jungler, index, x: now.x, y: now.y }] : []
+  })
+  if (markers.length === 2 && Math.hypot(markers[0].x - markers[1].x, markers[0].y - markers[1].y) < MARKER_GAP) {
+    markers[0].x -= MARKER_GAP / 2
+    markers[1].x += MARKER_GAP / 2
+  }
   const shownMoments = moments.filter(({ key, moment }) => (moment.t <= until && moment.t >= from) || key === highlighted)
 
   return (
@@ -293,7 +354,7 @@ function MiniMap({
         const route = [...(start ? [{ ...start, t: Math.max(from, 0) }] : []), ...inside, ...(now ? [{ ...now, t: until }] : [])]
         return (
           <g key={jungler.puuid} style={{ color: COLORS[index] }}>
-            {/* Chaque segment est un dégradé : la route s'efface en continu jusqu'à disparaître après 5 minutes. */}
+            {/* Chaque segment est un dégradé : la route s'efface en continu jusqu'à disparaître au bout de la traînée. */}
             {route.slice(1).map((p, i) => {
               const previous = route[i]
               const gradient = `trail-${matchId}-${index}-${i}`
@@ -340,11 +401,9 @@ function MiniMap({
         </g>
       ))}
 
-      {junglers.map((jungler, index) => {
-        if (!visible.includes(jungler.puuid)) return null
-        const now = positionAt(jungler.points, until)
-        return now ? <ChampionMarker key={jungler.puuid} id={`${matchId}-${index}`} jungler={jungler} color={COLORS[index]} x={now.x} y={y(now.y)} /> : null
-      })}
+      {markers.map(({ jungler, index, x, y: markerY }) => (
+        <ChampionMarker key={jungler.puuid} id={`${matchId}-${index}`} jungler={jungler} color={COLORS[index]} x={x} y={y(markerY)} />
+      ))}
     </svg>
   )
 }

@@ -19,7 +19,6 @@ const SIDES = { ally: 'sa jungle', enemy: 'invade', river: 'rivière' } as const
 export function FirstClear({ junglers, colors }: { junglers: JunglerPath[]; colors: string[] }) {
   return (
     <section className={styles.firstClear}>
-      <h4 className={styles.heading}>Premier clear</h4>
       {junglers.map((jungler, index) => (
         <ClearRoute key={jungler.puuid} jungler={jungler} color={colors[index]} />
       ))}
