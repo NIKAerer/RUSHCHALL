@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathing } from '../api/queries'
 import type { JunglePathing, JunglerPath, JunglerStats, Moment, MomentType, Objective, PathPoint } from '../api/types'
 import { mapImage } from '../ddragon/ddragon'
@@ -74,7 +74,9 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
   const [panel, setPanel] = useState<Panel>('moments')
   const listRef = useRef<HTMLOListElement>(null)
 
-  usePlayback(playing, speed, duration, until, setUntil, () => setPlaying(false))
+  usePlayback(playing, speed, duration, setUntil)
+  // Arrivée en fin de game : la lecture s'arrête.
+  if (playing && until >= duration) setPlaying(false)
 
   const visible = pathing.junglers.filter((j) => !hidden.includes(j.puuid)).map((j) => j.puuid)
   const allMoments: ListedMoment[] = useMemo(
@@ -277,27 +279,21 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
   )
 }
 
-/** Fait avancer le temps à `speed` secondes de jeu par seconde réelle. */
-function usePlayback(playing: boolean, speed: number, duration: number, until: number, setUntil: (t: number) => void, onEnd: () => void) {
-  const untilRef = useRef(until)
-  const onEndRef = useRef(onEnd)
-  useEffect(() => {
-    untilRef.current = until
-    onEndRef.current = onEnd
-  })
-
+/**
+ * Fait avancer le temps à `speed` secondes de jeu par seconde réelle, jusqu'à `duration`.
+ * Chaque image ajoute son pas à la dernière valeur de l'état : aucune image ne peut écraser
+ * la précédente, donc le curseur ne recule jamais et la vitesse est exacte.
+ */
+function usePlayback(playing: boolean, speed: number, duration: number, setUntil: Dispatch<SetStateAction<number>>) {
   useEffect(() => {
     if (!playing) return
     let frame = 0
-    let last = performance.now()
+    let last: number | null = null
     const tick = (now: number) => {
-      // L'horodatage de la frame peut précéder `last` : jamais de retour en arrière.
-      const next = Math.min(untilRef.current + (Math.max(0, now - last) / 1000) * speed, duration)
+      const elapsed = last === null ? 0 : Math.max(0, now - last) / 1000
       last = now
-      untilRef.current = next
-      setUntil(next)
-      if (next >= duration) onEndRef.current()
-      else frame = requestAnimationFrame(tick)
+      setUntil((until) => Math.min(until + elapsed * speed, duration))
+      frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
