@@ -1,0 +1,35 @@
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.rating b {
+  font: 700 15px var(--font-display);
+  color: var(--fg);
+}
+
+.tag {
+  padding: 1px 6px;
+  border-radius: 999px;
+  font: 700 11px var(--font-display);
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: var(--surface-3);
+}
+
+.mvp .tag {
+  color: #1a1305;
+  background: var(--gold);
+}
+
+.ace .tag {
+  color: #12091d;
+  background: var(--path-enemy);
+}
+
+.compact .tag {
+  padding: 0 4px;
+  font-size: 9px;
+}

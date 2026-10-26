@@ -21,6 +21,12 @@ export interface Profile {
 
 export type Position = 'TOP' | 'JUNGLE' | 'MIDDLE' | 'BOTTOM' | 'UTILITY'
 
+export interface Rating {
+  score: number
+  rank: number
+  badge: 'MVP' | 'ACE' | null
+}
+
 export interface Participant {
   puuid: string
   gameName: string
@@ -49,6 +55,7 @@ export interface Participant {
   summonerSpells: [number, number]
   keystone: number
   secondaryRuneStyle: number
+  rating: Rating
 }
 
 export interface Lineup {
@@ -57,6 +64,7 @@ export interface Lineup {
   tagLine: string
   teamId: number
   championName: string
+  rating: Rating
 }
 
 export interface MatchSummary {

@@ -10,6 +10,8 @@ use App\Match\Dto\MatchSummary;
 use App\Match\Dto\Participant;
 use App\Match\Dto\Team;
 use App\Match\Dto\TeamObjectives;
+use App\Rating\PerformanceRater;
+use App\Rating\Rating;
 
 /**
  * Transforme une game brute de match-v5 en objets prêts pour le front.
@@ -17,6 +19,10 @@ use App\Match\Dto\TeamObjectives;
 final class MatchMapper
 {
     private const POSITION_ORDER = ['TOP' => 0, 'JUNGLE' => 1, 'MIDDLE' => 2, 'BOTTOM' => 3, 'UTILITY' => 4];
+
+    public function __construct(private readonly PerformanceRater $rater = new PerformanceRater())
+    {
+    }
 
     /**
      * @param array{metadata: array<string, mixed>, info: array<string, mixed>} $match
@@ -27,6 +33,7 @@ final class MatchMapper
         $raw = $this->sortedParticipants($info['participants']);
         $player = array_values(array_filter($raw, static fn (array $p) => $p['puuid'] === $puuid))[0]
             ?? throw new \InvalidArgumentException(\sprintf('Player %s did not play %s.', $puuid, $match['metadata']['matchId']));
+        $ratings = $this->rater->rate($info);
 
         return new MatchSummary(
             matchId: $match['metadata']['matchId'],
@@ -34,13 +41,14 @@ final class MatchMapper
             startedAt: $info['gameStartTimestamp'],
             durationSeconds: $info['gameDuration'],
             remake: $this->isRemake($raw),
-            player: $this->participant($player, $info),
+            player: $this->participant($player, $info, $ratings),
             lineup: array_map(static fn (array $p) => new Lineup(
                 puuid: $p['puuid'],
                 gameName: $p['riotIdGameName'] ?? '',
                 tagLine: $p['riotIdTagline'] ?? '',
                 teamId: $p['teamId'],
                 championName: $p['championName'],
+                rating: $ratings[$p['puuid']],
             ), $raw),
         );
     }
@@ -52,8 +60,9 @@ final class MatchMapper
     {
         $info = $match['info'];
         $raw = $this->sortedParticipants($info['participants']);
+        $ratings = $this->rater->rate($info);
 
-        $teams = array_map(function (array $team) use ($raw, $info): Team {
+        $teams = array_map(function (array $team) use ($raw, $info, $ratings): Team {
             $members = array_values(array_filter($raw, static fn (array $p) => $p['teamId'] === $team['teamId']));
             $objectives = $team['objectives'];
 
@@ -71,7 +80,7 @@ final class MatchMapper
                     voidGrubs: $objectives['horde']['kills'] ?? 0,
                     atakhans: $objectives['atakhan']['kills'] ?? 0,
                 ),
-                participants: array_map(fn (array $p) => $this->participant($p, $info), $members),
+                participants: array_map(fn (array $p) => $this->participant($p, $info, $ratings), $members),
             );
         }, $info['teams']);
 
@@ -89,10 +98,11 @@ final class MatchMapper
     }
 
     /**
-     * @param array<string, mixed> $p
-     * @param array<string, mixed> $info
+     * @param array<string, mixed>  $p
+     * @param array<string, mixed>  $info
+     * @param array<string, Rating> $ratings
      */
-    private function participant(array $p, array $info): Participant
+    private function participant(array $p, array $info, array $ratings): Participant
     {
         $teamKills = array_sum(array_map(
             static fn (array $other) => $other['teamId'] === $p['teamId'] ? $other['kills'] : 0,
@@ -130,6 +140,7 @@ final class MatchMapper
             summonerSpells: [$p['summoner1Id'], $p['summoner2Id']],
             keystone: $styles[0]['selections'][0]['perk'] ?? 0,
             secondaryRuneStyle: $styles[1]['style'] ?? 0,
+            rating: $ratings[$p['puuid']],
         );
     }
 

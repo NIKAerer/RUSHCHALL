@@ -6,6 +6,7 @@ import { formatNumber, formatPercent, formatThousands, kdaRatio } from '../lib/f
 import { ErrorState } from './ErrorState'
 import { ChampionIcon, ItemSlots, SpellsAndRunes } from './GameIcons'
 import { PathingView } from './PathingView'
+import { RatingBadge } from './RatingBadge'
 import styles from './MatchDetail.module.css'
 
 const OBJECTIVES: { key: keyof Team['objectives']; label: string }[] = [
@@ -107,6 +108,7 @@ function TeamTable({ team, puuid, maxDamage, remake }: { team: Team; puuid: stri
           <thead>
             <tr>
               <th scope="col" className={styles.left}>Joueur</th>
+              {!remake && <th scope="col">Note</th>}
               <th scope="col">KDA</th>
               <th scope="col">Dégâts</th>
               <th scope="col">Gold</th>
@@ -117,7 +119,7 @@ function TeamTable({ team, puuid, maxDamage, remake }: { team: Team; puuid: stri
           </thead>
           <tbody>
             {team.participants.map((p) => (
-              <PlayerRow key={p.puuid} player={p} isMe={p.puuid === puuid} maxDamage={maxDamage} />
+              <PlayerRow key={p.puuid} player={p} isMe={p.puuid === puuid} maxDamage={maxDamage} remake={remake} />
             ))}
           </tbody>
         </table>
@@ -126,7 +128,7 @@ function TeamTable({ team, puuid, maxDamage, remake }: { team: Team; puuid: stri
   )
 }
 
-function PlayerRow({ player, isMe, maxDamage }: { player: Participant; isMe: boolean; maxDamage: number }) {
+function PlayerRow({ player, isMe, maxDamage, remake }: { player: Participant; isMe: boolean; maxDamage: number; remake: boolean }) {
   const champion = useChampion(player.championName)
 
   return (
@@ -141,6 +143,11 @@ function PlayerRow({ player, isMe, maxDamage }: { player: Participant; isMe: boo
           </div>
         </div>
       </td>
+      {!remake && (
+        <td>
+          <RatingBadge rating={player.rating} />
+        </td>
+      )}
       <td>
         <div className={styles.cellMain}>
           {player.kills}/<em>{player.deaths}</em>/{player.assists}

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Match\Dto;
 
+use App\Rating\Rating;
+
 final readonly class Participant
 {
     /**
@@ -38,6 +40,7 @@ final readonly class Participant
         public array $summonerSpells,
         public int $keystone,
         public int $secondaryRuneStyle,
+        public Rating $rating,
     ) {
     }
 }
