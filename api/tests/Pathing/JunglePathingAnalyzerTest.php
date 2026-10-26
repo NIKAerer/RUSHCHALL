@@ -49,6 +49,23 @@ final class JunglePathingAnalyzerTest extends TestCase
         self::assertContains([700, 'kill', 'Kill sur XinZhao (rivière)'], $labels);
     }
 
+    public function testFightsNameKillerVictimAndAssists(): void
+    {
+        $lee = $this->analyze('EUW1_7412345678')->junglers[0];
+        $gank = $lee->moments[0];
+        $champions = static fn (array $fighters) => array_map(static fn ($f) => $f->championName, $fighters);
+
+        self::assertSame([200, 'gank'], [$gank->t, $gank->type]);
+        self::assertSame('Jinx', $gank->killer?->championName);
+        self::assertSame(100, $gank->killer->teamId);
+        self::assertSame('Varus', $gank->victim?->championName);
+        self::assertSame(['LeeSin', 'Leona'], $champions($gank->assists));
+
+        $drake = array_values(array_filter($lee->moments, static fn ($m) => 'objective' === $m->type))[0];
+        self::assertSame('LeeSin', $drake->killer?->championName);
+        self::assertNull($drake->victim);
+    }
+
     public function testStatsCompareBothJunglers(): void
     {
         [$lee, $xin] = $this->analyze('EUW1_7412345678')->junglers;
