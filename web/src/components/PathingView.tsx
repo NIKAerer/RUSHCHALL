@@ -85,6 +85,8 @@ function Pathing({ pathing }: { pathing: JunglePathing }) {
         .flatMap((jungler, index) =>
           hidden.includes(jungler.puuid) ? [] : jungler.moments.map((moment) => ({ key: `${index}-${moment.t}-${moment.type}`, moment, index })),
         )
+        // Un kill entre les deux junglers est un moment pour chacun : on n'en garde qu'un, celui du joueur suivi (listé en premier).
+        .filter((listed, i, all) => all.findIndex((other) => eventId(other.moment) === eventId(listed.moment)) === i)
         .sort((a, b) => a.moment.t - b.moment.t),
     [pathing, hidden],
   )
@@ -298,6 +300,11 @@ function usePlayback(playing: boolean, speed: number, duration: number, setUntil
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
   }, [playing, speed, duration, setUntil])
+}
+
+/** Identifie l'événement Riot derrière un moment, quel que soit le jungler qui le rapporte. */
+function eventId({ t, killer, victim, objective }: Moment): string {
+  return [t, killer?.championName, victim?.championName, objective].join('|')
 }
 
 /** Fontaine de chaque équipe : point de départ de la route avant le premier relevé (minute 1). */
