@@ -137,32 +137,6 @@
   color: var(--muted);
 }
 
-.stats {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.stats th,
-.stats td {
-  padding: 6px 0;
-  text-align: right;
-}
-
-.stats thead th {
-  font: 600 14px var(--font-display);
-}
-
-.stats tbody th {
-  font-weight: 400;
-  color: var(--muted);
-  text-align: left;
-}
-
-.stats tbody tr {
-  border-top: 1px solid var(--line);
-}
-
 .moments {
   display: grid;
   gap: 2px;
@@ -206,14 +180,6 @@
   margin: 0;
   color: var(--muted);
   font-size: 13px;
-}
-
-.visuallyHidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
 }
 
 @media (max-width: 860px) {
@@ -334,4 +300,187 @@
   .pulse {
     animation: none;
   }
+}
+
+/* Mise en page : la carte reste visible pendant qu'on parcourt la colonne de droite. */
+
+.mapColumn {
+  position: sticky;
+  top: 64px;
+  align-self: start;
+}
+
+.player {
+  display: grid;
+  gap: 10px;
+  max-width: 520px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.timeline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.track {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.track input {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--gold);
+}
+
+.tick {
+  position: absolute;
+  bottom: -7px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--color);
+  pointer-events: none;
+}
+
+.tick[data-death] {
+  background: var(--loss);
+}
+
+.clock {
+  min-width: 82px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.clock small {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 7px;
+  background: var(--surface);
+}
+
+.segmented button,
+.speed {
+  padding: 3px 9px;
+  border: none;
+  border-radius: 5px;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.segmented button:hover,
+.speed:hover {
+  color: var(--fg);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--surface-3);
+  color: var(--fg);
+}
+
+.segmented .presetLabel {
+  padding: 0 4px 0 6px;
+}
+
+.speed {
+  min-width: 44px;
+  background: var(--surface);
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.panelTabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panelTabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: -1px;
+  padding: 7px 10px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.panelTabs button:hover {
+  color: var(--fg);
+}
+
+.panelTabs button[aria-selected='true'] {
+  border-bottom-color: var(--gold);
+  color: var(--fg);
+}
+
+.count {
+  padding: 0 6px;
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.side .moments {
+  max-height: 460px;
+}
+
+.only {
+  background: var(--surface-2);
+}
+
+@media (max-width: 860px) {
+  .mapColumn {
+    position: static;
+  }
+}
+
+.momentsPanel {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.momentsPanel .segmented {
+  justify-self: start;
+  flex-wrap: wrap;
+}
+
+.filterCount {
+  margin-left: 5px;
+  color: var(--faint);
+  font-size: 11px;
 }

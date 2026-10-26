@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react'
 import type { EarlyGame, JunglerPath } from '../api/types'
-import { useChampion } from '../ddragon/useStaticData'
 import { formatDuration, formatNumber } from '../lib/format'
 import { ChampionIcon, ItemIcon } from './GameIcons'
+import { aheadOf } from '../lib/compare'
+import { JunglerName, VersusTable, type VersusRow } from './Versus'
 import styles from './FirstClear.module.css'
 
 const END_REASONS: Record<NonNullable<EarlyGame['clearEndReason']>, string> = {
@@ -13,16 +13,16 @@ const END_REASONS: Record<NonNullable<EarlyGame['clearEndReason']>, string> = {
   death: 'mort',
 }
 
-/** Premier clear des deux junglers, puis leurs repères de début de game côte à côte. */
+const SIDES = { ally: 'sa jungle', enemy: 'invade', river: 'rivière' } as const
+
+/** Premier clear des deux junglers, puis leurs repères de début de game face à face. */
 export function FirstClear({ junglers, colors }: { junglers: JunglerPath[]; colors: string[] }) {
   return (
     <section className={styles.firstClear}>
-      <h4 className={styles.heading}>Premier clear</h4>
       {junglers.map((jungler, index) => (
         <ClearRoute key={jungler.puuid} jungler={jungler} color={colors[index]} />
       ))}
-      <p className={styles.note}>Camps déduits de la position relevée chaque minute.</p>
-      <Milestones junglers={junglers} colors={colors} />
+      <VersusTable title="Repères" junglers={junglers} colors={colors} rows={milestones(junglers.map((j) => j.earlyGame))} />
     </section>
   )
 }
@@ -33,19 +33,29 @@ function ClearRoute({ jungler, color }: { jungler: JunglerPath; color: string })
   return (
     <div className={styles.route} style={{ ['--color' as string]: color }}>
       <div className={styles.routeHeader}>
-        <ChampionIcon championName={jungler.championName} size={20} />
+        <ChampionIcon championName={jungler.championName} size={24} />
         <JunglerName jungler={jungler} />
-        <span className={styles.summary}>
-          {clearEnd !== null && clearEndReason !== null
-            ? `fin ${formatDuration(clearEnd)} (${END_REASONS[clearEndReason]}) · ${jungleCsAtClearEnd} CS`
-            : `${jungleCsAtClearEnd} CS à ${formatDuration(clear.at(-1)?.t ?? 0)}`}
+        <span className={styles.badges}>
+          {clearEnd !== null && clearEndReason !== null && (
+            <span className={styles.badge}>
+              fin <strong>{formatDuration(clearEnd)}</strong> · {END_REASONS[clearEndReason]}
+            </span>
+          )}
+          <span className={styles.badge}>
+            <strong>{jungleCsAtClearEnd}</strong> CS
+          </span>
         </span>
       </div>
       <ol className={styles.camps}>
         {clear.map((step) => (
-          <li key={step.t} className={styles.camp} data-side={step.side ?? 'none'} title={`${step.jungleCs} CS jungle`}>
+          <li
+            key={step.t}
+            className={styles.camp}
+            data-side={step.side ?? 'none'}
+            title={`${step.side ? SIDES[step.side] : 'hors des camps'} · ${step.jungleCs} CS jungle`}
+          >
             <time>{formatDuration(step.t)}</time>
-            <span>{step.label}</span>
+            <span className={styles.campName}>{step.label}</span>
           </li>
         ))}
       </ol>
@@ -53,72 +63,45 @@ function ClearRoute({ jungler, color }: { jungler: JunglerPath; color: string })
   )
 }
 
-/** Repères chiffrés ; le plus rapide des deux est mis en avant. */
-function Milestones({ junglers, colors }: { junglers: JunglerPath[]; colors: string[] }) {
-  const rows: { label: string; time: (e: EarlyGame) => number | null; detail?: (e: EarlyGame) => ReactNode }[] = [
-    { label: 'Niveau 3', time: (e) => e.levels['3'] },
-    { label: 'Niveau 4', time: (e) => e.levels['4'] },
-    { label: 'Niveau 6', time: (e) => e.levels['6'] },
+function milestones(games: EarlyGame[]): VersusRow[] {
+  const time = (value: number | null) => (value === null ? '–' : formatDuration(value))
+  const timed = (label: string, pick: (e: EarlyGame) => number | null): VersusRow => {
+    const values = games.map(pick)
+    return { label, values: values.map(time), ahead: aheadOf(values, true) }
+  }
+
+  return [
+    timed('Niveau 3', (e) => e.levels['3']),
+    timed('Niveau 4', (e) => e.levels['4']),
+    timed('Niveau 6', (e) => e.levels['6']),
     {
-      label: 'Premier back',
-      time: (e) => e.firstBack?.t ?? null,
-      detail: (e) =>
-        e.firstBack && (
-          <span className={styles.back}>
-            {e.firstBack.gold !== null && <span>{formatNumber(e.firstBack.gold)} g</span>}
+      ...timed('Premier back', (e) => e.firstBack?.t ?? null),
+      values: games.map((e) =>
+        e.firstBack ? (
+          <>
+            {time(e.firstBack.t)}
             {e.firstBack.itemIds.map((id, i) => (
               <ItemIcon key={i} itemId={id} size={18} />
             ))}
-          </span>
+            {e.firstBack.gold !== null && <small className={styles.gold}>{formatNumber(e.firstBack.gold)} g</small>}
+          </>
+        ) : (
+          '–'
         ),
+      ),
     },
     {
-      label: 'Premier gank',
-      time: (e) => e.firstGank?.t ?? null,
-      detail: (e) => e.firstGank && <span className={styles.detail}>{e.firstGank.zone}</span>,
+      ...timed('Premier gank', (e) => e.firstGank?.t ?? null),
+      values: games.map((e) =>
+        e.firstGank ? (
+          <>
+            {time(e.firstGank.t)} <small className={styles.lane}>{e.firstGank.zone}</small>
+          </>
+        ) : (
+          '–'
+        ),
+      ),
     },
-    { label: 'Première invade', time: (e) => e.firstInvade },
+    timed('Première invade', (e) => e.firstInvade),
   ]
-
-  return (
-    <table className={styles.milestones}>
-      <thead>
-        <tr>
-          <th scope="col">
-            <span className={styles.visuallyHidden}>Repère</span>
-          </th>
-          {junglers.map((j, index) => (
-            <th key={j.puuid} scope="col" style={{ color: colors[index] }}>
-              <JunglerName jungler={j} />
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => {
-          const times = junglers.map((j) => row.time(j.earlyGame))
-          const known = times.filter((t): t is number => t !== null)
-          const fastest = known.length === times.length && new Set(known).size > 1 ? Math.min(...known) : null
-          return (
-            <tr key={row.label}>
-              <th scope="row">{row.label}</th>
-              {junglers.map((j, index) => (
-                <td key={j.puuid}>
-                  {row.detail?.(j.earlyGame)}
-                  <span className={times[index] === fastest ? styles.fastest : undefined}>
-                    {times[index] === null ? '–' : formatDuration(times[index])}
-                  </span>
-                </td>
-              ))}
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
-  )
-}
-
-function JunglerName({ jungler }: { jungler: JunglerPath }) {
-  const { name } = useChampion(jungler.championName)
-  return <span title={jungler.gameName}>{jungler.isTrackedPlayer ? 'Toi' : name}</span>
 }

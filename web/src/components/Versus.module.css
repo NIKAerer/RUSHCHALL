@@ -1,0 +1,90 @@
+.versus {
+  display: grid;
+  gap: 4px;
+}
+
+/* Titre au centre, un jungler de chaque côté. */
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 14px var(--font-display);
+}
+
+.side:first-child {
+  grid-column: 1;
+}
+
+.side:nth-child(2) {
+  grid-column: 3;
+  flex-direction: row-reverse;
+}
+
+.title {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.rows {
+  display: grid;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr minmax(120px, auto) 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.row dt {
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+.row dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+
+.row dd:nth-of-type(1) {
+  grid-column: 1;
+}
+
+.row dd:nth-of-type(2) {
+  grid-column: 3;
+  justify-content: flex-end;
+}
+
+/* Celui qui est en avance prend sa couleur, l'autre s'efface un peu. */
+.row dd[data-ahead] {
+  color: var(--color);
+  font-weight: 600;
+}
+
+.row dd[data-behind] {
+  color: var(--muted);
+}
