@@ -46,7 +46,7 @@
 .badge[data-badge='penta'],
 .badge[data-badge='ace'] {
   background: var(--gold-fill);
-  color: var(--bg);
+  color: var(--on-fill);
 }
 
 .badge[data-badge='first_blood'] {

@@ -34,7 +34,7 @@
   height: 26px;
   padding: 4px;
   border-radius: 8px;
-  background: rgb(166 176 242 / 0.1);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .value {

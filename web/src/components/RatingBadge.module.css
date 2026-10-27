@@ -26,7 +26,7 @@
 
 .ace .tag {
   color: #12091d;
-  background: var(--path-enemy);
+  background: var(--ace-fill);
 }
 
 .compact .tag {

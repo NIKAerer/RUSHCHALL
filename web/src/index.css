@@ -4,10 +4,10 @@
   --font-body: 'Inter', system-ui, sans-serif;
   --radius: 14px;
   --shadow: none;
-  --path-ally: #ffd47d;
-  --path-enemy: #c58bff;
-  /* Fond des badges MVP et des moments clés, lisible dans les deux thèmes. */
+  /* Fonds des badges MVP / ACE et des moments clés, identiques dans les deux thèmes (texte foncé dessus). */
   --gold-fill: #ffd166;
+  --ace-fill: #c58bff;
+  --on-fill: #16161a;
 }
 
 /* Sombre, par défaut. */
@@ -38,6 +38,9 @@
   --side-red: #f07a7a;
   --gold: #ffd166;
   --good: #5fd69a;
+  --on-result: #0f0f12;
+  --path-ally: #ffd47d;
+  --path-enemy: #c58bff;
   color-scheme: dark;
 }
 
@@ -56,7 +59,7 @@
   --on-accent: #ffffff;
   --ink: #16161a;
   --on-ink: #ffffff;
-  --win: #138a4a;
+  --win: #0f7a40;
   --win-bg: #e3f5ea;
   --win-line: #b9e3c9;
   --loss: #c02f2f;
@@ -65,8 +68,11 @@
   --remake: #5a5a63;
   --side-blue: #3b6fe0;
   --side-red: #d23c3c;
-  --gold: #b07d10;
-  --good: #138a4a;
+  --gold: #8a6208;
+  --good: #0f7a40;
+  --on-result: #ffffff;
+  --path-ally: #a36a00;
+  --path-enemy: #7a3fc0;
   color-scheme: light;
 }
 
