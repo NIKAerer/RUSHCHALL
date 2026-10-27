@@ -7,15 +7,6 @@ import common from './stats.module.css'
 
 const date = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
-export function LpCard({ form }: { form: FormStats }) {
-  return (
-    <section className={common.panel}>
-      <h2 className={common.title}>LP</h2>
-      <LpChart points={form.lp} />
-    </section>
-  )
-}
-
 export function HourPanel({ form }: { form: FormStats }) {
   return (
     <section className={common.panel}>
@@ -31,7 +22,8 @@ const WIDTH = 300
 const HEIGHT = 110
 const PAD = 8
 
-function LpChart({ points }: { points: LpPoint[] }) {
+/** Courbe de LP de la période ; le rang et la date du relevé n'apparaissent qu'au survol. */
+export function LpChart({ points }: { points: LpPoint[] }) {
   const [hover, setHover] = useState<number | null>(null)
   if (points.length < 2) {
     return <p className={common.empty}>La courbe se remplit à chaque ouverture du site.</p>
@@ -59,7 +51,7 @@ function LpChart({ points }: { points: LpPoint[] }) {
 
   return (
     <div className={styles.lp}>
-      <div className={styles.lpHead}>
+      <div className={styles.lpHead} style={hover === null ? { visibility: 'hidden' } : undefined}>
         <span className={styles.lpValue}>
           {tierLabel(shown.tier, shown.division)} <b>{shown.leaguePoints} LP</b>
         </span>

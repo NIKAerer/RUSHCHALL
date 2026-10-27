@@ -1,8 +1,4 @@
-import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { useProfile } from '../api/queries'
-import { rankEmblem } from '../ddragon/ddragon'
-import { tierLabel } from '../lib/riot'
 import styles from './Layout.module.css'
 
 export function Layout() {
@@ -31,28 +27,11 @@ export function Layout() {
               Stats
             </NavLink>
           </nav>
-          <RankChip />
         </div>
       </header>
       <main className={styles.main}>
         <Outlet />
       </main>
     </>
-  )
-}
-
-/** Rang Solo/Duo toujours visible en haut à droite. */
-function RankChip() {
-  const { data } = useProfile()
-  const [emblemFailed, setEmblemFailed] = useState(false)
-  const solo = data?.ranked.find((r) => r.queue === 'solo')
-  if (!solo) return null
-
-  return (
-    <div className={styles.rank} title="Classé Solo/Duo">
-      {!emblemFailed && <img src={rankEmblem(solo.tier)} alt="" onError={() => setEmblemFailed(true)} />}
-      <span>{tierLabel(solo.tier, solo.division)}</span>
-      <b>{solo.leaguePoints} LP</b>
-    </div>
   )
 }

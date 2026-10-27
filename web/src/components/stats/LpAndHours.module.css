@@ -17,7 +17,7 @@
 }
 
 .lpValue b {
-  color: #bd9bf8;
+  color: var(--accent);
 }
 
 .chart {
@@ -84,7 +84,7 @@
 
 .hourLabel {
   height: 12px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--faint);
   text-align: center;
 }

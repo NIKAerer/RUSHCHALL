@@ -94,7 +94,7 @@
 
 .timeControls input {
   flex: 1 1 200px;
-  accent-color: var(--gold);
+  accent-color: var(--accent);
 }
 
 .timeControls output {
@@ -211,7 +211,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--gold);
+  background: var(--accent);
   border: none;
   color: var(--bg);
   font-size: 12px;
@@ -228,7 +228,7 @@
 
 .presets button[aria-pressed='true'] {
   color: var(--fg);
-  border-color: var(--gold);
+  border-color: var(--accent);
 }
 
 .mapMoment {
@@ -332,7 +332,7 @@
 .track input {
   width: 100%;
   margin: 0;
-  accent-color: var(--gold);
+  accent-color: var(--accent);
 }
 
 .tick {
@@ -418,7 +418,7 @@
 .speed {
   min-width: 44px;
   background: var(--surface);
-  color: var(--gold);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -448,7 +448,7 @@
 }
 
 .panelTabs button[aria-selected='true'] {
-  border-bottom-color: var(--gold);
+  border-bottom-color: var(--accent);
   color: var(--fg);
 }
 

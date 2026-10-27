@@ -1,9 +1,10 @@
 import { Fragment, useState } from 'react'
-import type { ChampionStats, MatchupStats } from '../../api/types'
+import type { ChampionStats } from '../../api/types'
 import { useChampion } from '../../ddragon/useStaticData'
-import { formatDecimal, formatNumber, formatSigned, kdaRatio } from '../../lib/format'
+import { formatDecimal, formatNumber, kdaRatio } from '../../lib/format'
 import { ChampionIcon } from '../GameIcons'
-import { kdaTone, toneOf } from './tone'
+import { FullMatchups } from './MatchupsPanel'
+import { kdaTone } from './tone'
 import { WinRate } from './WinRate'
 import styles from './ChampionTable.module.css'
 import common from './stats.module.css'
@@ -11,7 +12,6 @@ import common from './stats.module.css'
 /** Stats par champion ; un clic ouvre ses matchups contre l'adversaire au même poste. */
 /** Champions affichés avant « Voir tout ». */
 const CHAMPIONS_SHOWN = 8
-const MATCHUPS_SHOWN = 12
 
 export function ChampionTable({ champions }: { champions: ChampionStats[] }) {
   const [open, setOpen] = useState<string | null>(null)
@@ -47,7 +47,7 @@ export function ChampionTable({ champions }: { champions: ChampionStats[] }) {
                 {open === champion.championName && (
                   <tr className={styles.matchupsRow}>
                     <td colSpan={6}>
-                      <Matchups matchups={champion.matchups} />
+                      <FullMatchups matchups={champion.matchups} />
                     </td>
                   </tr>
                 )}
@@ -88,46 +88,11 @@ function ChampionRow({ champion, open, onToggle }: { champion: ChampionStats; op
   )
 }
 
-/** Adversaires au même poste : icône, winrate et écart de gold moyen à 15 minutes. */
-export function Matchups({ matchups }: { matchups: MatchupStats[] }) {
-  const [all, setAll] = useState(false)
-  if (matchups.length === 0) return <p className={common.empty}>Aucun adversaire connu.</p>
-
-  return (
-    <>
-      <ul className={styles.matchups}>
-        {(all ? matchups : matchups.slice(0, MATCHUPS_SHOWN)).map((m) => (
-          <MatchupChip key={m.opponent} matchup={m} />
-        ))}
-      </ul>
-      <MoreButton hidden={matchups.length - MATCHUPS_SHOWN} all={all} onToggle={() => setAll((a) => !a)} />
-    </>
-  )
-}
-
 function MoreButton({ hidden, all, onToggle }: { hidden: number; all: boolean; onToggle: () => void }) {
   if (hidden <= 0) return null
   return (
     <button type="button" className={styles.more} onClick={onToggle}>
       {all ? 'Réduire' : `Voir tout (+${hidden})`}
     </button>
-  )
-}
-
-function MatchupChip({ matchup }: { matchup: MatchupStats }) {
-  const { name } = useChampion(matchup.opponent)
-  const ratio = matchup.wins / matchup.games
-
-  return (
-    <li className={styles.matchup} title={`Contre ${name} : ${matchup.wins}V ${matchup.games - matchup.wins}D`}>
-      <ChampionIcon championName={matchup.opponent} size={28} />
-      <span className={ratio >= 0.5 ? common.good : common.bad}>{Math.round(ratio * 100)}%</span>
-      <span className={common.sub}>{matchup.games}</span>
-      {matchup.goldDiffAt15 !== null && (
-        <span className={`${styles.diff} ${toneOf(matchup.goldDiffAt15) ?? ''}`} title="Écart de gold moyen à 15 min">
-          {formatSigned(matchup.goldDiffAt15)}
-        </span>
-      )}
-    </li>
   )
 }

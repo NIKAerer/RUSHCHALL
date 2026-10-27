@@ -14,9 +14,10 @@ export function kdaTone(ratio: number): string | undefined {
   return undefined
 }
 
-/** Couleur d'un winrate : vert au-dessus de 55 %, rouge sous 45 %. */
+/** Couleur d'un winrate par palier : doré dès 70 %, vert dès 60 %, neutre de 50 à 59 %, rouge sous 50 %. */
 export function winrateTone(ratio: number): string | undefined {
-  if (ratio >= 0.55) return styles.good
-  if (ratio < 0.45) return styles.bad
+  if (ratio >= 0.7) return styles.legendary
+  if (ratio >= 0.6) return styles.good
+  if (ratio < 0.5) return styles.bad
   return undefined
 }

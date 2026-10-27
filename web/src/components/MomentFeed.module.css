@@ -35,7 +35,7 @@
   border-radius: 4px;
   background: color-mix(in srgb, var(--gold) 16%, transparent);
   color: var(--gold);
-  font: 700 10px var(--font-display);
+  font: 700 11px var(--font-display);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;

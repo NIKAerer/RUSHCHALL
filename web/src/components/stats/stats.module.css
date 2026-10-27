@@ -89,7 +89,7 @@
   display: flex;
   align-items: center;
   padding-inline: 4px;
-  font: 600 10px var(--font-body);
+  font: 600 11px var(--font-body);
   color: #fff;
   white-space: nowrap;
 }

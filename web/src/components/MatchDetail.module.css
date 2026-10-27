@@ -168,7 +168,7 @@
 }
 
 .me td {
-  background: color-mix(in srgb, var(--gold) 9%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .player {

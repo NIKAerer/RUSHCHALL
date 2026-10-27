@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  color: var(--gold);
+  color: var(--accent);
   font: 800 17px var(--font-display);
   letter-spacing: 0.04em;
   text-decoration: none;
@@ -78,30 +78,6 @@
   background: var(--accent);
 }
 
-.rank {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 12px 4px 4px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.rank img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  transform: scale(1.7);
-}
-
-.rank b {
-  color: var(--gold);
-}
-
 .main {
   padding-block: 16px 48px;
 }
@@ -114,9 +90,5 @@
   .brand {
     font-size: 0;
     gap: 0;
-  }
-
-  .rank span {
-    display: none;
   }
 }

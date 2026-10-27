@@ -1,0 +1,116 @@
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+}
+
+.listTitle {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.table th {
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table th button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.table th button:hover,
+.table th[aria-sort] {
+  color: var(--fg);
+}
+
+.table td {
+  height: 36px;
+  padding: 0 6px;
+  border-top: 1px solid var(--line);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.table .left {
+  text-align: left;
+}
+
+.table .wr {
+  width: 45%;
+}
+
+.champion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.champion > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.more {
+  justify-self: start;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.more:hover {
+  color: var(--fg);
+  border-color: var(--line-strong);
+}
+
+.full {
+  display: grid;
+  gap: 8px;
+}
+
+.singles {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.singles input {
+  accent-color: var(--accent);
+}
+
+@media (max-width: 760px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

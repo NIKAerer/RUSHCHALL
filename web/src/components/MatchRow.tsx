@@ -102,7 +102,7 @@ function LineupEntry({ player, isMe }: { player: Lineup; isMe: boolean }) {
   return (
     <li className={isMe ? styles.me : undefined}>
       <ChampionIcon championName={player.championName} size={16} />
-      <span title={`${player.gameName}#${player.tagLine}`}>{player.gameName}</span>
+      <span className={styles.name} title={`${player.gameName}#${player.tagLine}`}>{player.gameName}</span>
     </li>
   )
 }

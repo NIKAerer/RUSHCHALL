@@ -1,31 +1,25 @@
 .match {
-  --accent: var(--win);
-  --tint: var(--win-bg);
-  --edge: var(--win-line);
+  --result: var(--win);
   overflow: hidden;
   border-radius: var(--radius);
   background: var(--surface);
-  border: 1px solid var(--edge);
-  border-left: 4px solid var(--accent);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--result);
   box-shadow: var(--shadow);
   transition: border-color 0.15s;
 }
 
 .match:hover {
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--edge));
-  border-left-color: var(--accent);
+  border-color: var(--line-strong);
+  border-left-color: var(--result);
 }
 
 .loss {
-  --accent: var(--loss);
-  --tint: var(--loss-bg);
-  --edge: var(--loss-line);
+  --result: var(--loss);
 }
 
 .remake {
-  --accent: var(--remake);
-  --tint: var(--surface-2);
-  --edge: var(--line);
+  --result: var(--remake);
 }
 
 .row {
@@ -35,9 +29,7 @@
   align-items: center;
   gap: 14px;
   padding: 8px 10px 8px 12px;
-  background:
-    radial-gradient(260px 120px at 0% 50%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
-    linear-gradient(90deg, var(--tint), var(--surface) 70%);
+  background: color-mix(in srgb, var(--result) 5%, var(--surface));
 }
 
 .info {
@@ -48,17 +40,15 @@
 
 .queue {
   font-weight: 600;
-  color: var(--fg);
 }
 
 .outcome {
   justify-self: start;
   margin-top: 6px;
   font: 700 15px var(--font-display);
-  text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 60%, transparent);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--result);
 }
 
 .ago {
@@ -78,7 +68,7 @@
 }
 
 .score {
-  font: 700 19px var(--font-display);
+  font: 800 20px var(--font-display);
   white-space: nowrap;
 }
 
@@ -113,6 +103,7 @@
   gap: 1px;
   margin: 0;
   font-size: 12px;
+  color: var(--muted);
 }
 
 .stats div {
@@ -122,7 +113,7 @@
 }
 
 .stats dt {
-  color: var(--muted);
+  color: var(--faint);
 }
 
 .stats dd {
@@ -185,13 +176,13 @@
   padding: 0;
   border: 0;
   border-radius: 7px;
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  color: var(--accent);
+  background: color-mix(in srgb, var(--result) 10%, transparent);
+  color: var(--result);
   cursor: pointer;
 }
 
 .toggle:hover {
-  background: color-mix(in srgb, var(--accent) 24%, transparent);
+  background: color-mix(in srgb, var(--result) 24%, transparent);
 }
 
 .toggle svg {
