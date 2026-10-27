@@ -33,11 +33,11 @@ export function StatCards({ stats }: { stats: PlayerStats }) {
   const firstBloods = stats.games ? stats.grind.totals.firstBloods / stats.games : 0
 
   const cards: Card[] = [
-    { label: 'Gold @15', value: at15 ? formatSigned(at15.gold) : '—', sub: at15 ? `devant ${formatPercent(at15.aheadRate)} des games` : 'pas de timeline', tone: at15?.gold ?? null, gauge: unit(at15?.gold ?? 0, -1500, 1500), icon: ICONS.coin },
+    { label: 'Gold @15', value: at15 ? formatSigned(at15.gold) : '—', sub: at15 ? `devant ${formatPercent(at15.aheadRate)}` : 'pas de timeline', tone: at15?.gold ?? null, gauge: unit(at15?.gold ?? 0, -1500, 1500), icon: ICONS.coin },
     { label: 'XP @15', value: at15 ? formatSigned(at15.xp) : '—', sub: 'vs adversaire direct', tone: at15?.xp ?? null, gauge: unit(at15?.xp ?? 0, -1000, 1000), icon: ICONS.star },
     { label: 'CS @15', value: at15 ? formatSigned(at15.cs, 1) : '—', sub: 'vs adversaire direct', tone: at15?.cs ?? null, gauge: unit(at15?.cs ?? 0, -20, 20), icon: ICONS.minion },
     { label: 'CS / min', value: formatDecimal(cs), sub: 'toutes games', tone: null, gauge: unit(cs, 4, 8), icon: ICONS.scythe },
-    { label: 'Objectifs pris', value: share === null ? '—' : formatPercent(share), sub: 'drakes, larves, héraut, nashor', tone: share === null ? null : share - 0.5, gauge: share ?? 0, icon: ICONS.dragon },
+    { label: 'Objectifs pris', value: share === null ? '—' : formatPercent(share), sub: 'objectifs neutres', tone: share === null ? null : share - 0.5, gauge: share ?? 0, icon: ICONS.dragon },
     { label: 'First blood', value: formatPercent(firstBloods), sub: `${stats.grind.totals.firstBloods} sur ${stats.games} games`, tone: null, gauge: firstBloods, icon: ICONS.drop },
   ]
 

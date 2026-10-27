@@ -3,7 +3,7 @@ import styles from './FormLine.module.css'
 import common from './stats.module.css'
 
 const WIDTH = 400
-const HEIGHT = 120
+const HEIGHT = 200
 const PAD = 10
 
 /** Courbe de forme : +1 par victoire, −1 par défaite, sur les dernières games. */

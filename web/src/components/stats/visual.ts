@@ -33,7 +33,7 @@ export function axes(stats: PlayerStats): Axis[] {
 
   return [
     { key: 'combat', label: 'Combat', value: kda, display: `${fr(kda, 2)} KDA`, score: scale(kda, 1.5, 5) },
-    { key: 'farm', label: 'Farm', value: cs, display: `${fr(cs)} CS/min`, score: scale(cs, 4, 7.5) },
+    { key: 'farm', label: 'Farm', value: cs, display: `${fr(cs)} CS/min`, score: scale(cs, 5, 9.5) },
     { key: 'early', label: 'Early', value: at15?.gold ?? 0, display: `${at15 && at15.gold > 0 ? '+' : ''}${at15?.gold ?? 0} @15`, score: scale(at15?.gold ?? 0, -1000, 1000) },
     { key: 'objectives', label: 'Objectifs', value: share, display: `${Math.round(share * 100)} % pris`, score: scale(share, 0.3, 0.7) },
     { key: 'survival', label: 'Survie', value: stats.deaths, display: `${fr(stats.deaths)} morts`, score: scale(-stats.deaths, -8, -3) },
