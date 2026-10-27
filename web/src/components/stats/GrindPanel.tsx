@@ -52,7 +52,7 @@ export function GrindPanel({ grind, games }: { grind: GrindStats; games: number 
 
       <div className={styles.charts}>
         <div className={styles.chart}>
-          <span className={common.label}>Winrate selon la game de la session</span>
+          <span className={common.label}>Winrate par game de session</span>
           <WinrateBars records={grind.bySessionGame.map((r) => ({ ...r, key: r.key.endsWith('+') ? `${r.key.slice(0, -1)}e+` : `${r.key}e` }))} />
         </div>
         <div className={styles.chart}>
