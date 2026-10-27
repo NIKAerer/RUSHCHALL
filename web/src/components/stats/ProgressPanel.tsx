@@ -27,7 +27,12 @@ export function ProgressPanel({
     <>
       <section className={common.panel}>
         <h2 className={common.title}>
-          LP <small>relevés de rang de la période</small>
+          LP{" "}
+          <small>
+            {lp.length < 10
+              ? "se remplit à chaque « Mettre à jour »"
+              : "relevés de rang de la période"}
+          </small>
         </h2>
         <LpChart points={lp} height={200} />
       </section>
@@ -119,7 +124,7 @@ function Trend({
   return (
     <section className={common.panel}>
       <h2 className={common.title}>
-        {title} <small>{WINDOW} dernières games</small>
+        {title} <small>moyenne sur {WINDOW} games</small>
       </h2>
       <div className={styles.value}>
         <b>{format(values[shown])}</b>

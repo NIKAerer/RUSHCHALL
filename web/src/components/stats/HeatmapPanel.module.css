@@ -45,7 +45,7 @@
   cursor: pointer;
 }
 
-.toggle button[aria-selected='true'] {
+.toggle button[aria-selected="true"] {
   border-color: var(--accent);
   color: var(--accent);
 }

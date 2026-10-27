@@ -88,3 +88,10 @@
   color: var(--faint);
   text-align: center;
 }
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--faint);
+}

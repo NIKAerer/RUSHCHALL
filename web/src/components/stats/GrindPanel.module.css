@@ -87,7 +87,7 @@
 }
 
 .track::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 50% -3px auto;
   border-top: 1px dashed var(--line-strong);

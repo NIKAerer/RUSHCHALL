@@ -31,7 +31,7 @@
   color: var(--fg);
 }
 
-.group button[aria-pressed='true'] {
+.group button[aria-pressed="true"] {
   background: var(--surface-3);
   color: var(--fg);
 }
@@ -42,11 +42,11 @@
 }
 
 .group .champion:hover,
-.group .champion[aria-pressed='true'] {
+.group .champion[aria-pressed="true"] {
   opacity: 1;
 }
 
-.group .champion[aria-pressed='true'] {
+.group .champion[aria-pressed="true"] {
   background: none;
   box-shadow: 0 0 0 2px var(--accent);
 }

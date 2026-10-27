@@ -62,19 +62,19 @@
   font-size: 12px;
 }
 
-.scores li[data-tier='top'] {
+.scores li[data-tier="top"] {
   --tone: var(--gold);
 }
 
-.scores li[data-tier='high'] {
+.scores li[data-tier="high"] {
   --tone: var(--win);
 }
 
-.scores li[data-tier='mid'] {
+.scores li[data-tier="mid"] {
   --tone: var(--accent);
 }
 
-.scores li[data-tier='low'] {
+.scores li[data-tier="low"] {
   --tone: var(--loss);
 }
 

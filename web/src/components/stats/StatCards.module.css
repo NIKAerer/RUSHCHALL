@@ -15,11 +15,11 @@
   border: 1px solid var(--line);
 }
 
-.card[data-tone='good'] {
+.card[data-tone="good"] {
   --tone: var(--win);
 }
 
-.card[data-tone='bad'] {
+.card[data-tone="bad"] {
   --tone: var(--loss);
 }
 
@@ -53,7 +53,7 @@
   color: var(--tone);
 }
 
-.card[data-tone='neutral'] .value {
+.card[data-tone="neutral"] .value {
   color: var(--fg);
 }
 

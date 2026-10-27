@@ -23,7 +23,10 @@
   height: 58px;
   margin-bottom: 4px;
   border-radius: 50%;
-  background: conic-gradient(var(--win) calc(var(--ratio) * 360deg), var(--loss) 0);
+  background: conic-gradient(
+    var(--win) calc(var(--ratio) * 360deg),
+    var(--loss) 0
+  );
 }
 
 .portrait > * {

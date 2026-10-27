@@ -96,3 +96,10 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--faint);
+}

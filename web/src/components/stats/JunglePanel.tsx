@@ -1,22 +1,22 @@
-import type { JungleStats, WinRecord, Zone } from '../../api/types'
-import { formatDuration } from '../../lib/format'
-import { ZoneIcon } from '../MomentFeed'
-import { WinRate } from './WinRate'
-import styles from './JunglePanel.module.css'
-import common from './stats.module.css'
+import type { JungleStats, WinRecord, Zone } from "../../api/types";
+import { formatDuration } from "../../lib/format";
+import { ZoneIcon } from "../MomentFeed";
+import { WinRate } from "./WinRate";
+import styles from "./JunglePanel.module.css";
+import common from "./stats.module.css";
 
 const CAMPS: Record<string, { label: string; short: string }> = {
-  blue: { label: 'Buff bleu', short: 'Bleu' },
-  gromp: { label: 'Gromp', short: 'Gromp' },
-  wolves: { label: 'Loups', short: 'Loups' },
-  raptors: { label: 'Corbins', short: 'Corb.' },
-  red: { label: 'Buff rouge', short: 'Rouge' },
-  krugs: { label: 'Krugs', short: 'Krugs' },
-  scuttle: { label: 'Carapateur', short: 'Crabe' },
-}
+  blue: { label: "Buff bleu", short: "Bleu" },
+  gromp: { label: "Gromp", short: "Gromp" },
+  wolves: { label: "Loups", short: "Loups" },
+  raptors: { label: "Corbins", short: "Corb." },
+  red: { label: "Buff rouge", short: "Rouge" },
+  krugs: { label: "Krugs", short: "Krugs" },
+  scuttle: { label: "Carapateur", short: "Crabe" },
+};
 
 /** Nombre de premiers clears affichés : au-delà, ce sont des routes jouées une fois. */
-const ROUTES_SHOWN = 5
+const ROUTES_SHOWN = 5;
 
 export function JunglePanel({ jungle }: { jungle: JungleStats }) {
   if (jungle.games === 0) {
@@ -25,7 +25,7 @@ export function JunglePanel({ jungle }: { jungle: JungleStats }) {
         <h2 className={common.title}>Jungle</h2>
         <p className={common.empty}>Aucune game en jungle avec timeline.</p>
       </section>
-    )
+    );
   }
 
   return (
@@ -52,7 +52,7 @@ export function JunglePanel({ jungle }: { jungle: JungleStats }) {
           {jungle.routes.slice(0, ROUTES_SHOWN).map((record) => (
             <li key={record.key} className={styles.route}>
               <ol className={styles.camps}>
-                {record.key.split('>').map((camp, index) => (
+                {record.key.split(">").map((camp, index) => (
                   <li key={index}>
                     <Camp camp={camp} />
                   </li>
@@ -66,7 +66,10 @@ export function JunglePanel({ jungle }: { jungle: JungleStats }) {
 
       <div className={styles.block}>
         <span className={common.label}>
-          1er gank {jungle.firstGankAt !== null && <b className={styles.time}>~{formatDuration(jungle.firstGankAt)}</b>}
+          1er gank{" "}
+          {jungle.firstGankAt !== null && (
+            <b className={styles.time}>~{formatDuration(jungle.firstGankAt)}</b>
+          )}
         </span>
         <ul className={styles.list}>
           {jungle.firstGanks.map((record: WinRecord) => (
@@ -81,14 +84,14 @@ export function JunglePanel({ jungle }: { jungle: JungleStats }) {
         </ul>
       </div>
     </section>
-  )
+  );
 }
 
 function Camp({ camp }: { camp: string }) {
-  const known = CAMPS[camp]
+  const known = CAMPS[camp];
   return (
     <span className={styles.camp} data-camp={camp} title={known?.label ?? camp}>
       {known?.short ?? camp}
     </span>
-  )
+  );
 }

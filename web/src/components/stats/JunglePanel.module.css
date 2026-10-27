@@ -36,7 +36,7 @@
 }
 
 .camps li + li::before {
-  content: '›';
+  content: "›";
   margin-right: 3px;
   color: var(--faint);
 }
@@ -51,15 +51,15 @@
   color: var(--fg);
 }
 
-.camp[data-camp='blue'] {
+.camp[data-camp="blue"] {
   background: color-mix(in srgb, var(--side-blue) 35%, var(--surface-3));
 }
 
-.camp[data-camp='red'] {
+.camp[data-camp="red"] {
   background: color-mix(in srgb, var(--side-red) 35%, var(--surface-3));
 }
 
-.camp[data-camp='scuttle'] {
+.camp[data-camp="scuttle"] {
   background: color-mix(in srgb, #3fe0d0 25%, var(--surface-3));
 }
 
