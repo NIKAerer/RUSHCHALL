@@ -10,8 +10,10 @@ const WEEKDAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
 const day = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' })
 const sessionDate = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 const BREAKS: Record<string, string> = { short: '< 5 min', medium: '5–15 min', long: '15–45 min' }
-/** Semaines affichées dans le calendrier. */
-const CALENDAR_WEEKS = 12
+/** Semaines affichées dans le calendrier : depuis le premier jour joué, entre 4 et 12. */
+const CALENDAR_WEEKS = { min: 4, max: 12 }
+/** En dessous, un winrate ne veut pas dire grand-chose : la barre est grisée. */
+const FEW_GAMES = 3
 
 /** Icônes au trait, 24 × 24. */
 const ICONS = {
@@ -80,8 +82,8 @@ export function GrindPanel({ grind, games }: { grind: GrindStats; games: number 
 
       <div className={styles.charts}>
         <div className={styles.chart}>
-          <span className={common.label}>Jours joués · {CALENDAR_WEEKS} semaines</span>
-          <Calendar days={grind.calendar} />
+          <span className={common.label}>Jours joués · {calendarWeeks(grind.calendar)} semaines</span>
+          <Calendar days={grind.calendar} weeks={calendarWeeks(grind.calendar)} />
         </div>
         <div className={styles.chart}>
           <span className={common.label}>Winrate selon la pause</span>
@@ -93,6 +95,7 @@ export function GrindPanel({ grind, games }: { grind: GrindStats; games: number 
             <AfterLine label="Routine respectée" record={grind.routine} />
             <AfterLine label="Sans routine" record={grind.noRoutine} />
           </ul>
+          {grind.routine.games === 0 && <p className={common.sub}>Coche la case routine sur tes games dans l'historique pour comparer.</p>}
         </div>
       </div>
 
@@ -155,7 +158,7 @@ function WinrateBars({ records }: { records: WinRecord[] }) {
       {records.map((r, index) => {
         const ratio = r.games ? r.wins / r.games : 0
         return (
-          <div key={index} className={styles.bar} title={r.games ? `${r.key} : ${r.wins}V ${r.games - r.wins}D · ${formatPercent(ratio)}` : `${r.key} : aucune game`}>
+          <div key={index} className={styles.bar} data-few={(r.games > 0 && r.games < FEW_GAMES) || undefined} title={r.games ? `${r.key} : ${r.wins}V ${r.games - r.wins}D · ${formatPercent(ratio)}` : `${r.key} : aucune game`}>
             <span className={styles.barValue}>{r.games ? formatPercent(ratio) : '—'}</span>
             <div className={styles.track}>
               {r.games > 0 && <span className={ratio >= 0.5 ? styles.up : styles.down} style={{ height: `${Math.max(ratio, 0.03) * 100}%` }} />}
@@ -170,12 +173,18 @@ function WinrateBars({ records }: { records: WinRecord[] }) {
 }
 
 /** Calendrier des jours joués, une colonne par semaine (lundi en haut) : vert quand le bilan du jour est positif. */
-function Calendar({ days }: { days: WinRecord[] }) {
+function calendarWeeks(days: WinRecord[]): number {
+  if (days.length === 0) return CALENDAR_WEEKS.min
+  const weeks = Math.ceil((Date.now() - new Date(`${days[0].key}T00:00:00`).getTime()) / (7 * 86_400_000)) + 1
+  return Math.min(CALENDAR_WEEKS.max, Math.max(CALENDAR_WEEKS.min, weeks))
+}
+
+function Calendar({ days, weeks }: { days: WinRecord[]; weeks: number }) {
   const byKey = new Map(days.map((d) => [d.key, d]))
   const today = new Date()
   const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7))
-  const start = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() - (CALENDAR_WEEKS - 1) * 7)
-  const cells = Array.from({ length: CALENDAR_WEEKS * 7 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i))
+  const start = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() - (weeks - 1) * 7)
+  const cells = Array.from({ length: weeks * 7 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i))
 
   return (
     <div className={styles.calendar}>

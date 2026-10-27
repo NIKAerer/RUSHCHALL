@@ -22,8 +22,9 @@ export function formatNumber(value: number): string {
   return number.format(value)
 }
 
-/** 12 345 → « 12,3k » */
+/** 12 345 → « 12,3k », 1 260 900 → « 1,26 M » */
 export function formatThousands(value: number): string {
+  if (value >= 1_000_000) return `${new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 }).format(value / 1_000_000)} M`
   return value >= 1000 ? `${compact.format(value / 1000)}k` : String(value)
 }
 
