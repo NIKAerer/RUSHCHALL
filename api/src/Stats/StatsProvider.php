@@ -44,7 +44,12 @@ final class StatsProvider
         $snapshots = $this->store->lpSnapshots($puuid);
         $lp = array_values(array_filter($snapshots, static fn (array $s) => null === $since || $s['taken_at'] * 1000 >= $since));
 
-        return $this->aggregator->aggregate($games, $lp, $this->lpChanges->resolve($snapshots, $this->store->gameEndsForPlayer($puuid)));
+        return $this->aggregator->aggregate(
+            $games,
+            $lp,
+            $this->lpChanges->resolve($snapshots, $this->store->gameEndsForPlayer($puuid)),
+            $this->store->routineDone(array_map(static fn (GameFacts $g) => $g->matchId, $games)),
+        );
     }
 
     private function facts(string $matchId, string $puuid, bool $hasTimeline): GameFacts

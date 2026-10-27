@@ -308,6 +308,9 @@ export interface SessionRecord {
   games: number
   wins: number
   minutes: number
+  /** LP nets de la session, null s'ils ne sont connus pour aucune game. */
+  lp: number | null
+  rating: number | null
 }
 
 export interface GameRecord {
@@ -335,6 +338,14 @@ export interface GrindStats {
   shortestGame: GameRecord | null
   winDuration: number | null
   lossDuration: number | null
+  /** Un par jour joué (clé AAAA-MM-JJ), du plus ancien au plus récent. */
+  calendar: WinRecord[]
+  recentSessions: SessionRecord[]
+  /** Selon la pause avant la game : short (< 5 min), medium (5–15), long (15–45). */
+  byBreak: WinRecord[]
+  routine: WinRecord
+  noRoutine: WinRecord
+  afterTwoLossesLp: number | null
 }
 
 export interface PlayerStats {

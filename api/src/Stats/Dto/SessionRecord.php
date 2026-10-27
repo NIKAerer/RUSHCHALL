@@ -13,6 +13,10 @@ final readonly class SessionRecord
         public int $games,
         public int $wins,
         public int $minutes,
+        /** LP nets de la session ; null si aucune de ses games n'a de LP connus. */
+        public ?int $lp = null,
+        /** Note moyenne sur 10. */
+        public ?float $rating = null,
     ) {
     }
 }

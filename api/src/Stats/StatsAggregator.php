@@ -37,13 +37,18 @@ final class StatsAggregator
     /** Rang dans la session à partir duquel les games sont regroupées (« 5+ »). */
     private const SESSION_GAMES_GROUPED = 5;
     private const NIGHT_END_HOUR = 6;
+    private const RECENT_SESSIONS = 6;
+    /** Bornes des pauses entre deux games d'une session, en minutes. */
+    private const SHORT_BREAK_MINUTES = 5;
+    private const MEDIUM_BREAK_MINUTES = 15;
 
     /**
      * @param list<GameFacts>                                                                $games       de la plus ancienne à la plus récente
      * @param list<array{taken_at: int, tier: string, division: ?string, league_points: int}> $lpSnapshots
      * @param array<string, int>                                                             $lpChanges   LP par game, quand on sait les attribuer
+     * @param list<string>                                                                   $routine     games où la routine a été cochée
      */
-    public function aggregate(array $games, array $lpSnapshots = [], array $lpChanges = []): PlayerStats
+    public function aggregate(array $games, array $lpSnapshots = [], array $lpChanges = [], array $routine = []): PlayerStats
     {
         $games = array_values(array_filter($games, static fn (GameFacts $g) => !$g->remake));
         $count = \count($games);
@@ -64,7 +69,7 @@ final class StatsAggregator
             objectives: $this->objectives($games),
             heatmap: $this->heatmap($games),
             form: $this->form($games, $lpSnapshots),
-            grind: $this->grind($games),
+            grind: $this->grind($games, $lpChanges, array_flip($routine)),
             progress: $this->progress($games, $lpChanges),
         );
     }
@@ -246,17 +251,23 @@ final class StatsAggregator
     }
 
     /**
-     * @param list<GameFacts> $games de la plus ancienne à la plus récente
+     * @param list<GameFacts>    $games     de la plus ancienne à la plus récente
+     * @param array<string, int> $lpChanges
+     * @param array<string, int> $routine   ids des games où la routine a été cochée, en clés
      */
-    private function grind(array $games): GrindStats
+    private function grind(array $games, array $lpChanges, array $routine): GrindStats
     {
         $sessions = $this->sessions($games);
         $rank = $afterWin = $afterLoss = $afterTwoLosses = [];
+        $breaks = ['short' => [], 'medium' => [], 'long' => []];
         foreach ($sessions as $session) {
             foreach ($session as $index => $game) {
                 $key = $index + 1 >= self::SESSION_GAMES_GROUPED ? self::SESSION_GAMES_GROUPED.'+' : (string) ($index + 1);
                 $rank[$key][] = $game;
                 if ($index > 0) {
+                    $previous = $session[$index - 1];
+                    $minutes = ($game->startedAt - $previous->startedAt - $previous->durationSeconds * 1000) / 60_000;
+                    $breaks[$minutes < self::SHORT_BREAK_MINUTES ? 'short' : ($minutes < self::MEDIUM_BREAK_MINUTES ? 'medium' : 'long')][] = $game;
                     if ($session[$index - 1]->win) {
                         $afterWin[] = $game;
                     } else {
@@ -271,6 +282,10 @@ final class StatsAggregator
         ksort($rank, \SORT_NATURAL);
 
         $days = $this->groupBy($games, fn (GameFacts $g) => $this->local($g)->format('Y-m-d'));
+        $calendar = $this->records($games, fn (GameFacts $g) => $this->local($g)->format('Y-m-d'));
+        usort($calendar, static fn (Record $a, Record $b) => strcmp($a->key, $b->key));
+        $done = array_values(array_filter($games, static fn (GameFacts $g) => isset($routine[$g->matchId])));
+        $notDone = array_values(array_filter($games, static fn (GameFacts $g) => !isset($routine[$g->matchId])));
         $busiestDay = array_key_first($days);
         $byWeekday = $this->groupBy($games, fn (GameFacts $g) => (int) $this->local($g)->format('N'));
         $longest = [] === $sessions ? null : array_reduce($sessions, static fn (?array $best, array $s) => null === $best || \count($s) > \count($best) ? $s : $best);
@@ -282,7 +297,7 @@ final class StatsAggregator
             hours: round($sum(static fn (GameFacts $g) => $g->durationSeconds) / 3600, 1),
             activeDays: \count($days),
             sessions: \count($sessions),
-            longestSession: null === $longest ? null : $this->session($longest),
+            longestSession: null === $longest ? null : $this->session($longest, $lpChanges),
             busiestDay: null === $busiestDay ? null : new Record((string) $busiestDay, \count($days[$busiestDay]), $this->wins($days[$busiestDay])),
             bySessionGame: array_map(fn (string $key) => new Record($key, \count($rank[$key]), $this->wins($rank[$key])), array_map(strval(...), array_keys($rank))),
             afterWin: new Record('afterWin', \count($afterWin), $this->wins($afterWin)),
@@ -303,6 +318,12 @@ final class StatsAggregator
             shortestGame: [] === $byDuration ? null : $this->gameRecord($byDuration[0]),
             winDuration: $this->averageInt(array_values(array_filter($games, static fn (GameFacts $g) => $g->win)), static fn (GameFacts $g) => $g->durationSeconds),
             lossDuration: $this->averageInt(array_values(array_filter($games, static fn (GameFacts $g) => !$g->win)), static fn (GameFacts $g) => $g->durationSeconds),
+            calendar: $calendar,
+            recentSessions: array_map(fn (array $s) => $this->session($s, $lpChanges), \array_slice(array_reverse($sessions), 0, self::RECENT_SESSIONS)),
+            byBreak: array_map(fn (string $key) => $this->record($key, $breaks[$key]), array_keys($breaks)),
+            routine: $this->record('routine', $done),
+            noRoutine: $this->record('noRoutine', $notDone),
+            afterTwoLossesLp: $this->lpSum($afterTwoLosses, $lpChanges),
         );
     }
 
@@ -330,8 +351,9 @@ final class StatsAggregator
 
     /**
      * @param non-empty-list<GameFacts> $session
+     * @param array<string, int>        $lpChanges
      */
-    private function session(array $session): SessionRecord
+    private function session(array $session, array $lpChanges = []): SessionRecord
     {
         $first = $session[0];
         $last = $session[array_key_last($session)];
@@ -341,7 +363,22 @@ final class StatsAggregator
             games: \count($session),
             wins: $this->wins($session),
             minutes: intdiv($last->startedAt + $last->durationSeconds * 1000 - $first->startedAt, 60_000),
+            lp: $this->lpSum($session, $lpChanges),
+            rating: $this->average($session, static fn (GameFacts $g) => $g->rating),
         );
+    }
+
+    /**
+     * Somme des LP connus de ces games ; null si aucune n'en a.
+     *
+     * @param list<GameFacts>    $games
+     * @param array<string, int> $lpChanges
+     */
+    private function lpSum(array $games, array $lpChanges): ?int
+    {
+        $known = array_filter(array_map(static fn (GameFacts $g) => $lpChanges[$g->matchId] ?? null, $games), static fn (?int $lp) => null !== $lp);
+
+        return [] === $known ? null : array_sum($known);
     }
 
     private function gameRecord(GameFacts $game): GameRecord

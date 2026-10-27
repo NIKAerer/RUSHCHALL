@@ -181,7 +181,67 @@
   gap: 8px;
 }
 
+/* Calendrier : 7 lignes (lundi → dimanche), une colonne par semaine. */
+.calendar {
+  display: grid;
+  grid-template-rows: repeat(7, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 3px;
+  max-width: 320px;
+}
+
+.dayCell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--surface-3);
+}
+
+.dayCell[data-tone='up'] {
+  background: var(--win);
+}
+
+.dayCell[data-tone='down'] {
+  background: var(--loss);
+}
+
+.dayCell[data-tone='even'] {
+  background: var(--muted);
+}
+
+.dayCell[data-tone='future'] {
+  visibility: hidden;
+}
+
+.sessions {
+  display: grid;
+}
+
+.session {
+  display: grid;
+  grid-template-columns: 170px 130px minmax(140px, 1fr) 70px 70px;
+  align-items: center;
+  gap: 14px;
+  min-height: 40px;
+  border-top: 1px solid var(--divider);
+  font-size: 13px;
+}
+
+.session b {
+  font: 700 14px var(--font-display);
+  text-align: right;
+}
+
 @media (max-width: 900px) {
+  .session {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .session > :nth-child(2),
+  .session > :nth-child(4) {
+    display: none;
+  }
+
   .tiles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

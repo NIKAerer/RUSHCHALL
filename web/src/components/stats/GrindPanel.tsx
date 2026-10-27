@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import type { GameRecord, GrindStats, WinRecord } from '../../api/types'
-import { formatDecimal, formatDuration, formatNumber, formatPercent, formatThousands } from '../../lib/format'
+import type { GameRecord, GrindStats, SessionRecord, WinRecord } from '../../api/types'
+import { formatDecimal, formatDuration, formatNumber, formatPercent, formatSigned, formatThousands } from '../../lib/format'
 import { ChampionIcon } from '../GameIcons'
 import { WinRate } from './WinRate'
 import styles from './GrindPanel.module.css'
@@ -8,6 +8,10 @@ import common from './stats.module.css'
 
 const WEEKDAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
 const day = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' })
+const sessionDate = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+const BREAKS: Record<string, string> = { short: '< 5 min', medium: '5–15 min', long: '15–45 min' }
+/** Semaines affichées dans le calendrier. */
+const CALENDAR_WEEKS = 12
 
 /** Icônes au trait, 24 × 24. */
 const ICONS = {
@@ -62,12 +66,46 @@ export function GrindPanel({ grind, games }: { grind: GrindStats; games: number 
             <AfterLine label="Après une défaite" record={grind.afterLoss} />
             <AfterLine label="Après 2 défaites" record={grind.afterTwoLosses} />
           </ul>
+          {grind.afterTwoLossesLp !== null && (
+            <p className={common.sub}>
+              S'arrêter après 2 défaites aurait changé ton total de <b className={grind.afterTwoLossesLp > 0 ? common.bad : common.good}>{formatSigned(-grind.afterTwoLossesLp)} LP</b>.
+            </p>
+          )}
         </div>
         <div className={styles.chart}>
           <span className={common.label}>Winrate par jour</span>
           <WinrateBars records={grind.byWeekday.map((r) => ({ ...r, key: WEEKDAYS[Number(r.key) - 1] }))} />
         </div>
       </div>
+
+      <div className={styles.charts}>
+        <div className={styles.chart}>
+          <span className={common.label}>Jours joués · {CALENDAR_WEEKS} semaines</span>
+          <Calendar days={grind.calendar} />
+        </div>
+        <div className={styles.chart}>
+          <span className={common.label}>Winrate selon la pause</span>
+          <WinrateBars records={grind.byBreak.map((r) => ({ ...r, key: BREAKS[r.key] ?? r.key }))} />
+        </div>
+        <div className={styles.chart}>
+          <span className={common.label}>Routine</span>
+          <ul className={styles.after}>
+            <AfterLine label="Routine respectée" record={grind.routine} />
+            <AfterLine label="Sans routine" record={grind.noRoutine} />
+          </ul>
+        </div>
+      </div>
+
+      {grind.recentSessions.length > 0 && (
+        <div className={styles.chart}>
+          <span className={common.label}>Dernières sessions</span>
+          <div className={styles.sessions}>
+            {grind.recentSessions.map((s) => (
+              <SessionLine key={s.startedAt} session={s} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className={styles.totals}>
         <Counter icon="sword" label="Kills" value={formatNumber(grind.totals.kills)} />
@@ -127,6 +165,49 @@ function WinrateBars({ records }: { records: WinRecord[] }) {
           </div>
         )
       })}
+    </div>
+  )
+}
+
+/** Calendrier des jours joués, une colonne par semaine (lundi en haut) : vert quand le bilan du jour est positif. */
+function Calendar({ days }: { days: WinRecord[] }) {
+  const byKey = new Map(days.map((d) => [d.key, d]))
+  const today = new Date()
+  const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7))
+  const start = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() - (CALENDAR_WEEKS - 1) * 7)
+  const cells = Array.from({ length: CALENDAR_WEEKS * 7 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i))
+
+  return (
+    <div className={styles.calendar}>
+      {cells.map((date) => {
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+        const played = byKey.get(key)
+        const net = played ? 2 * played.wins - played.games : 0
+        const tone = !played ? undefined : net > 0 ? 'up' : net < 0 ? 'down' : 'even'
+        return (
+          <span
+            key={key}
+            className={styles.dayCell}
+            data-tone={date > today ? 'future' : tone}
+            style={played ? { opacity: 0.45 + Math.min(played.games, 8) * 0.07 } : undefined}
+            title={played ? `${day.format(date)} : ${played.games} games · ${played.wins}V ${played.games - played.wins}D` : day.format(date)}
+          />
+        )
+      })}
+    </div>
+  )
+}
+
+function SessionLine({ session }: { session: SessionRecord }) {
+  return (
+    <div className={styles.session}>
+      <span>{sessionDate.format(session.startedAt)}</span>
+      <span className={common.sub}>
+        {session.games} game{session.games > 1 ? 's' : ''} · {hoursAndMinutes(session.minutes)}
+      </span>
+      <WinRate games={session.games} wins={session.wins} />
+      <span className={common.sub}>{session.rating === null ? '' : `note ${formatDecimal(session.rating)}`}</span>
+      <b className={session.lp === null ? common.sub : session.lp >= 0 ? common.good : common.bad}>{session.lp === null ? '' : `${formatSigned(session.lp)} LP`}</b>
     </div>
   )
 }
