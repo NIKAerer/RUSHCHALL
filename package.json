@@ -6,7 +6,8 @@
     "dev": "concurrently -n api,web -c yellow,cyan \"php -S 127.0.0.1:8000 -t api/public\" \"npm run dev --prefix web\"",
     "sync": "php api/bin/console app:ranked:sync",
     "test": "cd api && php bin/phpunit",
-    "lint": "npm run lint --prefix web && npx tsc -b web"
+    "lint": "npm run lint --prefix web && npx tsc -b web",
+    "app:install": "powershell -NoProfile -ExecutionPolicy Bypass -File desktop/install.ps1"
   },
   "devDependencies": {
     "concurrently": "9.1.2"

@@ -31,11 +31,21 @@ Quand la clé expire, régénère-la sur le portail Riot et remplace la ligne `R
 
 ## Lancer
 
+### Comme une appli (Windows)
+
+```bash
+npm run app:install
+```
+
+Crée un raccourci « Challenger » sur le Bureau et dans le menu Démarrer. Il ouvre l'appli dans sa propre fenêtre (Edge, Brave ou Chrome en mode appli) sans console : un seul serveur PHP caché sert l'API et le front compilé sur http://127.0.0.1:8765 (`desktop/router.php`), et s'arrête à la fermeture de la fenêtre. Le front est recompilé tout seul quand son code a changé, par exemple après un `git pull`. Journal : `%LOCALAPPDATA%\Challenger\challenger.log`.
+
+### En développement
+
 ```bash
 npm run dev
 ```
 
-Ouvre http://localhost:5173. À l'ouverture et avec le bouton « Mettre à jour », le site récupère les 10 games les plus récentes qui manquent en base.
+Ouvre http://localhost:5173 (rechargement à chaud). À l'ouverture et avec le bouton « Mettre à jour », le site récupère les 10 games les plus récentes qui manquent en base.
 
 ## Base des games classées
 
