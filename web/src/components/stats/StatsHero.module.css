@@ -92,7 +92,7 @@
 .profile {
   display: grid;
   gap: 12px;
-  margin: 0;
+  margin: 0 0 auto;
 }
 
 .profile dt {
