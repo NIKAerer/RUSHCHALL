@@ -3,6 +3,8 @@ import { MatchRow } from './MatchRow'
 import styles from './MatchList.module.css'
 
 interface Props {
+  /** Ligne de droite du titre, par exemple le nombre de games en base. */
+  caption?: string
   matches: MatchSummary[]
   puuid: string
   loading: boolean
@@ -11,21 +13,29 @@ interface Props {
   onLoadMore: () => void
 }
 
-export function MatchList({ matches, puuid, loading, hasMore, loadingMore, onLoadMore }: Props) {
+export function MatchList({ caption, matches, puuid, loading, hasMore, loadingMore, onLoadMore }: Props) {
+  const title = (
+    <div className={styles.title}>
+      <h2>Dernières parties</h2>
+      {caption && <span>{caption}</span>}
+    </div>
+  )
+
   if (loading) {
     return (
-      <div className={styles.list} aria-busy="true">
+      <section className={styles.list} aria-busy="true">
+        {title}
         {Array.from({ length: 5 }, (_, i) => (
           <div key={i} className={styles.placeholder} />
         ))}
-      </div>
+      </section>
     )
   }
 
-  if (matches.length === 0) return <p className={styles.empty}>Aucune game trouvée pour ce filtre.</p>
-
   return (
-    <div className={styles.list}>
+    <section className={styles.list}>
+      {title}
+      {matches.length === 0 && <p className={styles.empty}>Aucune game en base pour l'instant.</p>}
       {matches.map((match) => (
         <MatchRow key={match.matchId} match={match} puuid={puuid} />
       ))}
@@ -34,6 +44,6 @@ export function MatchList({ matches, puuid, loading, hasMore, loadingMore, onLoa
           {loadingMore ? 'Chargement…' : 'Voir plus de games'}
         </button>
       )}
-    </div>
+    </section>
   )
 }

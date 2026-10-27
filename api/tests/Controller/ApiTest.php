@@ -34,6 +34,27 @@ final class ApiTest extends WebTestCase
         self::assertSame('I', $profile['ranked'][1]['division']);
     }
 
+    public function testRoutineCanBeTickedOnAGame(): void
+    {
+        $this->client->request('POST', '/api/games/sync');
+        $this->client->request('GET', '/api/games');
+        self::assertFalse($this->json()[0]['routine']);
+        self::assertNull($this->json()[0]['lpChange']);
+
+        $this->client->request('PUT', '/api/games/EUW1_7412345678/routine', content: '{"routine": true}');
+        self::assertResponseIsSuccessful();
+
+        $this->client->request('GET', '/api/games');
+        self::assertTrue($this->json()[0]['routine']);
+        self::assertFalse($this->json()[1]['routine']);
+
+        $this->client->request('PUT', '/api/games/EUW1_7412345678/routine', content: '{"routine": "oui"}');
+        self::assertResponseStatusCodeSame(400);
+
+        $this->client->request('PUT', '/api/games/EUW1_1/routine', content: '{"routine": true}');
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testHistoryIsEmptyUntilTheFirstSync(): void
     {
         $this->client->request('GET', '/api/games');

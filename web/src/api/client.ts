@@ -14,7 +14,7 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response
   try {
-    response = await fetch(path, { ...init, headers: { Accept: 'application/json' } })
+    response = await fetch(path, { ...init, headers: { Accept: 'application/json', ...(init?.body ? { 'Content-Type': 'application/json' } : {}) } })
   } catch {
     throw new ApiError(0, 'api_unreachable', "L'API Challenger ne répond pas. Elle est bien lancée sur le port 8000 ?")
   }
@@ -39,4 +39,6 @@ export const api = {
     return request<PlayerStats>(`/api/stats${query.size ? `?${query}` : ''}`)
   },
   sync: () => request<SyncReport>('/api/games/sync', { method: 'POST' }),
+  setRoutine: (matchId: string, routine: boolean) =>
+    request<{ matchId: string; routine: boolean }>(`/api/games/${encodeURIComponent(matchId)}/routine`, { method: 'PUT', body: JSON.stringify({ routine }) }),
 }

@@ -1,85 +1,46 @@
 .header {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 14px;
-  min-height: 104px;
-  padding: 12px 16px;
-  overflow: hidden;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
-}
-
-/* Splash art du champion le plus joué, fondu dans le fond de la carte. */
-.banner {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-position: 60% 22%;
-  background-size: cover;
-  opacity: 0.8;
-  mask-image: linear-gradient(90deg, transparent 15%, #000 45%, #000 80%, transparent 100%);
-  mask-composite: intersect;
-}
-
-.header::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(90deg, var(--surface) 25%, transparent 60%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
 }
 
 .identity {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 20px;
   min-width: 0;
+  padding: 24px 28px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
 }
 
 .avatar {
-  position: relative;
   flex: none;
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--surface-3);
 }
 
 .avatar img {
   width: 100%;
   height: 100%;
-  border-radius: 17px;
-}
-
-.avatar span {
-  position: absolute;
-  left: 50%;
-  bottom: -9px;
-  transform: translateX(-50%);
-  padding: 0 8px;
-  border-radius: 99px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted);
 }
 
 .name {
+  display: grid;
+  gap: 4px;
   min-width: 0;
 }
 
 .name h1 {
-  font-size: 28px;
-  line-height: 1.1;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  font: 700 34px/1.1 var(--font-display);
+  letter-spacing: -0.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name h1 span {
@@ -88,50 +49,43 @@
 }
 
 .meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 6px;
-}
-
-.badge {
-  padding: 1px 8px;
-  border-radius: 6px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 14px;
   color: var(--muted);
 }
 
 .refresh {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 14px 5px 10px;
+  gap: 8px;
+  flex: none;
+  margin-left: auto;
+  height: 44px;
+  padding: 0 20px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 999px;
   background: var(--accent);
   color: var(--on-accent);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
 
-.refresh svg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.refresh:disabled {
+  opacity: 0.7;
+  cursor: progress;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .spinning {
-    animation: spin 0.9s linear infinite;
-  }
+.refresh svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.spinning {
+  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
@@ -140,87 +94,72 @@
   }
 }
 
-.refresh:disabled {
-  opacity: 0.6;
-  cursor: progress;
-}
-
-.ranks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
+/* Carte foncée dans les deux thèmes, comme sur la page Stats. */
 .rank {
-  backdrop-filter: blur(6px);
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  padding: 22px 26px;
+  border-radius: 18px;
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.queue {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-width: 230px;
-  padding: 6px 12px 6px 6px;
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 80%, transparent);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow);
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b8b8d0;
 }
 
-.emblem {
-  flex: none;
-  width: 44px;
-  height: 44px;
-}
-
-/* Les emblèmes de rang ont beaucoup de marge transparente. */
-.emblem img {
-  width: 100%;
-  height: 100%;
+.queue img {
+  width: 24px;
+  height: 24px;
   object-fit: contain;
   transform: scale(1.6);
 }
 
-.queue {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
+.lp {
+  font: 700 44px/1 var(--font-display);
+  letter-spacing: -0.03em;
 }
 
-.tier {
-  font: 700 18px var(--font-display);
-}
-
-.tier b {
-  font-weight: 600;
-  color: var(--fg);
+.lp small {
+  font-size: 18px;
+  letter-spacing: 0;
+  color: #b8b8d0;
 }
 
 .record {
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  color: #8be8b2;
 }
 
-.wrBar {
-  height: 4px;
-  margin-top: 5px;
-  border-radius: 2px;
-  background: var(--loss);
-  overflow: hidden;
-}
-
-.wrBar span {
-  display: block;
-  height: 100%;
-  background: var(--win);
+@media (max-width: 860px) {
+  .header {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 560px) {
-  .ranks {
-    width: 100%;
+  .identity {
+    flex-wrap: wrap;
   }
 
-  .rank {
-    flex: 1 1 100%;
-    min-width: 0;
+  .refresh {
+    margin-left: 0;
+  }
+
+  .name h1 {
+    font-size: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinning {
+    animation: none;
   }
 }

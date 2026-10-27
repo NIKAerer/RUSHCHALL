@@ -6,6 +6,7 @@ namespace App\Match;
 
 use App\Match\Dto\MatchDetail;
 use App\Match\Dto\MatchSummary;
+use App\Rank\LpChangeResolver;
 use App\Riot\Exception\NotFoundException;
 use App\Storage\MatchStore;
 
@@ -17,6 +18,7 @@ final class MatchHistoryProvider
     public function __construct(
         private readonly MatchMapper $mapper,
         private readonly MatchStore $store,
+        private readonly LpChangeResolver $lpChanges,
     ) {
     }
 
@@ -25,10 +27,14 @@ final class MatchHistoryProvider
      */
     public function history(string $puuid, int $start, int $count): array
     {
-        return array_map(
+        $summaries = array_map(
             fn (array $match) => $this->mapper->toSummary($match, $puuid),
             $this->store->findPageForPlayer($puuid, $start, $count),
         );
+        $lp = $this->lpChanges->resolve($this->store->lpSnapshots($puuid), $this->store->gameEndsForPlayer($puuid));
+        $routine = array_flip($this->store->routineDone(array_map(static fn (MatchSummary $s) => $s->matchId, $summaries)));
+
+        return array_map(static fn (MatchSummary $s) => $s->withTracking($lp[$s->matchId] ?? null, isset($routine[$s->matchId])), $summaries);
     }
 
     public function detail(string $matchId): MatchDetail

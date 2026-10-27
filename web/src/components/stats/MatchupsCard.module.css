@@ -1,0 +1,39 @@
+.all {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto 56px;
+  align-items: center;
+  gap: 12px;
+  min-height: 54px;
+  border-top: 1px solid var(--line);
+}
+
+.line :global(img) {
+  border-radius: 50%;
+}
+
+.name {
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.games {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.line b {
+  font: 700 17px var(--font-display);
+  text-align: right;
+}

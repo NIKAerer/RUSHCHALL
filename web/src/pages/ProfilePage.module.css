@@ -1,24 +1,6 @@
 .page {
   display: grid;
-  gap: 10px;
-}
-
-.toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 4px;
-}
-
-.toolbar h2 {
-  font-size: 17px;
-}
-
-.count {
-  font-size: 13px;
-  color: var(--muted);
+  gap: 16px;
 }
 
 .notice {

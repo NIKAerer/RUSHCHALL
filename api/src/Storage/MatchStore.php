@@ -178,6 +178,42 @@ final class MatchStore
     }
 
     /**
+     * Fin de chaque game du joueur, en secondes, de la plus ancienne à la plus récente.
+     *
+     * @return list<array{match_id: string, ended_at: int}>
+     */
+    public function gameEndsForPlayer(string $puuid): array
+    {
+        $statement = $this->pdo()->prepare('SELECT m.match_id, m.game_start / 1000 + m.duration AS ended_at FROM matches m JOIN match_participants p ON p.match_id = m.match_id WHERE p.puuid = ? ORDER BY m.game_start');
+        $statement->execute([$puuid]);
+
+        return array_map(static fn (array $row) => ['match_id' => $row['match_id'], 'ended_at' => (int) $row['ended_at']], $statement->fetchAll(\PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * @param list<string> $matchIds
+     *
+     * @return list<string> les games cochées « routine respectée »
+     */
+    public function routineDone(array $matchIds): array
+    {
+        if ([] === $matchIds) {
+            return [];
+        }
+
+        $statement = $this->pdo()->prepare(\sprintf('SELECT match_id FROM game_notes WHERE routine = 1 AND match_id IN (%s)', implode(',', array_fill(0, \count($matchIds), '?'))));
+        $statement->execute($matchIds);
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    public function setRoutine(string $matchId, bool $done): void
+    {
+        $this->pdo()->prepare('INSERT INTO game_notes (match_id, routine) VALUES (?, ?) ON CONFLICT (match_id) DO UPDATE SET routine = excluded.routine')
+            ->execute([$matchId, (int) $done]);
+    }
+
+    /**
      * Enregistre le rang Solo/Duo s'il a changé depuis le dernier relevé.
      */
     public function recordLp(string $puuid, string $tier, ?string $division, int $leaguePoints, int $wins, int $losses, int $takenAt): void
@@ -249,6 +285,10 @@ final class MatchStore
                 losses INTEGER NOT NULL
             );
             CREATE INDEX IF NOT EXISTS lp_snapshots_puuid ON lp_snapshots (puuid, taken_at);
+            CREATE TABLE IF NOT EXISTS game_notes (
+                match_id TEXT PRIMARY KEY REFERENCES matches (match_id) ON DELETE CASCADE,
+                routine INTEGER NOT NULL DEFAULT 0
+            );
             SQL);
 
         return $this->pdo = $pdo;

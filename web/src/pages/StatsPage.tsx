@@ -9,9 +9,11 @@ import { HeatmapPanel } from '../components/stats/HeatmapPanel'
 import { JunglePanel } from '../components/stats/JunglePanel'
 import { LaneDiffs } from '../components/stats/LaneDiffs'
 import { HourPanel } from '../components/stats/LpAndHours'
+import { MatchupsCard } from '../components/stats/MatchupsCard'
 import { MatchupsPanel } from '../components/stats/MatchupsPanel'
 import { ObjectivesPanel } from '../components/stats/ObjectivesPanel'
 import { RadarPanel } from '../components/stats/RadarPanel'
+import { RecentGames } from '../components/stats/RecentGames'
 import { StatCards } from '../components/stats/StatCards'
 import { StatsFilters } from '../components/stats/StatsFilters'
 import { StatsHero } from '../components/stats/StatsHero'
@@ -23,6 +25,7 @@ const TABS = [
   { id: 'champions', label: 'Champions' },
   { id: 'jungle', label: 'Jungle' },
   { id: 'grind', label: 'Grind' },
+  { id: 'details', label: 'Détails' },
 ] as const
 
 type Tab = (typeof TABS)[number]['id']
@@ -60,14 +63,14 @@ export function StatsPage() {
               </button>
             ))}
           </nav>
-          <TabContent tab={tab} data={data} />
+          <TabContent tab={tab} data={data} onTab={(next) => update({ ...filters, tab: next })} />
         </>
       )}
     </div>
   )
 }
 
-function TabContent({ tab, data }: { tab: Tab; data: PlayerStats }) {
+function TabContent({ tab, data, onTab }: { tab: Tab; data: PlayerStats; onTab: (tab: Tab) => void }) {
   switch (tab) {
     case 'champions':
       return (
@@ -85,19 +88,28 @@ function TabContent({ tab, data }: { tab: Tab; data: PlayerStats }) {
       )
     case 'grind':
       return <GrindPanel grind={data.grind} games={data.games} />
-    default:
+    case 'details':
       return (
         <>
           <StatCards stats={data} />
-          <div className={styles.wide}>
-            <RadarPanel stats={data} />
-            <FormLine form={data.form} />
-          </div>
           <TopChampions champions={data.champions} />
           <ObjectivesPanel objectives={data.objectives} />
           <div className={styles.columns}>
             <LaneDiffs diffs={data.diffs} />
             <HourPanel form={data.form} />
+          </div>
+        </>
+      )
+    default:
+      return (
+        <>
+          <div className={styles.wide}>
+            <RecentGames />
+            <MatchupsCard matchups={data.matchups} onShowAll={() => onTab('champions')} />
+          </div>
+          <div className={styles.wide}>
+            <RadarPanel stats={data} />
+            <FormLine form={data.form} />
           </div>
         </>
       )

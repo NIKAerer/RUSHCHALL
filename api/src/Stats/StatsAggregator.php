@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Stats;
 
+use App\Rank\Ladder;
 use App\Stats\Dto\ChampionStats;
 use App\Stats\Dto\DiffStats;
 use App\Stats\Dto\FormStats;
@@ -30,8 +31,6 @@ final class StatsAggregator
     private const ROUTE_MIN_CAMPS = 3;
     private const RECENT_GAMES = 20;
     private const OBJECTIVES = ['grubs', 'herald', 'dragon', 'atakhan', 'baron'];
-    private const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND'];
-    private const DIVISIONS = ['IV', 'III', 'II', 'I'];
     /** Pause au-delà de laquelle la game suivante ouvre une nouvelle session. */
     private const SESSION_BREAK_MS = 45 * 60 * 1000;
     /** Rang dans la session à partir duquel les games sont regroupées (« 5+ »). */
@@ -218,7 +217,7 @@ final class StatsAggregator
             longestLossStreak: $longestLoss,
             recent: array_map(static fn (GameFacts $g) => $g->win, \array_slice($games, -self::RECENT_GAMES)),
             byHour: array_map(fn (int $hour) => new Record((string) $hour, \count($byHour[$hour] ?? []), $this->wins($byHour[$hour] ?? [])), range(0, 23)),
-            lp: array_map(fn (array $s) => new LpPoint($s['taken_at'] * 1000, $s['tier'], $s['division'], $s['league_points'], $this->ladder($s['tier'], $s['division'], $s['league_points'])), $lpSnapshots),
+            lp: array_map(fn (array $s) => new LpPoint($s['taken_at'] * 1000, $s['tier'], $s['division'], $s['league_points'], Ladder::score($s['tier'], $s['division'], $s['league_points'])), $lpSnapshots),
         );
     }
 
@@ -337,17 +336,6 @@ final class StatsAggregator
     private function local(GameFacts $game): \DateTimeImmutable
     {
         return (new \DateTimeImmutable('@'.intdiv($game->startedAt, 1000)))->setTimezone(new \DateTimeZone(self::TIMEZONE));
-    }
-
-    private function ladder(string $tier, ?string $division, int $leaguePoints): int
-    {
-        $tierIndex = array_search($tier, self::TIERS, true);
-        if (false === $tierIndex) {
-            // Master et au-dessus : une seule échelle de LP, au-dessus de Diamant I.
-            return \count(self::TIERS) * 400 + $leaguePoints;
-        }
-
-        return $tierIndex * 400 + (int) array_search($division, self::DIVISIONS, true) * 100 + $leaguePoints;
     }
 
     /**

@@ -3,8 +3,6 @@ import { useGames, useProfile, useSync } from '../api/queries'
 import { ErrorState } from '../components/ErrorState'
 import { MatchList } from '../components/MatchList'
 import { ProfileHeader } from '../components/ProfileHeader'
-import { RecentSummary } from '../components/RecentSummary'
-import type { MatchSummary } from '../api/types'
 import styles from './ProfilePage.module.css'
 
 export function ProfilePage() {
@@ -26,7 +24,12 @@ export function ProfilePage() {
 
   return (
     <div className={styles.page}>
-      <ProfileHeader profile={profile.data} bannerChampion={mostPlayed(matches, profile.data.puuid)} onRefresh={() => sync.mutate()} refreshing={sync.isPending} />
+      <ProfileHeader
+        profile={profile.data}
+        recent={{ games: matches.filter((m) => !m.remake).length, wins: matches.filter((m) => !m.remake && m.player.win).length }}
+        onRefresh={() => sync.mutate()}
+        refreshing={sync.isPending}
+      />
 
       {sync.isError && <ErrorState title="Mise à jour impossible" message={sync.error.message} />}
       {sync.data && sync.data.remaining > 0 && (
@@ -35,17 +38,11 @@ export function ProfilePage() {
         </p>
       )}
 
-      <div className={styles.toolbar}>
-        <h2>Historique Solo/Duo</h2>
-        {sync.data && <span className={styles.count}>{sync.data.total} games en base</span>}
-      </div>
-
-      {matches.length > 0 && <RecentSummary matches={matches} />}
-
       {games.isError ? (
         <ErrorState title="Impossible de charger les games" message={games.error.message} />
       ) : (
         <MatchList
+          caption={sync.data ? `${sync.data.total} games en base` : undefined}
           matches={matches}
           puuid={profile.data.puuid}
           loading={games.isPending}
@@ -56,12 +53,4 @@ export function ProfilePage() {
       )}
     </div>
   )
-}
-
-function mostPlayed(matches: MatchSummary[], puuid: string): string | null {
-  const counts = new Map<string, number>()
-  for (const { player } of matches) {
-    if (player.puuid === puuid) counts.set(player.championName, (counts.get(player.championName) ?? 0) + 1)
-  }
-  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
 }

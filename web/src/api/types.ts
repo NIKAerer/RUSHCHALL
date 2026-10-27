@@ -75,6 +75,10 @@ export interface MatchSummary {
   remake: boolean
   player: Participant
   lineup: Lineup[]
+  /** LP gagnés ou perdus, null quand les relevés ne permettent pas de les attribuer à la game. */
+  lpChange: number | null
+  /** Case « routine respectée », cochée par le joueur. */
+  routine: boolean
 }
 
 export interface TeamObjectives {
