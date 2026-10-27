@@ -47,13 +47,13 @@ export function GrindPanel({ grind, games }: { grind: GrindStats; games: number 
           value={busiest ? `${busiest.games} games` : '—'}
           sub={busiest ? `${busiest.wins}V ${busiest.games - busiest.wins}D · ${day.format(new Date(`${busiest.key}T12:00:00`))}` : undefined}
         />
-        <Tile icon="moon" label="Games de nuit" value={formatNumber(grind.night.games)} sub={grind.night.games ? `lancées entre 0 h et 6 h · ${formatPercent(grind.night.wins / grind.night.games)}` : 'entre 0 h et 6 h'} />
+        <Tile icon="moon" label="Games de nuit" value={formatNumber(grind.night.games)} sub={grind.night.games ? `0 h – 6 h · ${formatPercent(grind.night.wins / grind.night.games)} de victoires` : '0 h – 6 h'} />
       </div>
 
       <div className={styles.charts}>
         <div className={styles.chart}>
           <span className={common.label}>Winrate selon la game de la session</span>
-          <WinrateBars records={grind.bySessionGame.map((r) => ({ ...r, key: `${r.key}e` }))} />
+          <WinrateBars records={grind.bySessionGame.map((r) => ({ ...r, key: r.key.endsWith('+') ? `${r.key.slice(0, -1)}e+` : `${r.key}e` }))} />
         </div>
         <div className={styles.chart}>
           <span className={common.label}>Tilt</span>
