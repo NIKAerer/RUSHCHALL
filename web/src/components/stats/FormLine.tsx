@@ -40,6 +40,22 @@ export function FormLine({ form }: { form: FormStats }) {
           </circle>
         ))}
       </svg>
+      <dl className={styles.records}>
+        <div>
+          <dt>Série en cours</dt>
+          <dd className={form.streak > 0 ? common.good : form.streak < 0 ? common.bad : undefined}>
+            {form.streak === 0 ? '—' : `${Math.abs(form.streak)}${form.streak > 0 ? 'V' : 'D'}`}
+          </dd>
+        </div>
+        <div>
+          <dt>Record V</dt>
+          <dd className={common.good}>{form.longestWinStreak}</dd>
+        </div>
+        <div>
+          <dt>Record D</dt>
+          <dd className={common.bad}>{form.longestLossStreak}</dd>
+        </div>
+      </dl>
     </section>
   )
 }
