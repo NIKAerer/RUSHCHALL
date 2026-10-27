@@ -17,8 +17,11 @@ export function StatsHero({ stats }: { stats: PlayerStats }) {
   const solo = profile?.ranked.find((r) => r.queue === 'solo')
   const { form } = stats
   const ratio = stats.games ? stats.wins / stats.games : 0
-  const ranked = [...axes(stats)].sort((a, b) => b.score - a.score)
-  const [best, worst] = [ranked[0], ranked[ranked.length - 1]]
+  // Les ex aequo sont affichés ensemble plutôt que départagés au hasard.
+  const scored = axes(stats).map((axis) => ({ ...axis, score: Math.round(axis.score) }))
+  const [top, bottom] = [Math.max(...scored.map((a) => a.score)), Math.min(...scored.map((a) => a.score))]
+  const best = scored.filter((a) => a.score === top)
+  const worst = scored.filter((a) => a.score === bottom)
   const lpDelta = form.lp.length > 1 ? form.lp[form.lp.length - 1].ladder - form.lp[0].ladder : null
 
   return (
@@ -66,13 +69,13 @@ export function StatsHero({ stats }: { stats: PlayerStats }) {
         <div>
           <dt>Point fort</dt>
           <dd className={common.good}>
-            {best.label} <small>{Math.round(best.score)}</small>
+            {best.map((a) => a.label).join(' · ')} <small>{top}</small>
           </dd>
         </div>
         <div>
           <dt>À travailler</dt>
           <dd className={common.bad}>
-            {worst.label} <small>{Math.round(worst.score)}</small>
+            {worst.map((a) => a.label).join(' · ')} <small>{bottom}</small>
           </dd>
         </div>
       </dl>

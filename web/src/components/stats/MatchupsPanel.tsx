@@ -71,16 +71,16 @@ const SORTS: Record<SortKey, (m: MatchupStats) => number> = {
 }
 
 function MatchupTable({ matchups, sortable }: { matchups: MatchupStats[]; sortable: boolean }) {
-  const [sort, setSort] = useState<SortKey>('games')
+  const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'games', desc: true })
   if (matchups.length === 0) return <p className={common.empty}>Aucun adversaire.</p>
 
-  const rows = sortable ? [...matchups].sort((a, b) => SORTS[sort](b) - SORTS[sort](a) || b.games - a.games) : matchups
+  const rows = sortable ? [...matchups].sort((a, b) => (SORTS[sort.key](b) - SORTS[sort.key](a)) * (sort.desc ? 1 : -1) || b.games - a.games) : matchups
   const header = (key: SortKey, label: string) =>
     sortable ? (
-      <th scope="col" aria-sort={sort === key ? 'descending' : undefined}>
-        <button type="button" onClick={() => setSort(key)}>
+      <th scope="col" aria-sort={sort.key === key ? (sort.desc ? 'descending' : 'ascending') : undefined}>
+        <button type="button" onClick={() => setSort((s) => ({ key, desc: s.key === key ? !s.desc : true }))}>
           {label}
-          {sort === key && ' ↓'}
+          {sort.key === key && (sort.desc ? ' ↓' : ' ↑')}
         </button>
       </th>
     ) : (
