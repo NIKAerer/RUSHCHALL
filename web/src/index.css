@@ -82,7 +82,8 @@
   --on-result: #ffffff;
   --path-ally: #3b3bd6;
   --path-enemy: #c02f2f;
-  color-scheme: light;
+  /* « dark » est déclaré aussi : sinon Brave et Chrome (sombre forcé) assombrissent le thème clair. */
+  color-scheme: light dark;
 }
 
 *,
