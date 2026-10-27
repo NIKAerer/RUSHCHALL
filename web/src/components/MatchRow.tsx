@@ -2,7 +2,7 @@ import { useId, useState } from 'react'
 import { useRoutine } from '../api/queries'
 import type { MatchSummary } from '../api/types'
 import { useChampion } from '../ddragon/useStaticData'
-import { formatDuration, formatPercent, formatSigned, formatTimeAgo, kdaRatio } from '../lib/format'
+import { formatDuration, formatPercent, formatSigned, kdaRatio } from '../lib/format'
 import { multiKillLabel } from '../lib/riot'
 import { ChampionIcon, ItemSlots } from './GameIcons'
 import { MatchDetail } from './MatchDetail'
@@ -10,6 +10,9 @@ import { RatingBadge } from './RatingBadge'
 import styles from './MatchRow.module.css'
 
 type Outcome = 'win' | 'loss' | 'remake'
+
+// Le jour est dans l'en-tête du groupe : la ligne ne garde que l'heure de début.
+const hour = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
 const OUTCOME_LABELS: Record<Outcome, string> = { win: 'Victoire', loss: 'Défaite', remake: 'Remake' }
 
@@ -49,7 +52,7 @@ export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string 
             KP {formatPercent(player.killParticipation)} · {player.csPerMinute.toFixed(1).replace('.', ',')} cs
           </span>
           <small>
-            {formatDuration(match.durationSeconds)} · {formatTimeAgo(match.startedAt + match.durationSeconds * 1000)}
+            {formatDuration(match.durationSeconds)} · {hour.format(match.startedAt).replace(':', 'h')}
           </small>
         </span>
 

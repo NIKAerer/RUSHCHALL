@@ -1,7 +1,20 @@
+/* Chaque game est une carte à part : liseré de la couleur du résultat et teinte qui s'efface vers la droite. */
 .match {
   --result: var(--win);
   --result-bg: var(--win-bg);
-  border-top: 1px solid var(--divider);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--result-bg) 70%, transparent), transparent 45%), var(--surface-2);
+  box-shadow: inset 4px 0 0 var(--result);
+}
+
+.match:hover {
+  border-color: var(--line-strong);
+}
+
+.match:has(.toggle[aria-expanded='true']) {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
 }
 
 .loss {
@@ -16,11 +29,11 @@
 
 .row {
   display: grid;
-  grid-template-columns: 48px minmax(150px, 190px) 104px auto minmax(0, 1fr) 64px 84px 32px 30px;
+  grid-template-columns: 48px minmax(140px, 180px) 100px auto minmax(110px, 1fr) 64px 84px 32px 30px;
   align-items: center;
   gap: 16px;
   min-height: 84px;
-  padding: 10px 0;
+  padding: 10px 14px 10px 20px;
 }
 
 .score {

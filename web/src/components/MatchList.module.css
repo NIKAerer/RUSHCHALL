@@ -1,5 +1,6 @@
 .list {
   display: grid;
+  gap: 8px;
   padding: 18px 22px 8px;
   border-radius: 18px;
   background: var(--surface);
@@ -22,9 +23,21 @@
   color: var(--muted);
 }
 
+.day {
+  margin: 8px 0 0 4px;
+  font: 600 13px var(--font-body);
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.day:first-of-type {
+  margin-top: 0;
+}
+
 .placeholder {
   height: 84px;
-  border-top: 1px solid var(--divider);
+  border-radius: 14px;
+  background: var(--surface-2);
   animation: pulse 1.4s ease-in-out infinite;
 }
 
@@ -56,7 +69,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .placeholder {
+  .day {
+  margin: 8px 0 0 4px;
+  font: 600 13px var(--font-body);
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.day:first-of-type {
+  margin-top: 0;
+}
+
+.placeholder {
     animation: none;
   }
 }
