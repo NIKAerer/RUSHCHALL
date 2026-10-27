@@ -78,11 +78,11 @@
 }
 
 .blueBar {
-  background: var(--win);
+  background: var(--side-blue);
 }
 
 .redBar {
-  background: var(--loss);
+  background: var(--side-red);
 }
 
 .team {

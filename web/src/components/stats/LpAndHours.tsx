@@ -2,18 +2,23 @@ import { useState, type PointerEvent } from 'react'
 import type { FormStats, LpPoint, WinRecord } from '../../api/types'
 import { formatPercent, formatSigned } from '../../lib/format'
 import { tierLabel } from '../../lib/riot'
-import styles from './FormPanel.module.css'
+import styles from './LpAndHours.module.css'
 import common from './stats.module.css'
 
 const date = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
-export function FormPanel({ form }: { form: FormStats }) {
+export function LpCard({ form }: { form: FormStats }) {
   return (
     <section className={common.panel}>
-      <h2 className={common.title}>
-        LP <small>record : {form.longestWinStreak}V d'affilée · pire : {form.longestLossStreak}D</small>
-      </h2>
+      <h2 className={common.title}>LP</h2>
       <LpChart points={form.lp} />
+    </section>
+  )
+}
+
+export function HourPanel({ form }: { form: FormStats }) {
+  return (
+    <section className={common.panel}>
       <h2 className={common.title}>
         Winrate par heure <small>heure de début</small>
       </h2>
@@ -22,14 +27,14 @@ export function FormPanel({ form }: { form: FormStats }) {
   )
 }
 
-const WIDTH = 600
-const HEIGHT = 160
+const WIDTH = 300
+const HEIGHT = 110
 const PAD = 8
 
 function LpChart({ points }: { points: LpPoint[] }) {
   const [hover, setHover] = useState<number | null>(null)
   if (points.length < 2) {
-    return <p className={common.empty}>La courbe se remplit à chaque ouverture du site ({points.length} relevé pour l'instant).</p>
+    return <p className={common.empty}>La courbe se remplit à chaque ouverture du site.</p>
   }
 
   const [t0, t1] = [points[0].t, points[points.length - 1].t]
@@ -55,10 +60,10 @@ function LpChart({ points }: { points: LpPoint[] }) {
   return (
     <div className={styles.lp}>
       <div className={styles.lpHead}>
-        <span className={common.big}>
-          {tierLabel(shown.tier, shown.division)} {shown.leaguePoints} LP
+        <span className={styles.lpValue}>
+          {tierLabel(shown.tier, shown.division)} <b>{shown.leaguePoints} LP</b>
         </span>
-        <span className={delta >= 0 ? common.good : common.bad}>{formatSigned(delta)} LP</span>
+        <span className={delta >= 0 ? common.good : common.bad}>{formatSigned(delta)}</span>
         <span className={common.sub}>{date.format(shown.t)}</span>
       </div>
       <svg

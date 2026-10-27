@@ -63,16 +63,16 @@
 }
 
 .schematic .river {
-  stroke: color-mix(in srgb, var(--win) 18%, var(--surface-2));
+  stroke: color-mix(in srgb, var(--side-blue) 18%, var(--surface-2));
   stroke-width: 1600;
 }
 
 .blueBase {
-  fill: color-mix(in srgb, var(--win) 25%, var(--surface-2));
+  fill: color-mix(in srgb, var(--side-blue) 25%, var(--surface-2));
 }
 
 .redBase {
-  fill: color-mix(in srgb, var(--loss) 25%, var(--surface-2));
+  fill: color-mix(in srgb, var(--side-red) 25%, var(--surface-2));
 }
 
 .objective rect {

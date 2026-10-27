@@ -14,8 +14,8 @@
 }
 
 .at {
-  font: 700 18px var(--font-display);
-  color: var(--gold);
+  font: 800 18px var(--font-display);
+  color: var(--accent);
 }
 
 .diff {
@@ -24,7 +24,7 @@
 }
 
 .value {
-  font: 600 18px var(--font-display);
+  font: 800 18px var(--font-display);
 }
 
 .ahead {

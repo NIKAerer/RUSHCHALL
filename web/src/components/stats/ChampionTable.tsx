@@ -3,7 +3,7 @@ import type { ChampionStats, MatchupStats } from '../../api/types'
 import { useChampion } from '../../ddragon/useStaticData'
 import { formatDecimal, formatNumber, formatSigned, kdaRatio } from '../../lib/format'
 import { ChampionIcon } from '../GameIcons'
-import { toneOf } from './tone'
+import { kdaTone, toneOf } from './tone'
 import { WinRate } from './WinRate'
 import styles from './ChampionTable.module.css'
 import common from './stats.module.css'
@@ -76,7 +76,7 @@ function ChampionRow({ champion, open, onToggle }: { champion: ChampionStats; op
         <WinRate games={champion.games} wins={champion.wins} />
       </td>
       <td>
-        <div className={styles.main}>{kdaRatio(champion.kills, champion.deaths, champion.assists)}</div>
+        <div className={`${styles.main} ${kdaTone((champion.kills + champion.assists) / Math.max(1, champion.deaths)) ?? ''}`}>{kdaRatio(champion.kills, champion.deaths, champion.assists)}</div>
         <div className={common.sub}>
           {formatDecimal(champion.kills)}/{formatDecimal(champion.deaths)}/{formatDecimal(champion.assists)}
         </div>

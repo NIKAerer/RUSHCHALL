@@ -18,7 +18,7 @@
   align-items: center;
   gap: 8px;
   color: var(--color);
-  font: 600 15px var(--font-display);
+  font: 700 15px var(--font-display);
 }
 
 .badges {

@@ -12,10 +12,10 @@
 .table th {
   padding: 0 8px 8px;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--faint);
+  color: var(--muted);
   text-align: center;
 }
 
@@ -30,7 +30,7 @@
 }
 
 .main {
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .champion {
@@ -48,7 +48,7 @@
 }
 
 .champion[aria-expanded='true'] {
-  color: var(--gold);
+  color: var(--accent);
 }
 
 .row:hover td {

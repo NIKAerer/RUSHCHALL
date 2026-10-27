@@ -52,11 +52,11 @@
 }
 
 .camp[data-camp='blue'] {
-  background: color-mix(in srgb, var(--win) 35%, var(--surface-3));
+  background: color-mix(in srgb, var(--side-blue) 35%, var(--surface-3));
 }
 
 .camp[data-camp='red'] {
-  background: color-mix(in srgb, var(--loss) 35%, var(--surface-3));
+  background: color-mix(in srgb, var(--side-red) 35%, var(--surface-3));
 }
 
 .camp[data-camp='scuttle'] {

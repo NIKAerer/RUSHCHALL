@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font: 600 14px var(--font-display);
+  font: 700 14px var(--font-display);
 }
 
 .side:first-child {

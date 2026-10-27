@@ -46,8 +46,8 @@
 }
 
 .toggle button[aria-selected='true'] {
-  border-color: var(--gold);
-  color: var(--gold);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .toggle b {
