@@ -78,7 +78,6 @@
 
 .name h1 {
   font-size: 28px;
-  text-shadow: 0 2px 16px rgb(0 0 0 / 0.6);
   line-height: 1.1;
   overflow-wrap: anywhere;
 }
@@ -113,7 +112,7 @@
   border: 0;
   border-radius: 8px;
   background: var(--accent);
-  color: #141833;
+  color: var(--on-accent);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;

@@ -5,90 +5,71 @@ import { rankEmblem } from '../../ddragon/ddragon'
 import { formatDecimal, formatPercent, formatSigned, kdaRatio } from '../../lib/format'
 import { tierLabel } from '../../lib/riot'
 import { LpChart } from './LpAndHours'
-import { kdaTone } from './tone'
+import { kdaTone, winrateTone } from './tone'
 import { axes } from './visual'
 import styles from './StatsHero.module.css'
 import common from './stats.module.css'
 
-/** En-tête de la page Stats : le rang en grand, le bilan de la sélection et la courbe de LP. */
+/** En-tête de la page Stats : le rang sur une carte foncée, puis le bilan de la sélection en cartes. */
 export function StatsHero({ stats }: { stats: PlayerStats }) {
   const { data: profile } = useProfile()
   const [emblemFailed, setEmblemFailed] = useState(false)
   const solo = profile?.ranked.find((r) => r.queue === 'solo')
   const { form } = stats
   const ratio = stats.games ? stats.wins / stats.games : 0
+  const lpDelta = form.lp.length > 1 ? form.lp[form.lp.length - 1].ladder - form.lp[0].ladder : null
   // Les ex aequo sont affichés ensemble plutôt que départagés au hasard.
   const scored = axes(stats).map((axis) => ({ ...axis, score: Math.round(axis.score) }))
   const [top, bottom] = [Math.max(...scored.map((a) => a.score)), Math.min(...scored.map((a) => a.score))]
   const best = scored.filter((a) => a.score === top)
   const worst = scored.filter((a) => a.score === bottom)
-  const lpDelta = form.lp.length > 1 ? form.lp[form.lp.length - 1].ladder - form.lp[0].ladder : null
 
   return (
     <section className={styles.hero}>
-      {solo && (
-        <div className={styles.rank}>
-          {!emblemFailed && <img src={rankEmblem(solo.tier)} alt="" onError={() => setEmblemFailed(true)} />}
-          <div>
-            <span className={styles.tier}>{tierLabel(solo.tier, solo.division)}</span>
-            <b className={styles.lp}>
-              {solo.leaguePoints} <small>LP</small>
-            </b>
-            {lpDelta !== null && <span className={lpDelta >= 0 ? common.good : common.bad}>{formatSigned(lpDelta)} LP sur la période</span>}
-          </div>
+      <div className={styles.rank}>
+        <div className={styles.rankHead}>
+          {solo && !emblemFailed && <img src={rankEmblem(solo.tier)} alt="" onError={() => setEmblemFailed(true)} />}
+          <span>{solo ? `${tierLabel(solo.tier, solo.division)} · Solo/Duo` : 'Solo/Duo'}</span>
         </div>
-      )}
-
-      <div className={styles.record}>
-        <div className={styles.ring} style={{ ['--ratio' as string]: ratio }}>
-          <span>{formatPercent(ratio)}</span>
-        </div>
-        <div>
-          <b className={styles.wl}>
-            {stats.wins}V <span>{stats.games - stats.wins}D</span>
+        {solo && (
+          <b className={styles.lp}>
+            {solo.leaguePoints} <small>LP</small>
           </b>
-          <span className={common.sub}>{stats.games} games</span>
-        </div>
-      </div>
-
-      <dl className={styles.facts}>
-        <div>
-          <dt>KDA</dt>
-          <dd className={kdaTone((stats.kills + stats.assists) / Math.max(1, stats.deaths))}>{kdaRatio(stats.kills, stats.deaths, stats.assists)}</dd>
-        </div>
-        <div>
-          <dt>Note</dt>
-          <dd>{formatDecimal(stats.rating)}</dd>
-        </div>
-        <div>
-          <dt>MVP · ACE</dt>
-          <dd>
-            {stats.mvp} <span className={common.sub}>·</span> {stats.ace}
-          </dd>
-        </div>
-        <div>
-          <dt>Point fort</dt>
-          <dd className={common.good}>
-            {best.map((a) => a.label).join(' · ')} <small>{top}</small>
-          </dd>
-        </div>
-        <div>
-          <dt>À travailler</dt>
-          <dd className={common.bad}>
-            {worst.map((a) => a.label).join(' · ')} <small>{bottom}</small>
-          </dd>
-        </div>
-      </dl>
-
-      <div className={styles.chart}>
+        )}
         <LpChart points={form.lp} />
+        {lpDelta !== null && <span className={styles.delta}>{formatSigned(lpDelta)} LP sur la période</span>}
       </div>
 
-      <ol className={styles.recent} aria-label="Dernières games, la plus récente à droite">
-        {form.recent.map((win, index) => (
-          <li key={index} className={win ? styles.win : styles.loss} title={win ? 'Victoire' : 'Défaite'} />
-        ))}
-      </ol>
+      <div className={styles.cards}>
+        <div className={styles.card}>
+          <span className={styles.label}>Winrate</span>
+          <b className={`${styles.value} ${winrateTone(ratio) ?? ''}`}>{formatPercent(ratio)}</b>
+          <span className={styles.sub}>
+            {stats.wins} V · {stats.games - stats.wins} D
+          </span>
+        </div>
+        <div className={styles.card}>
+          <span className={styles.label}>KDA</span>
+          <b className={`${styles.value} ${kdaTone((stats.kills + stats.assists) / Math.max(1, stats.deaths)) ?? ''}`}>{kdaRatio(stats.kills, stats.deaths, stats.assists)}</b>
+          <span className={styles.sub}>sur {stats.games} games</span>
+        </div>
+        <div className={styles.card}>
+          <span className={styles.label}>Note moyenne</span>
+          <b className={styles.value}>{formatDecimal(stats.rating)}</b>
+          <span className={styles.sub}>
+            {stats.mvp} MVP · {stats.ace} ACE
+          </span>
+        </div>
+        <div className={`${styles.card} ${styles.profile}`}>
+          <span className={styles.label}>Ton profil</span>
+          <span className={common.good}>
+            ↑ {best.map((a) => a.label).join(' · ')} {top}
+          </span>
+          <span className={common.bad}>
+            ↓ {worst.map((a) => a.label).join(' · ')} {bottom}
+          </span>
+        </div>
+      </div>
     </section>
   )
 }

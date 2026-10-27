@@ -1,174 +1,119 @@
 .hero {
   display: grid;
-  grid-template-columns: auto auto auto minmax(220px, 1fr);
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: 14px;
+}
+
+/* Carte foncée dans les deux thèmes, comme la maquette éditoriale. */
+.rank {
+  --fg: var(--on-ink);
+  --muted: #b8b8d0;
+  --accent: #9b9bff;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 22px 24px;
+  border-radius: 18px;
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.rankHead {
+  display: flex;
   align-items: center;
-  gap: 14px 28px;
-  padding: 16px 18px 12px;
-  border-radius: var(--radius);
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.rankHead img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transform: scale(1.6);
+}
+
+.lp {
+  font: 700 64px/1 var(--font-display);
+  letter-spacing: -0.04em;
+}
+
+.lp small {
+  font-size: 20px;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+/* Courbe plus basse que sur une carte normale : le chiffre du LP reste le héros. */
+.rank svg {
+  height: 72px;
+}
+
+.delta {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7ee0a6;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  padding: 18px 20px;
+  border-radius: 18px;
   background: var(--surface);
   border: 1px solid var(--line);
 }
 
-.rank {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.label {
+  font-size: 13px;
+  color: var(--muted);
 }
 
-.rank img {
-  width: 76px;
-  height: 76px;
-  margin: -8px -4px;
-  object-fit: contain;
+.value {
+  font: 700 40px/1 var(--font-display);
+  letter-spacing: -0.03em;
 }
 
-.rank > div,
-.record > div {
-  display: grid;
-  gap: 2px;
-  font-size: 12px;
+.sub {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.profile {
+  justify-content: flex-start;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+  font-size: 14px;
   font-weight: 600;
 }
 
-.tier {
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
+.profile .label {
+  color: var(--accent);
+  font-weight: 600;
 }
 
-.lp {
-  font: 800 34px/1 var(--font-display);
-  letter-spacing: -0.02em;
-}
-
-.lp small {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-.record {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-left: 28px;
-  border-left: 1px solid var(--line);
-}
-
-.ring {
-  --ratio: 0.5;
-  position: relative;
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 60px;
-  height: 60px;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.ring::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(var(--win) calc(var(--ratio) * 360deg), var(--loss) 0);
-  -webkit-mask: radial-gradient(circle, transparent 24px, #000 25px);
-  mask: radial-gradient(circle, transparent 24px, #000 25px);
-}
-
-.wl {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--win);
-}
-
-.wl span {
-  color: var(--loss);
-}
-
-.facts {
-  display: grid;
-  grid-template-columns: repeat(3, auto);
-  gap: 8px 22px;
-  margin: 0;
-  padding-left: 28px;
-  border-left: 1px solid var(--line);
-}
-
-.facts dt {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.facts dd {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.facts small {
-  font-size: 12px;
-  font-weight: 700;
-  opacity: 0.75;
-}
-
-.chart {
-  min-width: 0;
-}
-
-.recent {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(20, 1fr);
-  gap: 3px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.recent li {
-  height: 6px;
-  border-radius: 3px;
-}
-
-.recent .win {
-  background: var(--win);
-}
-
-.recent .loss {
-  background: var(--loss);
-}
-
-@media (max-width: 1100px) {
+@media (max-width: 1000px) {
   .hero {
-    grid-template-columns: auto auto auto;
-  }
-
-  .chart {
-    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
-@media (max-width: 700px) {
-  .hero {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 640px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .record,
-  .facts {
-    padding-left: 0;
-    border-left: 0;
-  }
-
-  .facts {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(3, auto);
+  .value {
+    font-size: 32px;
   }
 }
