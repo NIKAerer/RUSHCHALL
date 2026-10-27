@@ -11,6 +11,7 @@ final readonly class PlayerStats
      * @param list<MatchupStats>   $matchups   adversaires au même poste, toutes games confondues
      * @param list<DiffStats>      $diffs      à 10 puis à 15 minutes
      * @param list<ObjectiveStats> $objectives
+     * @param list<ProgressPoint>  $progress   une entrée par game, de la plus ancienne à la plus récente
      */
     public function __construct(
         public int $games,
@@ -29,6 +30,7 @@ final readonly class PlayerStats
         public Heatmap $heatmap,
         public FormStats $form,
         public GrindStats $grind,
+        public array $progress,
     ) {
     }
 }

@@ -16,6 +16,7 @@ use App\Stats\Dto\LpPoint;
 use App\Stats\Dto\MatchupStats;
 use App\Stats\Dto\ObjectiveStats;
 use App\Stats\Dto\PlayerStats;
+use App\Stats\Dto\ProgressPoint;
 use App\Stats\Dto\Record;
 use App\Stats\Dto\SessionRecord;
 
@@ -40,8 +41,9 @@ final class StatsAggregator
     /**
      * @param list<GameFacts>                                                                $games       de la plus ancienne à la plus récente
      * @param list<array{taken_at: int, tier: string, division: ?string, league_points: int}> $lpSnapshots
+     * @param array<string, int>                                                             $lpChanges   LP par game, quand on sait les attribuer
      */
-    public function aggregate(array $games, array $lpSnapshots = []): PlayerStats
+    public function aggregate(array $games, array $lpSnapshots = [], array $lpChanges = []): PlayerStats
     {
         $games = array_values(array_filter($games, static fn (GameFacts $g) => !$g->remake));
         $count = \count($games);
@@ -63,7 +65,29 @@ final class StatsAggregator
             heatmap: $this->heatmap($games),
             form: $this->form($games, $lpSnapshots),
             grind: $this->grind($games),
+            progress: $this->progress($games, $lpChanges),
         );
+    }
+
+    /**
+     * @param list<GameFacts>    $games
+     * @param array<string, int> $lpChanges
+     *
+     * @return list<ProgressPoint>
+     */
+    private function progress(array $games, array $lpChanges): array
+    {
+        usort($games, static fn (GameFacts $a, GameFacts $b) => $a->startedAt <=> $b->startedAt);
+
+        return array_map(static fn (GameFacts $g) => new ProgressPoint(
+            matchId: $g->matchId,
+            t: $g->startedAt,
+            win: $g->win,
+            rating: $g->rating,
+            kda: round(($g->kills + $g->assists) / max(1, $g->deaths), 2),
+            csPerMinute: round($g->cs / max(1, $g->durationSeconds / 60), 1),
+            lpChange: $lpChanges[$g->matchId] ?? null,
+        ), $games);
     }
 
     /**

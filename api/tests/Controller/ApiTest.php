@@ -119,6 +119,8 @@ final class ApiTest extends WebTestCase
         self::assertSame(['grubs', 'herald', 'dragon', 'atakhan', 'baron'], array_column($stats['objectives'], 'type'));
         self::assertNotEmpty($stats['heatmap']['cells']);
         self::assertCount(24, $stats['form']['byHour']);
+        self::assertCount($stats['games'], $stats['progress']);
+        self::assertLessThan($stats['progress'][1]['t'], $stats['progress'][0]['t']);
         self::assertSame(2800 + 1290, $stats['form']['lp'][0]['ladder']);
     }
 
