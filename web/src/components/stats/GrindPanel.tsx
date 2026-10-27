@@ -37,17 +37,17 @@ export function GrindPanel({ grind, games }: { grind: GrindStats; games: number 
         <Tile icon="loop" label="Sessions" value={formatNumber(grind.sessions)} sub={grind.sessions ? `~${formatDecimal(games / grind.sessions)} games par session` : undefined} />
         <Tile
           icon="flame"
-          label="Plus longue session"
+          label="Record session"
           value={session ? `${session.games} games` : '—'}
           sub={session ? `${session.wins}V ${session.games - session.wins}D · ${hoursAndMinutes(session.minutes)} · ${day.format(session.startedAt)}` : undefined}
         />
         <Tile
           icon="calendar"
-          label="Plus grosse journée"
+          label="Record journée"
           value={busiest ? `${busiest.games} games` : '—'}
           sub={busiest ? `${busiest.wins}V ${busiest.games - busiest.wins}D · ${day.format(new Date(`${busiest.key}T12:00:00`))}` : undefined}
         />
-        <Tile icon="moon" label="Games de nuit" value={formatNumber(grind.night.games)} sub={grind.night.games ? `0 h – 6 h · ${formatPercent(grind.night.wins / grind.night.games)} de victoires` : '0 h – 6 h'} />
+        <Tile icon="moon" label="Games de nuit" value={formatNumber(grind.night.games)} sub={grind.night.games ? `0–6 h · ${formatPercent(grind.night.wins / grind.night.games)} V` : '0–6 h'} />
       </div>
 
       <div className={styles.charts}>
