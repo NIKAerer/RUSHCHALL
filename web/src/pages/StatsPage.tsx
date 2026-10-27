@@ -4,6 +4,7 @@ import type { StatsFilters as Filters, PlayerStats } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
 import { ChampionTable } from '../components/stats/ChampionTable'
 import { FormPanel } from '../components/stats/FormPanel'
+import { GrindPanel } from '../components/stats/GrindPanel'
 import { HeatmapPanel } from '../components/stats/HeatmapPanel'
 import { JunglePanel } from '../components/stats/JunglePanel'
 import { LaneDiffs } from '../components/stats/LaneDiffs'
@@ -53,6 +54,7 @@ function StatsContent({ data }: { data: PlayerStats }) {
         <ObjectivesPanel objectives={data.objectives} />
         <HeatmapPanel heatmap={data.heatmap} />
       </div>
+      <GrindPanel grind={data.grind} games={data.games} />
     </>
   )
 }

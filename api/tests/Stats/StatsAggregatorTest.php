@@ -58,6 +58,29 @@ final class StatsAggregatorTest extends TestCase
         self::assertSame('red>krugs>raptors', $stats->jungle->routes[0]->key);
     }
 
+    public function testGamesSplitIntoSessionsAfterABreak(): void
+    {
+        $hour = 3600 * 1000;
+        // Trois games enchaînées (30 min chacune), puis une seule le lendemain.
+        $stats = (new StatsAggregator())->aggregate([
+            $this->game(false, startedAt: 0),
+            $this->game(true, startedAt: $hour),
+            $this->game(true, startedAt: 2 * $hour),
+            $this->game(false, startedAt: 24 * $hour),
+        ]);
+        $grind = $stats->grind;
+
+        self::assertSame(2, $grind->sessions);
+        self::assertSame([3, 2, 150], [$grind->longestSession?->games, $grind->longestSession?->wins, $grind->longestSession?->minutes]);
+        self::assertSame(['1', '2', '3'], array_map(static fn ($r) => $r->key, $grind->bySessionGame));
+        self::assertSame([2, 0], [$grind->bySessionGame[0]->games, $grind->bySessionGame[0]->wins]);
+        self::assertSame([1, 1], [$grind->afterLoss->games, $grind->afterLoss->wins]);
+        self::assertSame([1, 1], [$grind->afterWin->games, $grind->afterWin->wins]);
+        self::assertSame(2.0, $grind->hours);
+        self::assertSame(0, $grind->afterTwoLosses->games);
+        self::assertSame([1800, 1800], [$grind->winDuration, $grind->lossDuration]);
+    }
+
     public function testLpOfApexTiersSitsAboveDiamond(): void
     {
         $stats = (new StatsAggregator())->aggregate([], [
@@ -72,11 +95,11 @@ final class StatsAggregatorTest extends TestCase
      * @param list<string>         $clear
      * @param list<ObjectiveFight> $objectives
      */
-    private function game(bool $win, bool $remake = false, ?LaneDiff $at10 = null, array $clear = [], array $objectives = []): GameFacts
+    private function game(bool $win, bool $remake = false, int $startedAt = 1_793_000_000_000, ?LaneDiff $at10 = null, array $clear = [], array $objectives = []): GameFacts
     {
         return new GameFacts(
             matchId: 'EUW1_1',
-            startedAt: 1_793_000_000_000,
+            startedAt: $startedAt,
             durationSeconds: 1800,
             remake: $remake,
             win: $win,
@@ -87,6 +110,9 @@ final class StatsAggregatorTest extends TestCase
             deaths: 3,
             assists: 7,
             cs: 180,
+            gold: 11000,
+            pentaKills: 0,
+            firstBlood: false,
             rating: 6.0,
             badge: null,
             goldAt15: 6000,

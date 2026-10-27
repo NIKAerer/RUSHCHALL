@@ -78,6 +78,12 @@ export function championIcon(version: string, championName: string): string {
   return `${BASE}/cdn/${version}/img/champion/${file}.png`
 }
 
+/** Splash art plein format, pour les bannières. */
+export function championSplash(championName: string): string {
+  const file = CHAMPION_FILE_ALIASES[championName] ?? championName
+  return `${BASE}/cdn/img/champion/splash/${file}_0.jpg`
+}
+
 export function profileIcon(version: string, iconId: number): string {
   return `${BASE}/cdn/${version}/img/profileicon/${iconId}.png`
 }

@@ -1,0 +1,198 @@
+.grind {
+  gap: 18px;
+}
+
+.icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tile {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.tile .icon {
+  width: 26px;
+  height: 26px;
+  padding: 4px;
+  border-radius: 8px;
+  background: rgb(227 179 79 / 0.1);
+}
+
+.value {
+  font: 700 20px var(--font-display);
+}
+
+.charts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.chart {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.bars {
+  display: flex;
+  gap: 6px;
+  height: 140px;
+}
+
+.bar {
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  flex: 1;
+  justify-items: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.barValue {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* La ligne pointillée marque les 50 %. */
+.track {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 34px;
+  border-radius: 5px 5px 0 0;
+  background: var(--surface-2);
+}
+
+.track::after {
+  content: '';
+  position: absolute;
+  inset: 50% -3px auto;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.track span {
+  width: 100%;
+  border-radius: 5px 5px 0 0;
+}
+
+.up {
+  background: linear-gradient(180deg, #6aa2ff, var(--win));
+}
+
+.down {
+  background: linear-gradient(180deg, #f17b7b, var(--loss));
+}
+
+.barKey {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.barGames {
+  font-size: 10px;
+  color: var(--faint);
+}
+
+.after {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.after li {
+  display: grid;
+  gap: 4px;
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.counter {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.counter b {
+  font: 700 20px var(--font-display);
+}
+
+.durations {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.duration {
+  display: grid;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border-left: 3px solid var(--line-strong);
+}
+
+.duration b {
+  font: 700 17px var(--font-display);
+}
+
+.duration.win {
+  border-left-color: var(--win);
+}
+
+.duration.loss {
+  border-left-color: var(--loss);
+}
+
+.recordGame {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .totals {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .durations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

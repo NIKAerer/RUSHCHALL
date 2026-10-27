@@ -299,6 +299,40 @@ export interface FormStats {
   lp: LpPoint[]
 }
 
+export interface SessionRecord {
+  startedAt: number
+  games: number
+  wins: number
+  minutes: number
+}
+
+export interface GameRecord {
+  matchId: string
+  championName: string
+  durationSeconds: number
+  win: boolean
+  startedAt: number
+}
+
+export interface GrindStats {
+  hours: number
+  activeDays: number
+  sessions: number
+  longestSession: SessionRecord | null
+  busiestDay: WinRecord | null
+  bySessionGame: WinRecord[]
+  afterWin: WinRecord
+  afterLoss: WinRecord
+  afterTwoLosses: WinRecord
+  byWeekday: WinRecord[]
+  night: WinRecord
+  totals: { kills: number; deaths: number; assists: number; cs: number; gold: number; pentaKills: number; firstBloods: number }
+  longestGame: GameRecord | null
+  shortestGame: GameRecord | null
+  winDuration: number | null
+  lossDuration: number | null
+}
+
 export interface PlayerStats {
   games: number
   wins: number
@@ -315,6 +349,7 @@ export interface PlayerStats {
   objectives: ObjectiveStats[]
   heatmap: Heatmap
   form: FormStats
+  grind: GrindStats
 }
 
 export interface StatsFilters {

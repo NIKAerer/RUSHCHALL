@@ -15,7 +15,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 final class StatsProvider
 {
     /** À incrémenter quand GameFacts ou son calcul change. */
-    private const CACHE_VERSION = 1;
+    private const CACHE_VERSION = 2;
 
     public function __construct(
         private readonly MatchStore $store,

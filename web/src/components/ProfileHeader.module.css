@@ -1,9 +1,38 @@
 .header {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
+  min-height: 190px;
+  padding: 28px 24px 22px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+/* Splash art du champion le plus joué, fondu dans le fond de la carte. */
+.banner {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-position: center 22%;
+  background-size: cover;
+  opacity: 0.4;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 45%, #000 70%, transparent 100%), linear-gradient(180deg, #000 30%, transparent 100%);
+  mask-composite: intersect;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, transparent 30%, var(--surface) 100%);
 }
 
 .identity {
@@ -48,7 +77,8 @@
 }
 
 .name h1 {
-  font-size: 32px;
+  font-size: 36px;
+  text-shadow: 0 2px 16px rgb(0 0 0 / 0.6);
   line-height: 1.1;
   overflow-wrap: anywhere;
 }
@@ -76,14 +106,40 @@
 }
 
 .refresh {
-  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px 5px 10px;
   border: 0;
-  border-radius: 7px;
-  background: var(--gold);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f0c565, var(--gold));
   color: #251c06;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 4px 14px -4px rgb(227 179 79 / 0.6);
+}
+
+.refresh svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .spinning {
+    animation: spin 0.9s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .refresh:disabled {
@@ -98,14 +154,16 @@
 }
 
 .rank {
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   gap: 12px;
   min-width: 230px;
   padding: 10px 16px 10px 8px;
   border-radius: var(--radius);
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
   border: 1px solid var(--line);
+  box-shadow: var(--shadow);
 }
 
 .emblem {
@@ -142,6 +200,20 @@
 .record {
   font-size: 12px;
   color: var(--muted);
+}
+
+.wrBar {
+  height: 4px;
+  margin-top: 5px;
+  border-radius: 2px;
+  background: var(--loss);
+  overflow: hidden;
+}
+
+.wrBar span {
+  display: block;
+  height: 100%;
+  background: var(--win);
 }
 
 @media (max-width: 560px) {

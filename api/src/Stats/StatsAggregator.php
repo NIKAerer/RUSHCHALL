@@ -7,6 +7,8 @@ namespace App\Stats;
 use App\Stats\Dto\ChampionStats;
 use App\Stats\Dto\DiffStats;
 use App\Stats\Dto\FormStats;
+use App\Stats\Dto\GameRecord;
+use App\Stats\Dto\GrindStats;
 use App\Stats\Dto\Heatmap;
 use App\Stats\Dto\JungleStats;
 use App\Stats\Dto\LpPoint;
@@ -14,6 +16,7 @@ use App\Stats\Dto\MatchupStats;
 use App\Stats\Dto\ObjectiveStats;
 use App\Stats\Dto\PlayerStats;
 use App\Stats\Dto\Record;
+use App\Stats\Dto\SessionRecord;
 
 /**
  * Additionne les games du joueur suivi. Les remakes sont ignorés.
@@ -29,6 +32,11 @@ final class StatsAggregator
     private const OBJECTIVES = ['grubs', 'herald', 'dragon', 'atakhan', 'baron'];
     private const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'EMERALD', 'DIAMOND'];
     private const DIVISIONS = ['IV', 'III', 'II', 'I'];
+    /** Pause au-delà de laquelle la game suivante ouvre une nouvelle session. */
+    private const SESSION_BREAK_MS = 45 * 60 * 1000;
+    /** Rang dans la session à partir duquel les games sont regroupées (« 5+ »). */
+    private const SESSION_GAMES_GROUPED = 5;
+    private const NIGHT_END_HOUR = 6;
 
     /**
      * @param list<GameFacts>                                                                $games       de la plus ancienne à la plus récente
@@ -55,6 +63,7 @@ final class StatsAggregator
             objectives: $this->objectives($games),
             heatmap: $this->heatmap($games),
             form: $this->form($games, $lpSnapshots),
+            grind: $this->grind($games),
         );
     }
 
@@ -201,9 +210,7 @@ final class StatsAggregator
             $longestLoss = max($longestLoss, -$streak);
         }
 
-        $timezone = new \DateTimeZone(self::TIMEZONE);
-        $hourOf = static fn (GameFacts $g) => (int) (new \DateTimeImmutable('@'.intdiv($g->startedAt, 1000)))->setTimezone($timezone)->format('G');
-        $byHour = $this->groupBy($games, $hourOf);
+        $byHour = $this->groupBy($games, fn (GameFacts $g) => (int) $this->local($g)->format('G'));
 
         return new FormStats(
             streak: $streak,
@@ -213,6 +220,123 @@ final class StatsAggregator
             byHour: array_map(fn (int $hour) => new Record((string) $hour, \count($byHour[$hour] ?? []), $this->wins($byHour[$hour] ?? [])), range(0, 23)),
             lp: array_map(fn (array $s) => new LpPoint($s['taken_at'] * 1000, $s['tier'], $s['division'], $s['league_points'], $this->ladder($s['tier'], $s['division'], $s['league_points'])), $lpSnapshots),
         );
+    }
+
+    /**
+     * @param list<GameFacts> $games de la plus ancienne à la plus récente
+     */
+    private function grind(array $games): GrindStats
+    {
+        $sessions = $this->sessions($games);
+        $rank = $afterWin = $afterLoss = $afterTwoLosses = [];
+        foreach ($sessions as $session) {
+            foreach ($session as $index => $game) {
+                $key = $index + 1 >= self::SESSION_GAMES_GROUPED ? self::SESSION_GAMES_GROUPED.'+' : (string) ($index + 1);
+                $rank[$key][] = $game;
+                if ($index > 0) {
+                    if ($session[$index - 1]->win) {
+                        $afterWin[] = $game;
+                    } else {
+                        $afterLoss[] = $game;
+                    }
+                }
+                if ($index > 1 && !$session[$index - 1]->win && !$session[$index - 2]->win) {
+                    $afterTwoLosses[] = $game;
+                }
+            }
+        }
+        ksort($rank, \SORT_NATURAL);
+
+        $days = $this->groupBy($games, fn (GameFacts $g) => $this->local($g)->format('Y-m-d'));
+        $busiestDay = array_key_first($days);
+        $byWeekday = $this->groupBy($games, fn (GameFacts $g) => (int) $this->local($g)->format('N'));
+        $longest = [] === $sessions ? null : array_reduce($sessions, static fn (?array $best, array $s) => null === $best || \count($s) > \count($best) ? $s : $best);
+        $byDuration = $games;
+        usort($byDuration, static fn (GameFacts $a, GameFacts $b) => $a->durationSeconds <=> $b->durationSeconds);
+        $sum = static fn (callable $value) => array_sum(array_map($value, $games));
+
+        return new GrindStats(
+            hours: round($sum(static fn (GameFacts $g) => $g->durationSeconds) / 3600, 1),
+            activeDays: \count($days),
+            sessions: \count($sessions),
+            longestSession: null === $longest ? null : $this->session($longest),
+            busiestDay: null === $busiestDay ? null : new Record((string) $busiestDay, \count($days[$busiestDay]), $this->wins($days[$busiestDay])),
+            bySessionGame: array_map(fn (string $key) => new Record($key, \count($rank[$key]), $this->wins($rank[$key])), array_map(strval(...), array_keys($rank))),
+            afterWin: new Record('afterWin', \count($afterWin), $this->wins($afterWin)),
+            afterLoss: new Record('afterLoss', \count($afterLoss), $this->wins($afterLoss)),
+            afterTwoLosses: new Record('afterTwoLosses', \count($afterTwoLosses), $this->wins($afterTwoLosses)),
+            byWeekday: array_map(fn (int $day) => new Record((string) $day, \count($byWeekday[$day] ?? []), $this->wins($byWeekday[$day] ?? [])), range(1, 7)),
+            night: $this->record('night', array_values(array_filter($games, fn (GameFacts $g) => (int) $this->local($g)->format('G') < self::NIGHT_END_HOUR))),
+            totals: [
+                'kills' => $sum(static fn (GameFacts $g) => $g->kills),
+                'deaths' => $sum(static fn (GameFacts $g) => $g->deaths),
+                'assists' => $sum(static fn (GameFacts $g) => $g->assists),
+                'cs' => $sum(static fn (GameFacts $g) => $g->cs),
+                'gold' => $sum(static fn (GameFacts $g) => $g->gold),
+                'pentaKills' => $sum(static fn (GameFacts $g) => $g->pentaKills),
+                'firstBloods' => \count(array_filter($games, static fn (GameFacts $g) => $g->firstBlood)),
+            ],
+            longestGame: [] === $byDuration ? null : $this->gameRecord($byDuration[array_key_last($byDuration)]),
+            shortestGame: [] === $byDuration ? null : $this->gameRecord($byDuration[0]),
+            winDuration: $this->averageInt(array_values(array_filter($games, static fn (GameFacts $g) => $g->win)), static fn (GameFacts $g) => $g->durationSeconds),
+            lossDuration: $this->averageInt(array_values(array_filter($games, static fn (GameFacts $g) => !$g->win)), static fn (GameFacts $g) => $g->durationSeconds),
+        );
+    }
+
+    /**
+     * Découpe les games en sessions : une pause de plus de 45 minutes en ouvre une nouvelle.
+     *
+     * @param list<GameFacts> $games de la plus ancienne à la plus récente
+     *
+     * @return list<list<GameFacts>>
+     */
+    private function sessions(array $games): array
+    {
+        $sessions = [];
+        $previous = null;
+        foreach ($games as $game) {
+            if (null === $previous || $game->startedAt - ($previous->startedAt + $previous->durationSeconds * 1000) > self::SESSION_BREAK_MS) {
+                $sessions[] = [];
+            }
+            $sessions[array_key_last($sessions)][] = $game;
+            $previous = $game;
+        }
+
+        return $sessions;
+    }
+
+    /**
+     * @param non-empty-list<GameFacts> $session
+     */
+    private function session(array $session): SessionRecord
+    {
+        $first = $session[0];
+        $last = $session[array_key_last($session)];
+
+        return new SessionRecord(
+            startedAt: $first->startedAt,
+            games: \count($session),
+            wins: $this->wins($session),
+            minutes: intdiv($last->startedAt + $last->durationSeconds * 1000 - $first->startedAt, 60_000),
+        );
+    }
+
+    private function gameRecord(GameFacts $game): GameRecord
+    {
+        return new GameRecord($game->matchId, $game->championName, $game->durationSeconds, $game->win, $game->startedAt);
+    }
+
+    /**
+     * @param list<GameFacts> $games
+     */
+    private function record(string $key, array $games): Record
+    {
+        return new Record($key, \count($games), $this->wins($games));
+    }
+
+    private function local(GameFacts $game): \DateTimeImmutable
+    {
+        return (new \DateTimeImmutable('@'.intdiv($game->startedAt, 1000)))->setTimezone(new \DateTimeZone(self::TIMEZONE));
     }
 
     private function ladder(string $tier, ?string $division, int $leaguePoints): int

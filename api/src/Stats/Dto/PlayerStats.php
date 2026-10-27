@@ -28,6 +28,7 @@ final readonly class PlayerStats
         public array $objectives,
         public Heatmap $heatmap,
         public FormStats $form,
+        public GrindStats $grind,
     ) {
     }
 }

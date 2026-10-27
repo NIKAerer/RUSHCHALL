@@ -14,6 +14,7 @@
   border-radius: 10px;
   background: var(--surface);
   border: 1px solid var(--line);
+  box-shadow: var(--shadow);
 }
 
 .group button {

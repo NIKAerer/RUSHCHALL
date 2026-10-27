@@ -2,14 +2,14 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(12px) saturate(1.4);
   border-bottom: 1px solid var(--line);
 }
 
 .inner,
 .main {
-  max-width: 1080px;
+  max-width: 1120px;
   margin: 0 auto;
   padding-inline: 16px;
 }
@@ -17,34 +17,49 @@
 .inner {
   display: flex;
   align-items: center;
-  gap: 24px;
-  height: 56px;
+  gap: 28px;
+  height: 60px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   color: var(--gold);
   font: 700 19px var(--font-display);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-decoration: none;
   text-transform: uppercase;
+  text-shadow: 0 0 18px rgb(227 179 79 / 0.35);
 }
 
 .nav {
   display: flex;
-  gap: 4px;
+  align-self: stretch;
+  gap: 6px;
   margin-right: auto;
 }
 
 .nav a {
-  padding: 6px 12px;
-  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 12px;
   color: var(--muted);
   font-weight: 600;
   font-size: 14px;
   text-decoration: none;
+  transition: color 0.15s;
+}
+
+.nav svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
 }
 
 .nav a:hover {
@@ -53,9 +68,57 @@
 
 .nav a[aria-current='page'] {
   color: var(--fg);
-  background: var(--surface-2);
+}
+
+.nav a[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  inset: auto 10px -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold);
+}
+
+.rank {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rank img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transform: scale(1.7);
+}
+
+.rank b {
+  color: var(--gold);
 }
 
 .main {
-  padding-block: 24px 64px;
+  padding-block: 28px 72px;
+}
+
+@media (max-width: 640px) {
+  .inner {
+    gap: 12px;
+  }
+
+  .brand {
+    font-size: 0;
+    gap: 0;
+  }
+
+  .rank span {
+    display: none;
+  }
 }

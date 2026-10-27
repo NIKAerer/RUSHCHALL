@@ -1,5 +1,5 @@
 import type { MatchSummary } from '../api/types'
-import { formatPercent, kdaRatio } from '../lib/format'
+import { formatDecimal, formatPercent, kdaRatio } from '../lib/format'
 import { ChampionIcon } from './GameIcons'
 import { useChampion } from '../ddragon/useStaticData'
 import styles from './RecentSummary.module.css'
@@ -56,7 +56,7 @@ export function RecentSummary({ matches }: { matches: MatchSummary[] }) {
           <div className={styles.label}>KDA moyen</div>
           <div className={styles.big}>{kdaRatio(kills, deaths, assists)}</div>
           <div className={styles.sub}>
-            {(kills / games.length).toFixed(1)} / {(deaths / games.length).toFixed(1)} / {(assists / games.length).toFixed(1)} · {formatPercent(kp)} KP
+            {formatDecimal(kills / games.length)} / {formatDecimal(deaths / games.length)} / {formatDecimal(assists / games.length)} · {formatPercent(kp)} KP
           </div>
         </div>
       </div>
