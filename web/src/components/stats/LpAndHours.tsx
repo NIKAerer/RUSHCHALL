@@ -23,7 +23,7 @@ const HEIGHT = 110
 const PAD = 8
 
 /** Courbe de LP de la période ; le rang et la date du relevé n'apparaissent qu'au survol. */
-export function LpChart({ points }: { points: LpPoint[] }) {
+export function LpChart({ points, height }: { points: LpPoint[]; height?: number }) {
   const [hover, setHover] = useState<number | null>(null)
   if (points.length < 2) {
     return <p className={common.empty}>La courbe se remplit à chaque ouverture du site.</p>
@@ -62,6 +62,7 @@ export function LpChart({ points }: { points: LpPoint[] }) {
         className={styles.chart}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         preserveAspectRatio="none"
+        style={height ? { height } : undefined}
         role="img"
         aria-label={`Courbe de LP : ${formatSigned(delta)} LP sur la période`}
         onPointerMove={onMove}

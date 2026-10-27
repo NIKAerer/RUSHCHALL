@@ -354,6 +354,18 @@ export interface PlayerStats {
   heatmap: Heatmap
   form: FormStats
   grind: GrindStats
+  progress: ProgressPoint[]
+}
+
+/** Une game sur les courbes de progression, dans l'ordre chronologique. */
+export interface ProgressPoint {
+  matchId: string
+  t: number
+  win: boolean
+  rating: number
+  kda: number
+  csPerMinute: number
+  lpChange: number | null
 }
 
 export interface StatsFilters {
