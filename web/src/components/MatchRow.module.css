@@ -30,10 +30,11 @@
 
 .row {
   display: grid;
-  grid-template-columns: 84px auto 92px 100px auto minmax(0, 1fr) 30px;
+  grid-template-columns: 84px auto 92px 100px auto auto 30px;
+  justify-content: space-between;
   align-items: center;
-  gap: 18px;
-  padding: 12px 12px 12px 14px;
+  gap: 14px;
+  padding: 8px 10px 8px 12px;
   background:
     radial-gradient(260px 120px at 0% 50%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
     linear-gradient(90deg, var(--tint), var(--surface) 70%);
@@ -137,8 +138,8 @@
 
 .lineup {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: repeat(2, 112px);
+  gap: 8px;
   min-width: 0;
 }
 

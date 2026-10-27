@@ -1,0 +1,57 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+}
+
+.card {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  text-align: center;
+}
+
+/* Anneau victoires / défaites autour de l'icône. */
+.portrait {
+  --ratio: 0.5;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  background: conic-gradient(var(--win) calc(var(--ratio) * 360deg), var(--loss) 0);
+}
+
+.portrait > * {
+  border-radius: 50% !important;
+  outline: 3px solid var(--surface-2);
+}
+
+.portrait img {
+  border-radius: 50%;
+}
+
+.name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wr {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.kda {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}

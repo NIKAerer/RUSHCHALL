@@ -5,9 +5,9 @@
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 20px;
-  min-height: 220px;
-  padding: 28px 24px 22px;
+  gap: 14px;
+  min-height: 132px;
+  padding: 16px 18px;
   overflow: hidden;
   border-radius: 16px;
   background: var(--surface);
@@ -38,15 +38,15 @@
 .identity {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
   min-width: 0;
 }
 
 .avatar {
   position: relative;
   flex: none;
-  width: 80px;
-  height: 80px;
+  width: 64px;
+  height: 64px;
   border-radius: 18px;
   background: var(--surface-2);
   border: 1px solid var(--line);
@@ -77,7 +77,7 @@
 }
 
 .name h1 {
-  font-size: 36px;
+  font-size: 28px;
   text-shadow: 0 2px 16px rgb(0 0 0 / 0.6);
   line-height: 1.1;
   overflow-wrap: anywhere;
@@ -92,7 +92,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .badge {
@@ -159,7 +159,7 @@
   align-items: center;
   gap: 12px;
   min-width: 230px;
-  padding: 10px 16px 10px 8px;
+  padding: 6px 12px 6px 6px;
   border-radius: var(--radius);
   background: color-mix(in srgb, var(--surface) 80%, transparent);
   border: 1px solid var(--line);
@@ -168,8 +168,8 @@
 
 .emblem {
   flex: none;
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
 }
 
 /* Les emblèmes de rang ont beaucoup de marge transparente. */

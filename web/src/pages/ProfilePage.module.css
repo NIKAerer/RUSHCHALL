@@ -1,6 +1,6 @@
 .page {
   display: grid;
-  gap: 20px;
+  gap: 10px;
 }
 
 .toolbar {
@@ -9,11 +9,11 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 .toolbar h2 {
-  font-size: 22px;
+  font-size: 17px;
 }
 
 .count {

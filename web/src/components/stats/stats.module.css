@@ -1,9 +1,9 @@
 .panel {
   display: grid;
-  gap: 14px;
+  gap: 10px;
   align-content: start;
   min-width: 0;
-  padding: 16px;
+  padding: 12px 14px;
   border-radius: var(--radius);
   background: var(--surface);
   border: 1px solid var(--line);

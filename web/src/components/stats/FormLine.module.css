@@ -1,0 +1,45 @@
+.head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.head b {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.chart {
+  width: 100%;
+  height: auto;
+}
+
+.zero {
+  stroke: var(--line-strong);
+  stroke-dasharray: 3 4;
+}
+
+.areaUp {
+  fill: color-mix(in srgb, var(--win) 14%, transparent);
+}
+
+.areaDown {
+  fill: color-mix(in srgb, var(--loss) 14%, transparent);
+}
+
+.line {
+  fill: none;
+  stroke: var(--fg);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  opacity: 0.6;
+}
+
+.win {
+  fill: var(--win);
+}
+
+.loss {
+  fill: var(--loss);
+}

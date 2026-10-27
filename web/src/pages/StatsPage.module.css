@@ -1,6 +1,6 @@
 .page {
   display: grid;
-  gap: 16px;
+  gap: 10px;
   transition: opacity 0.15s;
 }
 
@@ -10,21 +10,21 @@
 
 .layout {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 12px;
   align-items: start;
 }
 
 .aside,
 .content {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 }
 
 .aside {
   position: sticky;
-  top: 76px;
+  top: 64px;
 }
 
 .tabs {
@@ -35,7 +35,7 @@
 
 .tabs button {
   position: relative;
-  padding: 8px 12px 12px;
+  padding: 4px 10px 8px;
   border: 0;
   background: none;
   color: var(--muted);
@@ -64,8 +64,15 @@
 .columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  align-items: start;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.wide {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
 }
 
 .skeleton {
@@ -80,6 +87,7 @@
 
 @media (max-width: 900px) {
   .layout,
+  .wide,
   .columns {
     grid-template-columns: minmax(0, 1fr);
   }

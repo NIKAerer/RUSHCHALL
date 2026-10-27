@@ -13,56 +13,48 @@ const LABELS: Record<ObjectiveStats['type'], string> = {
   baron: 'Nashor',
 }
 
-/** Objectifs pris et perdus, avec l'écart de gold des équipes au moment du combat. */
+const R = 30
+const CIRCUMFERENCE = 2 * Math.PI * R
+
+/** Un anneau par objectif (pris en vert, perdus en rouge) et l'écart de gold au moment du combat. */
 export function ObjectivesPanel({ objectives }: { objectives: ObjectiveStats[] }) {
+  const shown = objectives.filter((o) => o.taken + o.lost > 0)
+
   return (
     <section className={common.panel}>
       <h2 className={common.title}>
-        Objectifs <small>écart de gold au moment de l'objectif</small>
+        Objectifs <small>gold d'équipe au moment de l'objectif</small>
       </h2>
-      <ul className={styles.list}>
-        <li className={`${styles.objective} ${styles.head}`} aria-hidden="true">
-          <span />
-          <span />
-          <span>pris</span>
-          <span>perdu</span>
-        </li>
-        {objectives.filter((o) => o.taken + o.lost > 0).map((o) => {
-          const total = o.taken + o.lost
+      <div className={styles.grid}>
+        {shown.map((o) => {
+          const share = o.taken / (o.taken + o.lost)
           return (
-            <li key={o.type} className={styles.objective}>
-              <span className={styles.icon} title={LABELS[o.type]}>
+            <div key={o.type} className={styles.objective}>
+              <div className={styles.donut}>
+                <svg viewBox="0 0 80 80" aria-hidden="true">
+                  <circle cx="40" cy="40" r={R} className={styles.lost} />
+                  <circle cx="40" cy="40" r={R} className={styles.taken} strokeDasharray={`${share * CIRCUMFERENCE} ${CIRCUMFERENCE}`} />
+                </svg>
                 <ObjectiveIcon objective={o.type} />
-              </span>
-              <div className={styles.split} title={`${o.taken} pris, ${o.lost} perdus`}>
-                <div className={styles.bar}>
-                  {o.taken > 0 && <span className={styles.taken} style={{ flexGrow: o.taken }} />}
-                  {o.lost > 0 && <span className={styles.lost} style={{ flexGrow: o.lost }} />}
-                  {total === 0 && <span className={styles.none} />}
-                </div>
-                <div className={styles.counts}>
-                  <span>
-                    <b>{o.taken}</b> pris
-                  </span>
-                  <span>
-                    <b>{o.lost}</b> perdus
-                  </span>
-                </div>
               </div>
-              <Gold value={o.goldDiffTaken} title="Écart moyen quand ton équipe le prend" />
-              <Gold value={o.goldDiffLost} title="Écart moyen quand l'adversaire le prend" />
-            </li>
+              <span className={styles.name}>{LABELS[o.type]}</span>
+              <span className={styles.score} title={`${o.taken} pris, ${o.lost} perdus`}>
+                <b className={common.good}>{o.taken}</b>
+                <span>–</span>
+                <b className={common.bad}>{o.lost}</b>
+              </span>
+              <span className={styles.gold}>
+                <span title="Écart moyen quand ton équipe le prend" className={toneOf(o.goldDiffTaken)}>
+                  ▲ {o.goldDiffTaken === null ? '—' : formatSigned(o.goldDiffTaken)}
+                </span>
+                <span title="Écart moyen quand l'adversaire le prend" className={toneOf(o.goldDiffLost)}>
+                  ▼ {o.goldDiffLost === null ? '—' : formatSigned(o.goldDiffLost)}
+                </span>
+              </span>
+            </div>
           )
         })}
-      </ul>
+      </div>
     </section>
-  )
-}
-
-function Gold({ value, title }: { value: number | null; title: string }) {
-  return (
-    <span className={`${styles.gold} ${toneOf(value) ?? ''}`} title={title}>
-      {value === null ? '—' : formatSigned(value)}
-    </span>
   )
 }

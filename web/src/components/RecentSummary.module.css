@@ -10,8 +10,8 @@
 .block {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 20px;
+  gap: 12px;
+  padding: 10px 16px;
 }
 
 .block + .block {
@@ -65,12 +65,13 @@
 
 .champions {
   display: grid;
-  gap: 6px;
+  gap: 4px;
+  align-content: center;
 }
 
 .champion {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) 44px 56px 70px;
+  grid-template-columns: 24px minmax(0, 160px) 44px 56px 70px;
   align-items: center;
   gap: 10px;
 }

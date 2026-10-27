@@ -1,5 +1,5 @@
 .grind {
-  gap: 18px;
+  gap: 12px;
 }
 
 .icon {
@@ -15,13 +15,14 @@
 
 .tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
 
 .tile {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 6px;
   padding: 10px;
   border-radius: 10px;
   background: var(--surface-2);
@@ -43,7 +44,7 @@
 .charts {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 14px;
 }
 
 .chart {
@@ -132,7 +133,7 @@
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
-  padding-top: 16px;
+  padding-top: 12px;
   border-top: 1px solid var(--line);
 }
 

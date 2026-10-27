@@ -3,6 +3,7 @@ import { useStats } from '../api/queries'
 import type { PlayerStats, StatsFilters as Filters } from '../api/types'
 import { ErrorState } from '../components/ErrorState'
 import { ChampionTable } from '../components/stats/ChampionTable'
+import { FormLine } from '../components/stats/FormLine'
 import { GrindPanel } from '../components/stats/GrindPanel'
 import { HeatmapPanel } from '../components/stats/HeatmapPanel'
 import { JunglePanel } from '../components/stats/JunglePanel'
@@ -10,8 +11,11 @@ import { LaneDiffs } from '../components/stats/LaneDiffs'
 import { HourPanel, LpCard } from '../components/stats/LpAndHours'
 import { MatchupsPanel } from '../components/stats/MatchupsPanel'
 import { ObjectivesPanel } from '../components/stats/ObjectivesPanel'
+import { RadarPanel } from '../components/stats/RadarPanel'
+import { StatCards } from '../components/stats/StatCards'
 import { StatsFilters } from '../components/stats/StatsFilters'
 import { SummaryCard } from '../components/stats/SummaryCard'
+import { TopChampions } from '../components/stats/TopChampions'
 import styles from './StatsPage.module.css'
 
 const TABS = [
@@ -89,9 +93,15 @@ function TabContent({ tab, data }: { tab: Tab; data: PlayerStats }) {
     default:
       return (
         <>
-          <LaneDiffs diffs={data.diffs} />
+          <StatCards stats={data} />
+          <div className={styles.wide}>
+            <RadarPanel stats={data} />
+            <FormLine form={data.form} />
+          </div>
+          <TopChampions champions={data.champions} />
+          <ObjectivesPanel objectives={data.objectives} />
           <div className={styles.columns}>
-            <ObjectivesPanel objectives={data.objectives} />
+            <LaneDiffs diffs={data.diffs} />
             <HourPanel form={data.form} />
           </div>
         </>
