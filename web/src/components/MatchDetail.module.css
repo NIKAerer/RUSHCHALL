@@ -220,7 +220,7 @@
 .damage div {
   height: 100%;
   border-radius: 3px;
-  background: var(--loss);
+  background: var(--accent);
 }
 
 @media (max-width: 760px) {
