@@ -6,12 +6,12 @@
   min-width: 0;
   padding: 4px 8px;
   border-radius: 7px;
-  background: linear-gradient(90deg, var(--loss-bg), transparent 75%);
+  background: color-mix(in srgb, var(--loss-bg) 75%, transparent);
   box-shadow: inset 2px 0 0 var(--loss);
 }
 
 .feed[data-good] {
-  background: linear-gradient(90deg, var(--win-bg), transparent 75%);
+  background: color-mix(in srgb, var(--win-bg) 75%, transparent);
   box-shadow: inset 2px 0 0 var(--win);
 }
 
@@ -182,7 +182,7 @@
   flex: none;
   margin-left: auto;
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--muted);
   stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;

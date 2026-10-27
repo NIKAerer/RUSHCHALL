@@ -13,6 +13,7 @@
 .chart {
   width: 100%;
   height: auto;
+  aspect-ratio: 2.6;
 }
 
 .zero {

@@ -1,4 +1,4 @@
-const relative = new Intl.RelativeTimeFormat('fr', { numeric: 'auto' })
+const relative = new Intl.RelativeTimeFormat('fr', { numeric: 'auto', style: 'short' })
 const number = new Intl.NumberFormat('fr-FR')
 const compact = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 })
 

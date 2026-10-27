@@ -70,8 +70,7 @@ export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string 
             aria-label={`Routine respectée sur la game ${champion.name}`}
           />
           <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 4h6M9 4a1 1 0 0 0-1 1v1h8V5a1 1 0 0 0-1-1M8 6H6a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-2" />
-            <path className={styles.tick} d="m8.5 13.5 2.5 2.5 4.5-5" />
+            <path d="m7.5 12.5 3 3 6-6.5" />
           </svg>
         </label>
 

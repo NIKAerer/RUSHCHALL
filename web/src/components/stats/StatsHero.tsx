@@ -5,6 +5,7 @@ import { rankEmblem } from '../../ddragon/ddragon'
 import { formatDecimal, formatPercent, formatSigned, kdaRatio } from '../../lib/format'
 import { tierLabel } from '../../lib/riot'
 import { LpChart } from './LpAndHours'
+import { winrateTone } from './tone'
 import { axes } from './visual'
 import styles from './StatsHero.module.css'
 import common from './stats.module.css'
@@ -42,7 +43,7 @@ export function StatsHero({ stats }: { stats: PlayerStats }) {
       <div className={styles.cards}>
         <div className={styles.card}>
           <span className={styles.label}>Winrate</span>
-          <b className={styles.value}>{formatPercent(ratio)}</b>
+          <b className={`${styles.value} ${winrateTone(ratio) ?? ''}`}>{formatPercent(ratio)}</b>
           <span className={styles.sub}>
             {stats.wins} V · {stats.games - stats.wins} D
           </span>
@@ -62,21 +63,25 @@ export function StatsHero({ stats }: { stats: PlayerStats }) {
         <div className={styles.card}>
           <span className={styles.label}>Ton profil</span>
           <dl className={styles.profile}>
-            <div>
-              <dt className={common.good}>Point fort</dt>
-              <dd>
-                {best.map((a) => a.label).join(' · ')} <small>{top}</small>
-              </dd>
-            </div>
-            <div>
-              <dt className={common.bad}>À travailler</dt>
-              <dd>
-                {worst.map((a) => a.label).join(' · ')} <small>{bottom}</small>
-              </dd>
-            </div>
+            <ProfileAxis label="Point fort" tone={common.good} axes={best} score={top} />
+            <ProfileAxis label="À travailler" tone={common.bad} axes={worst} score={bottom} />
           </dl>
         </div>
       </div>
     </section>
+  )
+}
+
+/** Un axe du profil ; les ex aequo sont cités dessous, en petit, plutôt que d'allonger le titre. */
+function ProfileAxis({ label, tone, axes: tied, score }: { label: string; tone: string; axes: { label: string }[]; score: number }) {
+  const [first, ...others] = tied
+  return (
+    <div>
+      <dt className={tone}>{label}</dt>
+      <dd>
+        {first.label} <small>{score}</small>
+        {others.length > 0 && <p>{others.map((a) => a.label).join(' et ')} aussi</p>}
+      </dd>
+    </div>
   )
 }

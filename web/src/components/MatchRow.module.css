@@ -114,22 +114,23 @@
   justify-self: end;
 }
 
-/* Case « routine » : une icône de checklist qui se remplit une fois cochée. */
+/* Case « routine » : un rond discret avec une coche pâle, plein une fois cochée. */
 .routine {
   position: relative;
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  color: var(--faint);
+  width: 26px;
+  height: 26px;
+  justify-self: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  color: var(--line-strong);
   cursor: pointer;
 }
 
 .routine:hover {
-  color: var(--fg);
-  border-color: var(--line-strong);
+  color: var(--muted);
+  border-color: var(--muted);
 }
 
 .routine input {
@@ -141,27 +142,19 @@
 }
 
 .routine svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.8;
+  stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.tick {
-  opacity: 0;
 }
 
 .routine:has(input:checked) {
   background: var(--accent);
   border-color: var(--accent);
   color: var(--on-accent);
-}
-
-.routine:has(input:checked) .tick {
-  opacity: 1;
 }
 
 .routine:has(input:focus-visible) {

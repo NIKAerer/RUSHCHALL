@@ -44,8 +44,8 @@
   --mvp-bg: #ffd166;
   --mvp-fg: #16161a;
   --on-result: #0f0f12;
-  --path-ally: #ffd47d;
-  --path-enemy: #c58bff;
+  --path-ally: #9b9bff;
+  --path-enemy: #f08a8a;
   color-scheme: dark;
 }
 
@@ -80,8 +80,8 @@
   --mvp-bg: #16161a;
   --mvp-fg: #ffd166;
   --on-result: #ffffff;
-  --path-ally: #a36a00;
-  --path-enemy: #7a3fc0;
+  --path-ally: #3b3bd6;
+  --path-enemy: #c02f2f;
   color-scheme: light;
 }
 
