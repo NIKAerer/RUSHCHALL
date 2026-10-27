@@ -47,7 +47,7 @@
   margin-right: 8px;
 }
 
-.champion[aria-expanded="true"] {
+.champion[aria-expanded='true'] {
   color: var(--accent);
 }
 
