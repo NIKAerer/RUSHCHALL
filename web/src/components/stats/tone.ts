@@ -6,18 +6,9 @@ export function toneOf(value: number | null): string | undefined {
   return value > 0 ? styles.good : styles.bad
 }
 
-/** Couleur d'un KDA par palier, comme sur dpm.lol. */
-export function kdaTone(ratio: number): string | undefined {
-  if (ratio >= 5) return styles.legendary
-  if (ratio >= 3.5) return styles.great
-  if (ratio >= 2.5) return styles.good
-  return undefined
-}
-
-/** Couleur d'un winrate par palier : doré dès 70 %, vert dès 60 %, neutre de 50 à 59 %, rouge sous 50 %. */
+/** Couleur d'un winrate, comme sur la maquette : vert dès 55 %, rouge sous 45 %, neutre entre les deux. Le KDA reste neutre. */
 export function winrateTone(ratio: number): string | undefined {
-  if (ratio >= 0.7) return styles.legendary
-  if (ratio >= 0.6) return styles.good
-  if (ratio < 0.5) return styles.bad
+  if (ratio >= 0.55) return styles.good
+  if (ratio < 0.45) return styles.bad
   return undefined
 }

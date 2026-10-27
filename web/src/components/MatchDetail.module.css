@@ -145,6 +145,21 @@
   width: 100%;
   min-width: 760px;
   border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.colPlayer {
+  width: 24%;
+}
+
+.colNote,
+.colKda,
+.colDamage {
+  width: 11%;
+}
+
+.colItems {
+  width: 19%;
 }
 
 .table th {
@@ -159,7 +174,7 @@
 
 .table td {
   padding: 4px 8px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--divider);
   text-align: center;
   vertical-align: middle;
 }

@@ -105,6 +105,17 @@ function TeamTable({ team, puuid, maxDamage, remake }: { team: Team; puuid: stri
       </div>
       <div className={styles.scroll}>
         <table className={styles.table}>
+          {/* Largeurs fixes : les colonnes des deux équipes tombent l'une sous l'autre. */}
+          <colgroup>
+            <col className={styles.colPlayer} />
+            {!remake && <col className={styles.colNote} />}
+            <col className={styles.colKda} />
+            <col className={styles.colDamage} />
+            <col />
+            <col />
+            <col />
+            <col className={styles.colItems} />
+          </colgroup>
           <thead>
             <tr>
               <th scope="col" className={styles.left}>Joueur</th>
@@ -153,7 +164,7 @@ function PlayerRow({ player, isMe, maxDamage, remake }: { player: Participant; i
           {player.kills}/<em>{player.deaths}</em>/{player.assists}
         </div>
         <div className={styles.cellSub}>
-          {kdaRatio(player.kills, player.deaths, player.assists)} · {formatPercent(player.killParticipation)}
+          {kdaRatio(player.kills, player.deaths, player.assists)} · {formatPercent(player.killParticipation)} KP
         </div>
       </td>
       <td>

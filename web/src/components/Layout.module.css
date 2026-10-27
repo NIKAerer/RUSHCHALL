@@ -30,8 +30,16 @@
   text-decoration: none;
 }
 
-.brand svg {
-  color: var(--accent);
+.account {
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .account {
+    display: none;
+  }
 }
 
 .nav {
@@ -55,22 +63,13 @@
     background 0.15s;
 }
 
-.nav svg {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-}
-
 .nav a:hover {
   color: var(--fg);
 }
 
 .nav a[aria-current='page'] {
-  background: var(--fg);
-  color: var(--bg);
+  background: var(--ink);
+  color: var(--on-ink);
   font-weight: 600;
 }
 

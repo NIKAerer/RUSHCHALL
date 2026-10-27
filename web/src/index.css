@@ -2,7 +2,7 @@
   /* Style éditorial : cartes arrondies, Space Grotesk pour les titres et les chiffres, Inter pour le texte. */
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
-  --radius: 14px;
+  --radius: 18px;
   --shadow: none;
   /* Fonds des badges MVP / ACE et des moments clés, identiques dans les deux thèmes (texte foncé dessus). */
   --gold-fill: #ffd166;
@@ -17,7 +17,10 @@
   --surface: #18181c;
   --surface-2: #1e1e23;
   --surface-3: #2a2a31;
-  --line: #26262d;
+  /* Valeurs de la maquette « Éditorial sombre » : bordure des cartes, puis séparateurs de lignes et cases vides. */
+  --line: #2a2a31;
+  --divider: #24242a;
+  --slot: #24242a;
   --line-strong: #3a3a42;
   --fg: #f3f2ee;
   --muted: #a3a3ad;
@@ -38,6 +41,8 @@
   --side-red: #f07a7a;
   --gold: #ffd166;
   --good: #5fd69a;
+  --mvp-bg: #ffd166;
+  --mvp-fg: #16161a;
   --on-result: #0f0f12;
   --path-ally: #ffd47d;
   --path-enemy: #c58bff;
@@ -50,6 +55,8 @@
   --surface-2: #f7f6f2;
   --surface-3: #e9e7e0;
   --line: #e3e1da;
+  --divider: #efede7;
+  --slot: #efede7;
   --line-strong: #d0cdc4;
   --fg: #16161a;
   --muted: #5a5a63;
@@ -59,7 +66,7 @@
   --on-accent: #ffffff;
   --ink: #16161a;
   --on-ink: #ffffff;
-  --win: #0f7a40;
+  --win: #138a4a;
   --win-bg: #e3f5ea;
   --win-line: #b9e3c9;
   --loss: #c02f2f;
@@ -69,7 +76,9 @@
   --side-blue: #3b6fe0;
   --side-red: #d23c3c;
   --gold: #8a6208;
-  --good: #0f7a40;
+  --good: #138a4a;
+  --mvp-bg: #16161a;
+  --mvp-fg: #ffd166;
   --on-result: #ffffff;
   --path-ally: #a36a00;
   --path-enemy: #7a3fc0;

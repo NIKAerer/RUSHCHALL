@@ -2,7 +2,7 @@ import type { ChampionStats } from '../../api/types'
 import { useChampion } from '../../ddragon/useStaticData'
 import { formatPercent, kdaRatio } from '../../lib/format'
 import { ChampionIcon } from '../GameIcons'
-import { kdaTone, winrateTone } from './tone'
+import { winrateTone } from './tone'
 import styles from './TopChampions.module.css'
 import common from './stats.module.css'
 
@@ -25,7 +25,6 @@ export function TopChampions({ champions }: { champions: ChampionStats[] }) {
 function ChampionCard({ champion }: { champion: ChampionStats }) {
   const { name } = useChampion(champion.championName)
   const ratio = champion.wins / champion.games
-  const kda = (champion.kills + champion.assists) / Math.max(1, champion.deaths)
 
   return (
     <div className={styles.card}>
@@ -37,7 +36,7 @@ function ChampionCard({ champion }: { champion: ChampionStats }) {
       <span className={common.sub}>
         {champion.wins}V {champion.games - champion.wins}D
       </span>
-      <span className={`${styles.kda} ${kdaTone(kda) ?? ''}`}>{kdaRatio(champion.kills, champion.deaths, champion.assists)} KDA</span>
+      <span className={styles.kda}>{kdaRatio(champion.kills, champion.deaths, champion.assists)} KDA</span>
     </div>
   )
 }

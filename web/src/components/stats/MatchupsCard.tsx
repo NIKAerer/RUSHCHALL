@@ -8,10 +8,10 @@ import common from './stats.module.css'
 
 const ratio = (m: MatchupStats) => m.wins / m.games
 
-/** Aperçu des adversaires directs : les deux plus favorables et les deux plus difficiles. */
+/** Aperçu des adversaires directs : les trois plus favorables et les trois plus difficiles. */
 export function MatchupsCard({ matchups, onShowAll }: { matchups: MatchupStats[]; onShowAll: () => void }) {
   const known = matchups.filter((m) => m.games >= 2).sort((a, b) => ratio(b) - ratio(a) || b.games - a.games)
-  const picks = known.length <= 4 ? known : [...known.slice(0, 2), ...known.slice(-2)]
+  const picks = known.length <= 6 ? known : [...known.slice(0, 3), ...known.slice(-3)]
 
   return (
     <section className={common.panel}>

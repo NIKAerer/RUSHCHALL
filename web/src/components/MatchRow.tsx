@@ -46,16 +46,18 @@ export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string 
 
         <span className={styles.meta}>
           <span>
-            {formatDuration(match.durationSeconds)} · KP {formatPercent(player.killParticipation)} · {player.csPerMinute.toFixed(1).replace('.', ',')} cs
+            KP {formatPercent(player.killParticipation)} · {player.csPerMinute.toFixed(1).replace('.', ',')} cs
           </span>
-          <small>{formatTimeAgo(match.startedAt + match.durationSeconds * 1000)}</small>
+          <small>
+            {formatDuration(match.durationSeconds)} · {formatTimeAgo(match.startedAt + match.durationSeconds * 1000)}
+          </small>
         </span>
 
         <span
           className={`${styles.lp} ${match.lpChange === null ? '' : match.lpChange >= 0 ? styles.gain : styles.drop}`}
           title={match.lpChange === null ? 'LP inconnus : pas de relevé de rang juste avant et après cette game' : 'LP de cette game'}
         >
-          {match.lpChange === null ? '— LP' : `${formatSigned(match.lpChange)} LP`}
+          {match.lpChange === null ? '' : `${formatSigned(match.lpChange)} LP`}
         </span>
 
         <div className={styles.rating}>{!match.remake && <RatingBadge rating={player.rating} />}</div>

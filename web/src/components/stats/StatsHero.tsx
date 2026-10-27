@@ -5,7 +5,6 @@ import { rankEmblem } from '../../ddragon/ddragon'
 import { formatDecimal, formatPercent, formatSigned, kdaRatio } from '../../lib/format'
 import { tierLabel } from '../../lib/riot'
 import { LpChart } from './LpAndHours'
-import { kdaTone, winrateTone } from './tone'
 import { axes } from './visual'
 import styles from './StatsHero.module.css'
 import common from './stats.module.css'
@@ -43,14 +42,14 @@ export function StatsHero({ stats }: { stats: PlayerStats }) {
       <div className={styles.cards}>
         <div className={styles.card}>
           <span className={styles.label}>Winrate</span>
-          <b className={`${styles.value} ${winrateTone(ratio) ?? ''}`}>{formatPercent(ratio)}</b>
+          <b className={styles.value}>{formatPercent(ratio)}</b>
           <span className={styles.sub}>
             {stats.wins} V · {stats.games - stats.wins} D
           </span>
         </div>
         <div className={styles.card}>
           <span className={styles.label}>KDA</span>
-          <b className={`${styles.value} ${kdaTone((stats.kills + stats.assists) / Math.max(1, stats.deaths)) ?? ''}`}>{kdaRatio(stats.kills, stats.deaths, stats.assists)}</b>
+          <b className={styles.value}>{kdaRatio(stats.kills, stats.deaths, stats.assists)}</b>
           <span className={styles.sub}>sur {stats.games} games</span>
         </div>
         <div className={styles.card}>
@@ -60,14 +59,22 @@ export function StatsHero({ stats }: { stats: PlayerStats }) {
             {stats.mvp} MVP · {stats.ace} ACE
           </span>
         </div>
-        <div className={`${styles.card} ${styles.profile}`}>
+        <div className={styles.card}>
           <span className={styles.label}>Ton profil</span>
-          <span className={common.good}>
-            ↑ {best.map((a) => a.label).join(' · ')} {top}
-          </span>
-          <span className={common.bad}>
-            ↓ {worst.map((a) => a.label).join(' · ')} {bottom}
-          </span>
+          <dl className={styles.profile}>
+            <div>
+              <dt className={common.good}>Point fort</dt>
+              <dd>
+                {best.map((a) => a.label).join(' · ')} <small>{top}</small>
+              </dd>
+            </div>
+            <div>
+              <dt className={common.bad}>À travailler</dt>
+              <dd>
+                {worst.map((a) => a.label).join(' · ')} <small>{bottom}</small>
+              </dd>
+            </div>
+          </dl>
         </div>
       </div>
     </section>

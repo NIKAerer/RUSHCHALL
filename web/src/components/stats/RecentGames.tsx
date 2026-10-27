@@ -32,17 +32,21 @@ function GameLine({ game }: { game: MatchSummary }) {
       <ChampionIcon championName={player.championName} size={44} />
       <div className={styles.score}>
         <b>
-          {player.kills} / <em>{player.deaths}</em> / {player.assists}
+          {player.kills} <span>/</span> <em>{player.deaths}</em> <span>/</span> {player.assists}
         </b>
         <small>
           {name} · {kdaRatio(player.kills, player.deaths, player.assists)} KDA
         </small>
       </div>
       <span className={`${styles.outcome} ${styles[outcome]}`}>
-        {outcome === 'win' ? 'Victoire' : outcome === 'loss' ? 'Défaite' : 'Remake'} {formatDuration(game.durationSeconds)}
+        {outcome === 'win' ? 'Victoire' : outcome === 'loss' ? 'Défaite' : 'Remake'}
       </span>
-      <span className={styles.meta}>KP {formatPercent(player.killParticipation)}</span>
-      <span className={`${styles.lp} ${game.lpChange === null ? '' : game.lpChange >= 0 ? common.good : common.bad}`}>{game.lpChange === null ? '' : `${formatSigned(game.lpChange)} LP`}</span>
+      <span className={styles.meta}>
+        {formatDuration(game.durationSeconds)} · KP {formatPercent(player.killParticipation)}
+      </span>
+      <span className={`${styles.lp} ${game.lpChange === null ? '' : game.lpChange >= 0 ? common.good : common.bad}`}>
+        {game.lpChange === null ? '' : `${formatSigned(game.lpChange)} LP`}
+      </span>
       <div className={styles.rating}>{!game.remake && <RatingBadge rating={player.rating} />}</div>
     </div>
   )
