@@ -45,7 +45,7 @@
 .badge[data-badge='quadra'],
 .badge[data-badge='penta'],
 .badge[data-badge='ace'] {
-  background: var(--gold);
+  background: var(--gold-fill);
   color: var(--bg);
 }
 

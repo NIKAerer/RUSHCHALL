@@ -21,7 +21,7 @@
 
 .mvp .tag {
   color: #1a1305;
-  background: var(--gold);
+  background: var(--gold-fill);
 }
 
 .ace .tag {

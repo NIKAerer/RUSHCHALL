@@ -356,7 +356,7 @@
   width: 6px;
   height: 6px;
   margin-left: -3px;
-  background: var(--gold);
+  background: var(--gold-fill);
   box-shadow: 0 0 4px var(--gold);
 }
 

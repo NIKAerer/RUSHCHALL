@@ -1,34 +1,73 @@
 :root {
-  /* Palette inspirée de dpm.lol : fonds neutres, bordures en blanc translucide, vert / rouge pour V / D. */
-  --bg: #131619;
-  --surface: #191c22;
-  --surface-2: #1f2229;
-  --surface-3: #2a2e37;
-  --line: rgb(255 255 255 / 0.06);
-  --line-strong: rgb(255 255 255 / 0.12);
+  /* Style éditorial : cartes arrondies, Space Grotesk pour les titres et les chiffres, Inter pour le texte. */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --radius: 14px;
   --shadow: none;
-  --fg: #f9fafd;
-  --muted: #9b9c9e;
-  --faint: #8b8e95;
-  --accent: #a6b0f2;
-  --accent-strong: #7988ec;
-  --win: #4ac97e;
-  --win-bg: #1a2a24;
-  --win-line: #22463a;
-  --loss: #f7665e;
-  --loss-bg: #2c1d20;
-  --loss-line: #4f2b2d;
-  --remake: #9b9c9e;
-  --side-blue: #5b8cff;
-  --side-red: #f7665e;
-  --gold: #ffd47d;
-  --good: #4ac97e;
   --path-ally: #ffd47d;
   --path-enemy: #c58bff;
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --radius: 8px;
+  /* Fond des badges MVP et des moments clés, lisible dans les deux thèmes. */
+  --gold-fill: #ffd166;
+}
+
+/* Sombre, par défaut. */
+:root,
+:root[data-theme='dark'] {
+  --bg: #0f0f12;
+  --surface: #18181c;
+  --surface-2: #1e1e23;
+  --surface-3: #2a2a31;
+  --line: #26262d;
+  --line-strong: #3a3a42;
+  --fg: #f3f2ee;
+  --muted: #a3a3ad;
+  --faint: #8b8b95;
+  --accent: #9b9bff;
+  --accent-strong: #7b7bf0;
+  --on-accent: #141433;
+  --ink: #262650;
+  --on-ink: #ffffff;
+  --win: #5fd69a;
+  --win-bg: #173325;
+  --win-line: #22503a;
+  --loss: #f08a8a;
+  --loss-bg: #3a1d1f;
+  --loss-line: #5a2a2d;
+  --remake: #a3a3ad;
+  --side-blue: #6b9bff;
+  --side-red: #f07a7a;
+  --gold: #ffd166;
+  --good: #5fd69a;
   color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #f3f2ee;
+  --surface: #ffffff;
+  --surface-2: #f7f6f2;
+  --surface-3: #e9e7e0;
+  --line: #e3e1da;
+  --line-strong: #d0cdc4;
+  --fg: #16161a;
+  --muted: #5a5a63;
+  --faint: #6b6b74;
+  --accent: #3b3bd6;
+  --accent-strong: #23238f;
+  --on-accent: #ffffff;
+  --ink: #16161a;
+  --on-ink: #ffffff;
+  --win: #138a4a;
+  --win-bg: #e3f5ea;
+  --win-line: #b9e3c9;
+  --loss: #c02f2f;
+  --loss-bg: #fbe6e6;
+  --loss-line: #f0c4c4;
+  --remake: #5a5a63;
+  --side-blue: #3b6fe0;
+  --side-red: #d23c3c;
+  --gold: #b07d10;
+  --good: #138a4a;
+  color-scheme: light;
 }
 
 *,
@@ -47,7 +86,6 @@ body {
   background: var(--bg);
   color: var(--fg);
   font: 14px/1.45 var(--font-body);
-  letter-spacing: 0.01em;
   font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
@@ -77,11 +115,11 @@ h2,
 h3 {
   margin: 0;
   font-family: var(--font-display);
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
 }
 
 ::selection {
-  background: rgb(166 176 242 / 0.35);
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 @media (prefers-reduced-motion: no-preference) {
