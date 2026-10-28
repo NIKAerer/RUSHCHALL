@@ -1,7 +1,7 @@
 import { useState, type PointerEvent } from 'react'
 import type { LpPoint, ProgressPoint } from '../../api/types'
 import { formatPercent, formatSigned } from '../../lib/format'
-import { LpChart } from './LpAndHours'
+import { LpChart } from './LpChart'
 import styles from './ProgressPanel.module.css'
 import common from './stats.module.css'
 

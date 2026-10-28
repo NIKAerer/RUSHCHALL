@@ -1,4 +1,4 @@
-import type { JunglePathing, MatchDetail, MatchSummary, PlayerStats, Profile, StatsFilters, SyncReport } from './types'
+import type { Climb, JunglePathing, MatchDetail, MatchSummary, PlayerStats, Profile, StatsFilters, SyncReport } from './types'
 
 export class ApiError extends Error {
   readonly status: number
@@ -44,6 +44,7 @@ export const api = {
   playerGames: (gameName: string, tagLine: string, start: number, count: number) =>
     request<MatchSummary[]>(`/api/players/${riotId(gameName, tagLine)}/games?start=${start}&count=${count}`),
   liveGame: (matchId: string) => request<MatchDetail>(`/api/matches/${encodeURIComponent(matchId)}`),
+  climb: () => request<Climb>('/api/climb'),
   sync: () => request<SyncReport>('/api/games/sync', { method: 'POST' }),
   setRoutine: (matchId: string, routine: boolean) =>
     request<{ matchId: string; routine: boolean }>(`/api/games/${encodeURIComponent(matchId)}/routine`, { method: 'PUT', body: JSON.stringify({ routine }) }),

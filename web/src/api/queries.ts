@@ -35,6 +35,11 @@ export function usePathing(matchId: string) {
   })
 }
 
+/** Seuils GM et Challenger : Riot les recalcule une fois par jour, inutile de les redemander souvent. */
+export function useClimb() {
+  return useQuery({ queryKey: ['climb'], queryFn: api.climb, staleTime: 10 * 60_000 })
+}
+
 /** Joueur cherché : lu en direct chez Riot, gardé en mémoire le temps de la session, jamais enregistré. */
 export function usePlayer(gameName: string, tagLine: string) {
   return useQuery({ queryKey: ['player', gameName, tagLine], queryFn: () => api.player(gameName, tagLine), staleTime: 120_000 })

@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
-import type { GameRecord, GrindStats, SessionRecord, WinRecord } from '../../api/types'
-import { formatDecimal, formatDuration, formatNumber, formatPercent, formatSigned, formatThousands } from '../../lib/format'
+import type { FormStats, GameRecord, GrindStats, PoolWeek, SessionRecord, WinRecord } from '../../api/types'
+import { formatDecimal, formatDuration, formatNumber, formatPercent, formatSigned } from '../../lib/format'
 import { ChampionIcon } from '../GameIcons'
+import { ClimbCard } from './ClimbCard'
 import { WinRate } from './WinRate'
 import styles from './GrindPanel.module.css'
 import common from './stats.module.css'
@@ -10,10 +11,19 @@ const WEEKDAYS = ['L', 'M', 'M', 'J', 'V', 'S', 'D']
 const day = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' })
 const sessionDate = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 const BREAKS: Record<string, string> = { short: '< 5 min', medium: '5–15 min', long: '15–45 min' }
+const DURATIONS: Record<string, string> = { lt25: '< 25', '25-30': '25–30', '30-35': '30–35', gt35: '35+' }
+/** Créneaux d'heure de début (heure de Paris) ; le dernier passe minuit. */
+const SLOTS = [
+  { label: '6–12 h', hours: [6, 7, 8, 9, 10, 11] },
+  { label: '12–18 h', hours: [12, 13, 14, 15, 16, 17] },
+  { label: '18–22 h', hours: [18, 19, 20, 21] },
+  { label: '22–2 h', hours: [22, 23, 0, 1] },
+  { label: '2–6 h', hours: [2, 3, 4, 5] },
+]
 /** Semaines affichées dans le calendrier : depuis le premier jour joué, entre 4 et 12. */
 const CALENDAR_WEEKS = { min: 4, max: 12 }
 /** En dessous, un winrate ne veut pas dire grand-chose : la barre est grisée. */
-const FEW_GAMES = 3
+const FEW_GAMES = 5
 
 /** Icônes au trait, 24 × 24. */
 const ICONS = {
@@ -21,22 +31,18 @@ const ICONS = {
   loop: 'M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5',
   flame: 'M12 3c1 4 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1-3.6 2-4.5 0 1.5.8 2.5 2 2.5 0-3-1.5-5 1-8Z',
   calendar: 'M4 7h16v13H4zM4 11h16M8 4v4M16 4v4',
-  moon: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z',
-  sword: 'M14.5 4H20v5.5L10 19.5 6.5 16 16.5 6M5 15l4 4M3 21l3-3',
-  skull: 'M12 3a8 8 0 0 0-5 14.2V20h10v-2.8A8 8 0 0 0 12 3ZM9 11h.01M15 11h.01M10 20v-2M14 20v-2',
-  coin: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v10M9.5 9.5C10 8.5 14 8 14 10s-4 2-4 4 4 1.5 4.5.5',
-  minion: 'M6 20l2-8h8l2 8M8 12a4 4 0 1 1 8 0',
-  crown: 'M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5Z',
-  drop: 'M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z',
+  streak: 'M4 17l5-5 4 4 7-8M15 8h5v5',
 } as const
 
-export function GrindPanel({ grind, games }: { grind: GrindStats; games: number }) {
+export function GrindPanel({ grind, form, games }: { grind: GrindStats; form: FormStats; games: number }) {
   const session = grind.longestSession
   const busiest = grind.busiestDay
 
   return (
     <section className={`${common.panel} ${styles.grind}`}>
       <h2 className={common.title}>Grind</h2>
+
+      <ClimbCard grind={grind} />
 
       <div className={styles.tiles}>
         <Tile icon="clock" label="Temps de jeu" value={`${formatDecimal(grind.hours)} h`} sub={`${grind.activeDays} jours joués`} />
@@ -53,13 +59,23 @@ export function GrindPanel({ grind, games }: { grind: GrindStats; games: number 
           value={busiest ? `${busiest.games} games` : '—'}
           sub={busiest ? `${busiest.wins}V ${busiest.games - busiest.wins}D · ${day.format(new Date(`${busiest.key}T12:00:00`))}` : undefined}
         />
-        <Tile icon="moon" label="Games de nuit" value={formatNumber(grind.night.games)} sub={grind.night.games ? `0–6 h · ${formatPercent(grind.night.wins / grind.night.games)} V` : '0–6 h'} />
+        <Tile
+          icon="streak"
+          label="Série en cours"
+          value={form.streak === 0 ? '—' : `${Math.abs(form.streak)} ${form.streak > 0 ? 'V' : 'D'}`}
+          sub={`record ${form.longestWinStreak} V · ${form.longestLossStreak} D`}
+        />
       </div>
 
       <div className={styles.charts}>
         <div className={styles.chart}>
           <span className={common.label}>Winrate par game de session</span>
           <WinrateBars records={grind.bySessionGame.map((r) => ({ ...r, key: r.key.endsWith('+') ? `${r.key.slice(0, -1)}e+` : `${r.key}e` }))} />
+          {grind.stopAfter !== null && (
+            <p className={common.sub}>
+              Sous 50 % dès la {grind.stopAfter + 1}e game : <b>arrête-toi après {grind.stopAfter}</b>.
+            </p>
+          )}
         </div>
         <div className={styles.chart}>
           <span className={common.label}>Tilt</span>
@@ -99,6 +115,21 @@ export function GrindPanel({ grind, games }: { grind: GrindStats; games: number 
         </div>
       </div>
 
+      <div className={styles.charts}>
+        <div className={styles.chart}>
+          <span className={common.label}>Winrate par créneau</span>
+          <WinrateBars records={SLOTS.map((slot) => slotRecord(slot.label, slot.hours, form.byHour))} />
+        </div>
+        <div className={styles.chart}>
+          <span className={common.label}>Winrate selon la durée</span>
+          <WinrateBars records={grind.byDuration.map((r) => ({ ...r, key: DURATIONS[r.key] ?? r.key }))} />
+        </div>
+        <div className={styles.chart}>
+          <span className={common.label}>Pool de champions</span>
+          <Pool weeks={grind.pool} mains={grind.mains} />
+        </div>
+      </div>
+
       {grind.recentSessions.length > 0 && (
         <div className={styles.chart}>
           <span className={common.label}>Dernières sessions</span>
@@ -109,15 +140,6 @@ export function GrindPanel({ grind, games }: { grind: GrindStats; games: number 
           </div>
         </div>
       )}
-
-      <div className={styles.totals}>
-        <Counter icon="sword" label="Kills" value={formatNumber(grind.totals.kills)} />
-        <Counter icon="skull" label="Morts" value={formatNumber(grind.totals.deaths)} />
-        <Counter icon="minion" label="CS" value={formatNumber(grind.totals.cs)} />
-        <Counter icon="coin" label="Gold" value={formatThousands(grind.totals.gold)} />
-        <Counter icon="drop" label="First bloods" value={formatNumber(grind.totals.firstBloods)} />
-        <Counter icon="crown" label="Pentakills" value={formatNumber(grind.totals.pentaKills)} />
-      </div>
 
       <div className={styles.durations}>
         <Duration label="Victoire moyenne" seconds={grind.winDuration} tone="win" />
@@ -230,13 +252,42 @@ function AfterLine({ label, record }: { label: string; record: WinRecord }) {
   )
 }
 
-function Counter({ icon, label, value }: { icon: keyof typeof ICONS; label: string; value: string }) {
+function slotRecord(key: string, hours: number[], byHour: WinRecord[]): WinRecord {
+  const played = byHour.filter((h) => hours.includes(Number(h.key)))
+  return { key, games: played.reduce((n, h) => n + h.games, 0), wins: played.reduce((n, h) => n + h.wins, 0) }
+}
+
+/** Part de chaque semaine jouée sur les 3 champions principaux de la période. */
+function Pool({ weeks, mains }: { weeks: PoolWeek[]; mains: string[] }) {
+  if (weeks.length === 0) return <p className={common.empty}>Aucune game.</p>
+  const last = weeks[weeks.length - 1]
+
   return (
-    <div className={styles.counter} title={label}>
-      <Icon name={icon} />
-      <b>{value}</b>
-      <span className={common.sub}>{label}</span>
-    </div>
+    <>
+      <div className={styles.mains}>
+        {mains.map((name) => (
+          <ChampionIcon key={name} championName={name} size={26} />
+        ))}
+        <span className={common.sub}>
+          {last.champions} champion{last.champions > 1 ? 's' : ''} cette semaine
+        </span>
+      </div>
+      <div className={styles.bars}>
+        {weeks.map((w) => {
+          const share = w.mainGames / w.games
+          return (
+            <div key={w.week} className={styles.bar} data-few={w.games < FEW_GAMES || undefined} title={`Semaine du ${day.format(new Date(`${w.week}T12:00:00`))} : ${w.mainGames} games sur ${w.games} avec tes mains`}>
+              <span className={styles.barValue}>{formatPercent(share)}</span>
+              <div className={`${styles.track} ${styles.plain}`}>
+                <span className={styles.main} style={{ height: `${Math.max(share, 0.03) * 100}%` }} />
+              </div>
+              <span className={styles.barKey}>{w.week.slice(8)}/{w.week.slice(5, 7)}</span>
+              <span className={styles.barGames}>{w.games}</span>
+            </div>
+          )
+        })}
+      </div>
+    </>
   )
 }
 

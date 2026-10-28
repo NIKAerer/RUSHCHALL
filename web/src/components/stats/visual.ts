@@ -12,12 +12,12 @@ export interface Axis {
 const clamp = (n: number) => Math.max(0, Math.min(100, n))
 const scale = (value: number, low: number, high: number) => clamp(((value - low) / (high - low)) * 100)
 
-export function csPerMinute(stats: PlayerStats): number {
+function csPerMinute(stats: PlayerStats): number {
   const games = stats.champions.reduce((total, c) => total + c.games, 0)
   return games ? stats.champions.reduce((total, c) => total + c.csPerMinute * c.games, 0) / games : 0
 }
 
-export function objectiveShare(stats: PlayerStats): number | null {
+function objectiveShare(stats: PlayerStats): number | null {
   const taken = stats.objectives.reduce((total, o) => total + o.taken, 0)
   const lost = stats.objectives.reduce((total, o) => total + o.lost, 0)
   return taken + lost ? taken / (taken + lost) : null

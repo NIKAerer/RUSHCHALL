@@ -105,6 +105,25 @@ final class StatsAggregatorTest extends TestCase
         self::assertSame(20, $grind->afterTwoLossesLp);
     }
 
+    public function testGrindAdvisesWhenToStopAndSplitsLpDurationsAndPool(): void
+    {
+        $day = 86_400_000;
+        $monday = 1_792_382_400_000; // lundi 19 octobre 2026, 6 h à Paris
+        $games = [];
+        // Cinq sessions : une victoire, puis une défaite 35 minutes plus tard.
+        foreach (range(0, 4) as $i) {
+            $games[] = $this->game(true, startedAt: $monday + $i * 2 * $day, matchId: "W$i", champion: 0 === $i ? 'Viego' : 'LeeSin', duration: 20 * 60);
+            $games[] = $this->game(false, startedAt: $monday + $i * 2 * $day + 35 * 60_000, matchId: "L$i", champion: $i >= 3 ? 'Kayn' : 'Graves', duration: 32 * 60);
+        }
+        $grind = (new StatsAggregator())->aggregate($games, lpChanges: ['W0' => 20, 'W1' => 23, 'L0' => -18])->grind;
+
+        self::assertSame(1, $grind->stopAfter);
+        self::assertSame([21.5, -18.0], [$grind->lpGain, $grind->lpLoss]);
+        self::assertSame([['lt25', 5, 5], ['25-30', 0, 0], ['30-35', 5, 0], ['gt35', 0, 0]], array_map(static fn ($r) => [$r->key, $r->games, $r->wins], $grind->byDuration));
+        self::assertSame(['LeeSin', 'Graves', 'Kayn'], $grind->mains);
+        self::assertSame([['2026-10-19', 8, 7, 4], ['2026-10-26', 2, 2, 2]], array_map(static fn ($w) => [$w->week, $w->games, $w->mainGames, $w->champions], $grind->pool));
+    }
+
     public function testLpOfApexTiersSitsAboveDiamond(): void
     {
         $stats = (new StatsAggregator())->aggregate([], [
@@ -119,15 +138,15 @@ final class StatsAggregatorTest extends TestCase
      * @param list<string>         $clear
      * @param list<ObjectiveFight> $objectives
      */
-    private function game(bool $win, bool $remake = false, int $startedAt = 1_793_000_000_000, ?LaneDiff $at10 = null, array $clear = [], array $objectives = [], string $matchId = 'EUW1_1'): GameFacts
+    private function game(bool $win, bool $remake = false, int $startedAt = 1_793_000_000_000, ?LaneDiff $at10 = null, array $clear = [], array $objectives = [], string $matchId = 'EUW1_1', string $champion = 'LeeSin', int $duration = 1800): GameFacts
     {
         return new GameFacts(
             matchId: $matchId,
             startedAt: $startedAt,
-            durationSeconds: 1800,
+            durationSeconds: $duration,
             remake: $remake,
             win: $win,
-            championName: 'LeeSin',
+            championName: $champion,
             position: 'JUNGLE',
             opponent: 'XinZhao',
             kills: 5,

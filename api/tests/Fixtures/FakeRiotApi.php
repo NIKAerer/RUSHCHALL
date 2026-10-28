@@ -33,6 +33,7 @@ final class FakeRiotApi
             'euw1.api.riotgames.com' === $host && '/lol/summoner/v4/summoners/by-puuid/'.$puuid === $path => 'summoner'.$suffix,
             'euw1.api.riotgames.com' === $host && '/lol/league/v4/entries/by-puuid/'.$puuid === $path => 'league'.$suffix,
             'europe.api.riotgames.com' === $host && '/lol/match/v5/matches/by-puuid/'.$puuid.'/ids' === $path => 'match_ids'.$suffix,
+            'euw1.api.riotgames.com' === $host && 1 === preg_match('#^/lol/league/v4/(challenger|grandmaster)leagues/by-queue/RANKED_SOLO_5x5$#', $path, $m) => 'league_'.$m[1],
             'europe.api.riotgames.com' === $host && 1 === preg_match('#^/lol/match/v5/matches/(EUW1_\d+)$#', $path, $m) => 'match_'.$m[1],
             'europe.api.riotgames.com' === $host && 1 === preg_match('#^/lol/match/v5/matches/(EUW1_\d+)/timeline$#', $path, $m) => 'timeline_'.$m[1],
             default => null,

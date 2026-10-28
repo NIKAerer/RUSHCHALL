@@ -65,6 +65,21 @@ final class RiotApiClient
     }
 
     /**
+     * Ligue Challenger ou Grandmaster de la Solo/Duo : ses joueurs et leurs LP.
+     *
+     * @param 'challenger'|'grandmaster' $league
+     *
+     * @return array{entries: list<array<string, mixed>>}
+     */
+    public function getApexLeague(string $league): array
+    {
+        return $this->get(
+            \sprintf('%s/lol/league/v4/%sleagues/by-queue/RANKED_SOLO_5x5', $this->riotPlatform->platformBaseUri(), $league),
+            self::TTL_LIVE,
+        );
+    }
+
+    /**
      * @param int|null $startTime ne garde que les games commencées après ce timestamp (en secondes)
      *
      * @return list<string>

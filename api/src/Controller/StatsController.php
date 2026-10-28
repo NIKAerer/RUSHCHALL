@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Player\TrackedPlayer;
+use App\Rank\ClimbProvider;
 use App\Stats\StatsProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,5 +23,11 @@ final class StatsController extends AbstractController
         #[MapQueryParameter(options: ['min_range' => 1, 'max_range' => 365], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)] ?int $days = null,
     ): JsonResponse {
         return $this->json($stats->forPlayer($player->puuid(), $champion, $days));
+    }
+
+    #[Route('/api/climb', name: 'api_climb', methods: ['GET'])]
+    public function climb(TrackedPlayer $player, ClimbProvider $climb): JsonResponse
+    {
+        return $this->json($climb->forPlayer($player->puuid()));
     }
 }

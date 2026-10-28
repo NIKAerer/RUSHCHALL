@@ -16,6 +16,7 @@ use App\Stats\Dto\LpPoint;
 use App\Stats\Dto\MatchupStats;
 use App\Stats\Dto\ObjectiveStats;
 use App\Stats\Dto\PlayerStats;
+use App\Stats\Dto\PoolWeek;
 use App\Stats\Dto\ProgressPoint;
 use App\Stats\Dto\Record;
 use App\Stats\Dto\SessionRecord;
@@ -36,7 +37,12 @@ final class StatsAggregator
     private const SESSION_BREAK_MS = 45 * 60 * 1000;
     /** Rang dans la session à partir duquel les games sont regroupées (« 5+ »). */
     private const SESSION_GAMES_GROUPED = 5;
-    private const NIGHT_END_HOUR = 6;
+    /** Un rang de session joué moins souvent ne suffit pas à conseiller de s'arrêter. */
+    private const STOP_MIN_GAMES = 5;
+    /** Bornes des durées de game, en minutes. */
+    private const DURATIONS = ['lt25' => 25, '25-30' => 30, '30-35' => 35, 'gt35' => \PHP_INT_MAX];
+    private const MAINS = 3;
+    private const POOL_WEEKS = 8;
     private const RECENT_SESSIONS = 6;
     /** Bornes des pauses entre deux games d'une session, en minutes. */
     private const SHORT_BREAK_MINUTES = 5;
@@ -289,9 +295,22 @@ final class StatsAggregator
         $busiestDay = array_key_first($days);
         $byWeekday = $this->groupBy($games, fn (GameFacts $g) => (int) $this->local($g)->format('N'));
         $longest = [] === $sessions ? null : array_reduce($sessions, static fn (?array $best, array $s) => null === $best || \count($s) > \count($best) ? $s : $best);
-        $byDuration = $games;
-        usort($byDuration, static fn (GameFacts $a, GameFacts $b) => $a->durationSeconds <=> $b->durationSeconds);
+        $byLength = $games;
+        usort($byLength, static fn (GameFacts $a, GameFacts $b) => $a->durationSeconds <=> $b->durationSeconds);
         $sum = static fn (callable $value) => array_sum(array_map($value, $games));
+        $gains = array_values(array_filter(array_map(static fn (GameFacts $g) => $g->win ? ($lpChanges[$g->matchId] ?? null) : null, $games), static fn (?int $lp) => null !== $lp));
+        $losses = array_values(array_filter(array_map(static fn (GameFacts $g) => $g->win ? null : ($lpChanges[$g->matchId] ?? null), $games), static fn (?int $lp) => null !== $lp));
+        $mains = \array_slice(array_map(strval(...), array_keys($this->groupBy($games, static fn (GameFacts $g) => $g->championName))), 0, self::MAINS);
+        $bySessionGame = array_map(fn (string $key) => new Record($key, \count($rank[$key]), $this->wins($rank[$key])), array_map(strval(...), array_keys($rank)));
+        $byDuration = $this->groupBy($games, static function (GameFacts $g): string {
+            foreach (self::DURATIONS as $key => $limit) {
+                if ($g->durationSeconds < $limit * 60) {
+                    return $key;
+                }
+            }
+
+            return 'gt35';
+        });
 
         return new GrindStats(
             hours: round($sum(static fn (GameFacts $g) => $g->durationSeconds) / 3600, 1),
@@ -299,23 +318,13 @@ final class StatsAggregator
             sessions: \count($sessions),
             longestSession: null === $longest ? null : $this->session($longest, $lpChanges),
             busiestDay: null === $busiestDay ? null : new Record((string) $busiestDay, \count($days[$busiestDay]), $this->wins($days[$busiestDay])),
-            bySessionGame: array_map(fn (string $key) => new Record($key, \count($rank[$key]), $this->wins($rank[$key])), array_map(strval(...), array_keys($rank))),
+            bySessionGame: $bySessionGame,
             afterWin: new Record('afterWin', \count($afterWin), $this->wins($afterWin)),
             afterLoss: new Record('afterLoss', \count($afterLoss), $this->wins($afterLoss)),
             afterTwoLosses: new Record('afterTwoLosses', \count($afterTwoLosses), $this->wins($afterTwoLosses)),
             byWeekday: array_map(fn (int $day) => new Record((string) $day, \count($byWeekday[$day] ?? []), $this->wins($byWeekday[$day] ?? [])), range(1, 7)),
-            night: $this->record('night', array_values(array_filter($games, fn (GameFacts $g) => (int) $this->local($g)->format('G') < self::NIGHT_END_HOUR))),
-            totals: [
-                'kills' => $sum(static fn (GameFacts $g) => $g->kills),
-                'deaths' => $sum(static fn (GameFacts $g) => $g->deaths),
-                'assists' => $sum(static fn (GameFacts $g) => $g->assists),
-                'cs' => $sum(static fn (GameFacts $g) => $g->cs),
-                'gold' => $sum(static fn (GameFacts $g) => $g->gold),
-                'pentaKills' => $sum(static fn (GameFacts $g) => $g->pentaKills),
-                'firstBloods' => \count(array_filter($games, static fn (GameFacts $g) => $g->firstBlood)),
-            ],
-            longestGame: [] === $byDuration ? null : $this->gameRecord($byDuration[array_key_last($byDuration)]),
-            shortestGame: [] === $byDuration ? null : $this->gameRecord($byDuration[0]),
+            longestGame: [] === $byLength ? null : $this->gameRecord($byLength[array_key_last($byLength)]),
+            shortestGame: [] === $byLength ? null : $this->gameRecord($byLength[0]),
             winDuration: $this->averageInt(array_values(array_filter($games, static fn (GameFacts $g) => $g->win)), static fn (GameFacts $g) => $g->durationSeconds),
             lossDuration: $this->averageInt(array_values(array_filter($games, static fn (GameFacts $g) => !$g->win)), static fn (GameFacts $g) => $g->durationSeconds),
             calendar: $calendar,
@@ -324,7 +333,51 @@ final class StatsAggregator
             routine: $this->record('routine', $done),
             noRoutine: $this->record('noRoutine', $notDone),
             afterTwoLossesLp: $this->lpSum($afterTwoLosses, $lpChanges),
+            lpGain: [] === $gains ? null : round(array_sum($gains) / \count($gains), 1),
+            lpLoss: [] === $losses ? null : round(array_sum($losses) / \count($losses), 1),
+            stopAfter: $this->stopAfter($bySessionGame),
+            byDuration: array_map(fn (string $key) => $this->record($key, $byDuration[$key] ?? []), array_keys(self::DURATIONS)),
+            mains: $mains,
+            pool: $this->pool($games, $mains),
         );
+    }
+
+    /**
+     * Le rang de session après lequel il vaut mieux s'arrêter : celui qui précède le premier rang sous 50 % de victoires.
+     *
+     * @param list<Record> $bySessionGame
+     */
+    private function stopAfter(array $bySessionGame): ?int
+    {
+        foreach ($bySessionGame as $index => $record) {
+            if ($index > 0 && $record->games >= self::STOP_MIN_GAMES && 2 * $record->wins < $record->games) {
+                return $index;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Part de chaque semaine jouée sur les champions principaux de la période.
+     *
+     * @param list<GameFacts> $games
+     * @param list<string>    $mains
+     *
+     * @return list<PoolWeek>
+     */
+    private function pool(array $games, array $mains): array
+    {
+        $weeks = $this->groupBy($games, fn (GameFacts $g) => $this->local($g)->modify('monday this week')->format('Y-m-d'));
+        ksort($weeks);
+        $weeks = \array_slice($weeks, -self::POOL_WEEKS);
+
+        return array_map(static fn (string $week, array $played) => new PoolWeek(
+            week: $week,
+            games: \count($played),
+            mainGames: \count(array_filter($played, static fn (GameFacts $g) => \in_array($g->championName, $mains, true))),
+            champions: \count(array_unique(array_map(static fn (GameFacts $g) => $g->championName, $played))),
+        ), array_map(strval(...), array_keys($weeks)), array_values($weeks));
     }
 
     /**

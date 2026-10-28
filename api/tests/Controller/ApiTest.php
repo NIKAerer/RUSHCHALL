@@ -162,6 +162,23 @@ final class ApiTest extends WebTestCase
         self::assertResponseStatusCodeSame(400);
     }
 
+    public function testClimbComparesTheLastSnapshotWithTheApexCutoffs(): void
+    {
+        $this->client->request('GET', '/api/profile');
+        $this->client->request('GET', '/api/climb');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(['tier' => 'MASTER', 'leaguePoints' => 1290, 'challenger' => 1388, 'grandmaster' => 801, 'lpPerDay' => null], $this->json());
+
+        // Rythme : depuis le relevé d'il y a 7 jours et demi (le plus récent d'au moins une semaine).
+        $store = static::getContainer()->get(MatchStore::class);
+        $now = $store->lpSnapshots(FakeRiotApi::PUUID)[0]['taken_at'];
+        $store->recordLp(FakeRiotApi::PUUID, 'MASTER', null, 1100, 700, 690, $now - 10 * 86400);
+        $store->recordLp(FakeRiotApi::PUUID, 'MASTER', null, 1140, 710, 695, $now - 15 * 43200);
+        $this->client->request('GET', '/api/climb');
+        self::assertEquals(20.0, $this->json()['lpPerDay']);
+    }
+
     public function testAnotherPlayerIsReadLiveAndNeverStored(): void
     {
         $this->client->request('GET', '/api/players/Nyxar/EUW');

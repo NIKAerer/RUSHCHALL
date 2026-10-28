@@ -1,22 +1,11 @@
 import { useState, type PointerEvent } from 'react'
-import type { FormStats, LpPoint, WinRecord } from '../../api/types'
-import { formatPercent, formatSigned } from '../../lib/format'
+import type { LpPoint } from '../../api/types'
+import { formatSigned } from '../../lib/format'
 import { tierLabel } from '../../lib/riot'
-import styles from './LpAndHours.module.css'
+import styles from './LpChart.module.css'
 import common from './stats.module.css'
 
 const date = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
-
-export function HourPanel({ form }: { form: FormStats }) {
-  return (
-    <section className={common.panel}>
-      <h2 className={common.title}>
-        Winrate par heure <small>heure de début</small>
-      </h2>
-      <HourChart hours={form.byHour} />
-    </section>
-  )
-}
 
 const WIDTH = 300
 const HEIGHT = 110
@@ -81,27 +70,6 @@ export function LpChart({ points, height }: { points: LpPoint[]; height?: number
           <span>{date.format(t1)}</span>
         </div>
       )}
-    </div>
-  )
-}
-
-function HourChart({ hours }: { hours: WinRecord[] }) {
-  const most = Math.max(1, ...hours.map((h) => h.games))
-
-  return (
-    <div className={styles.hours}>
-      {hours.map((h) => {
-        const ratio = h.games === 0 ? 0 : h.wins / h.games
-        return (
-          <div key={h.key} className={styles.hour} title={h.games === 0 ? `${h.key}h : aucune game` : `${h.key}h : ${h.wins}V ${h.games - h.wins}D · ${formatPercent(ratio)}`}>
-            <div className={styles.column}>
-              {h.games > h.wins && <span className={styles.losses} style={{ height: `${((h.games - h.wins) / most) * 100}%` }} />}
-              {h.wins > 0 && <span className={styles.wins} style={{ height: `${(h.wins / most) * 100}%` }} />}
-            </div>
-            <span className={styles.hourLabel}>{Number(h.key) % 3 === 0 ? `${h.key}h` : ''}</span>
-          </div>
-        )
-      })}
     </div>
   )
 }

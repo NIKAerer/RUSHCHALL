@@ -110,6 +110,26 @@
   background: var(--loss);
 }
 
+/* Pool : une part, pas un winrate, donc ni ligne des 50 % ni vert/rouge. */
+.track.plain::after {
+  content: none;
+}
+
+.main {
+  background: var(--accent);
+}
+
+.mains {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+}
+
+.mains span:last-child {
+  margin-left: 4px;
+}
+
 .barKey {
   font-size: 12px;
   font-weight: 700;
@@ -131,25 +151,6 @@
 .after li {
   display: grid;
   gap: 4px;
-}
-
-.totals {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid var(--divider);
-}
-
-.counter {
-  display: grid;
-  justify-items: center;
-  gap: 2px;
-  text-align: center;
-}
-
-.counter b {
-  font: 800 20px var(--font-display);
 }
 
 .durations {
@@ -253,10 +254,6 @@
 
   .charts {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .totals {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .durations {

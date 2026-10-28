@@ -8,17 +8,14 @@ import { GrindPanel } from '../components/stats/GrindPanel'
 import { HeatmapPanel } from '../components/stats/HeatmapPanel'
 import { JunglePanel } from '../components/stats/JunglePanel'
 import { LaneDiffs } from '../components/stats/LaneDiffs'
-import { HourPanel } from '../components/stats/LpAndHours'
 import { MatchupsCard } from '../components/stats/MatchupsCard'
 import { MatchupsPanel } from '../components/stats/MatchupsPanel'
 import { ObjectivesPanel } from '../components/stats/ObjectivesPanel'
 import { ProgressPanel } from '../components/stats/ProgressPanel'
 import { RadarPanel } from '../components/stats/RadarPanel'
 import { RecentGames } from '../components/stats/RecentGames'
-import { StatCards } from '../components/stats/StatCards'
 import { StatsFilters } from '../components/stats/StatsFilters'
 import { StatsHero } from '../components/stats/StatsHero'
-import { TopChampions } from '../components/stats/TopChampions'
 import styles from './StatsPage.module.css'
 
 const TABS = [
@@ -27,7 +24,6 @@ const TABS = [
   { id: 'champions', label: 'Champions' },
   { id: 'jungle', label: 'Jungle' },
   { id: 'grind', label: 'Grind' },
-  { id: 'details', label: 'Détails' },
 ] as const
 
 type Tab = (typeof TABS)[number]['id']
@@ -85,25 +81,17 @@ function TabContent({ tab, data, onTab }: { tab: Tab; data: PlayerStats; onTab: 
       )
     case 'jungle':
       return (
-        <div className={styles.columns}>
-          <JunglePanel jungle={data.jungle} />
-          <HeatmapPanel heatmap={data.heatmap} />
-        </div>
-      )
-    case 'grind':
-      return <GrindPanel grind={data.grind} games={data.games} />
-    case 'details':
-      return (
         <>
-          <StatCards stats={data} />
-          <TopChampions champions={data.champions} />
-          <ObjectivesPanel objectives={data.objectives} />
           <div className={styles.columns}>
-            <LaneDiffs diffs={data.diffs} />
-            <HourPanel form={data.form} />
+            <JunglePanel jungle={data.jungle} />
+            <HeatmapPanel heatmap={data.heatmap} />
           </div>
+          <ObjectivesPanel objectives={data.objectives} />
+          <LaneDiffs diffs={data.diffs} />
         </>
       )
+    case 'grind':
+      return <GrindPanel grind={data.grind} form={data.form} games={data.games} />
     default:
       return (
         <>

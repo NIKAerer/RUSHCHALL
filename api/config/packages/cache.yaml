@@ -10,6 +10,9 @@ framework:
             # Joueurs cherchés : gardé en mémoire le temps d'une requête, jamais écrit.
             cache.riot_live:
                 adapter: cache.adapter.array
+            # Seuils GM et Challenger : deux nombres, rafraîchis toutes les heures.
+            cache.ladder:
+                adapter: cache.adapter.filesystem
 
 when@test:
     framework:
@@ -18,4 +21,6 @@ when@test:
                 cache.riot:
                     adapter: cache.adapter.array
                 cache.stats:
+                    adapter: cache.adapter.array
+                cache.ladder:
                     adapter: cache.adapter.array
