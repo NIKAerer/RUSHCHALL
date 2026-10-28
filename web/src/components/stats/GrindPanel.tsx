@@ -121,11 +121,11 @@ export function GrindPanel({ grind, form, games }: { grind: GrindStats; form: Fo
           <WinrateBars records={SLOTS.map((slot) => slotRecord(slot.label, slot.hours, form.byHour))} />
         </div>
         <div className={styles.chart}>
-          <span className={common.label}>Winrate selon la durée</span>
+          <span className={common.label}>Winrate selon la durée · min</span>
           <WinrateBars records={grind.byDuration.map((r) => ({ ...r, key: DURATIONS[r.key] ?? r.key }))} />
         </div>
         <div className={styles.chart}>
-          <span className={common.label}>Pool de champions</span>
+          <span className={common.label}>Pool · part des games sur tes 3 mains</span>
           <Pool weeks={grind.pool} mains={grind.mains} />
         </div>
       </div>
