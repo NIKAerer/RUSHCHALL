@@ -1,0 +1,83 @@
+.block {
+  display: grid;
+  gap: 8px;
+}
+
+.list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.route {
+  display: grid;
+  grid-template-columns: 1fr minmax(130px, 40%);
+  align-items: center;
+  gap: 10px;
+}
+
+.camps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.camps li + li::before {
+  content: '›';
+  margin-right: 3px;
+  color: var(--faint);
+}
+
+.camp {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface-3);
+  color: var(--fg);
+}
+
+.camp[data-camp='blue'] {
+  background: color-mix(in srgb, var(--side-blue) 35%, var(--surface-3));
+}
+
+.camp[data-camp='red'] {
+  background: color-mix(in srgb, var(--side-red) 35%, var(--surface-3));
+}
+
+.camp[data-camp='scuttle'] {
+  background: color-mix(in srgb, #3fe0d0 25%, var(--surface-3));
+}
+
+.lane {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.lane svg {
+  margin: 0;
+}
+
+.time {
+  margin-left: 4px;
+  color: var(--fg);
+  letter-spacing: 0;
+}

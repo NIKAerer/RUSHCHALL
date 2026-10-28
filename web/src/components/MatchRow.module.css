@@ -1,77 +1,55 @@
+/* Chaque game est une carte à part : liseré de la couleur du résultat et teinte qui s'efface vers la droite. */
 .match {
-  --accent: var(--win);
-  --tint: var(--win-bg);
-  --edge: var(--win-line);
+  --result: var(--win);
+  --result-bg: var(--win-bg);
   overflow: hidden;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--edge);
-  border-left: 6px solid var(--accent);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--result-bg) 70%, transparent), transparent 45%), var(--surface-2);
+  box-shadow: inset 4px 0 0 var(--result);
+}
+
+.match:hover {
+  border-color: var(--line-strong);
+}
+
+.match:has(.toggle[aria-expanded='true']) {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
 }
 
 .loss {
-  --accent: var(--loss);
-  --tint: var(--loss-bg);
-  --edge: var(--loss-line);
+  --result: var(--loss);
+  --result-bg: var(--loss-bg);
 }
 
 .remake {
-  --accent: var(--remake);
-  --tint: var(--surface-2);
-  --edge: var(--line);
+  --result: var(--remake);
+  --result-bg: var(--surface-3);
 }
 
 .row {
   display: grid;
-  grid-template-columns: 84px auto 92px 100px auto minmax(0, 1fr) 30px;
+  grid-template-columns: 48px minmax(140px, 180px) 100px auto minmax(110px, 1fr) 64px 84px 32px 30px;
   align-items: center;
-  gap: 18px;
-  padding: 12px 12px 12px 14px;
-  background: linear-gradient(90deg, var(--tint), var(--surface) 75%);
-}
-
-.info {
-  display: grid;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.queue {
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.outcome {
-  margin-top: 6px;
-  font: 700 14px var(--font-display);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.ago {
-  white-space: nowrap;
-}
-
-.loadout {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.kda {
-  display: grid;
-  justify-items: start;
-  gap: 2px;
+  gap: 16px;
+  min-height: 84px;
+  padding: 10px 14px 10px 20px;
 }
 
 .score {
-  font: 600 18px var(--font-display);
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.score b {
+  font: 700 22px var(--font-display);
   white-space: nowrap;
 }
 
 .score span {
   color: var(--faint);
+  font-weight: 500;
 }
 
 .score em {
@@ -79,107 +57,140 @@
   color: var(--loss);
 }
 
-.ratio {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.multikill {
-  margin-top: 2px;
-  padding: 0 7px;
-  border-radius: 99px;
-  background: var(--loss-bg);
-  border: 1px solid var(--loss-line);
-  color: #ff9c9c;
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.stats {
-  display: grid;
-  gap: 1px;
-  margin: 0;
-  font-size: 12px;
-}
-
-.stats div {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.stats dt {
-  color: var(--muted);
-}
-
-.stats dd {
-  margin: 0;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.stats small {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.lineup {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  min-width: 0;
-}
-
-.lineup ul {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.lineup li {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-  font-size: 11.5px;
-  color: var(--muted);
-}
-
-.lineup li img,
-.lineup li > span > span {
-  border-radius: 4px !important;
-}
-
-.lineup .name {
-  min-width: 0;
+.score small,
+.meta > span,
+.meta > small {
   overflow: hidden;
+  font-size: 13px;
+  color: var(--muted);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.lineup .me {
-  color: var(--fg);
+.result {
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+}
+
+.outcome,
+.multikill {
+  padding: 4px 10px;
+  border-radius: 999px;
   font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.outcome {
+  background: var(--result-bg);
+  color: var(--result);
+  font-size: 13px;
+}
+
+/* Le multikill est une distinction : en or, pour ne pas se confondre avec une défaite. */
+.multikill {
+  padding-block: 2px;
+  background: color-mix(in srgb, var(--gold) 16%, transparent);
+  color: var(--gold);
+  font-size: 11px;
+}
+
+.row :global(img),
+.row > span > span {
+  border-radius: 8px;
+}
+
+.meta {
+  display: grid;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.lp {
+  font: 700 15px var(--font-display);
+  color: var(--faint);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.gain {
+  color: var(--win);
+}
+
+.drop {
+  color: var(--loss);
+}
+
+.rating {
+  justify-self: end;
+}
+
+/* Case « routine » : un rond discret avec une coche pâle, plein une fois cochée. */
+.routine {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  justify-self: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  color: var(--line-strong);
+  cursor: pointer;
+}
+
+.routine:hover {
+  color: var(--muted);
+  border-color: var(--muted);
+}
+
+.routine input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.routine svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.routine:has(input:checked) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.routine:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .toggle {
-  align-self: stretch;
   display: grid;
   place-items: center;
+  width: 30px;
+  height: 30px;
   padding: 0;
   border: 0;
-  border-radius: 7px;
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  color: var(--accent);
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
   cursor: pointer;
 }
 
 .toggle:hover {
-  background: color-mix(in srgb, var(--accent) 24%, transparent);
+  background: var(--surface-3);
+  color: var(--fg);
 }
 
 .toggle svg {
@@ -192,58 +203,24 @@
 
 @media (max-width: 1040px) {
   .row {
-    grid-template-columns: 84px auto 92px 100px minmax(0, 1fr) 30px;
+    grid-template-columns: 48px minmax(0, 1fr) auto 64px 84px 32px 30px;
   }
 
-  .lineup {
+  .row > :nth-child(4),
+  .meta {
     display: none;
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 640px) {
   .row {
-    grid-template-columns: auto 1fr auto;
-    gap: 10px 14px;
+    grid-template-columns: 48px minmax(0, 1fr) auto 32px 30px;
+    gap: 10px 12px;
   }
 
-  .info {
-    grid-column: 1 / 3;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 4px 10px;
-  }
-
-  .outcome {
-    order: -1;
-    margin: 0;
-  }
-
-  .toggle {
-    grid-column: 3;
-    grid-row: 1;
-    width: 30px;
-    height: 30px;
-  }
-
-  .kda {
-    justify-items: end;
-    text-align: right;
-  }
-
-  .stats {
-    grid-column: 1 / -1;
-    grid-template-columns: repeat(3, auto);
-    justify-content: start;
-    gap: 16px;
-  }
-
-  .stats div {
-    justify-content: start;
-  }
-
-  .items {
-    grid-column: 1 / -1;
+  .result,
+  .rating {
+    display: none;
   }
 }
 

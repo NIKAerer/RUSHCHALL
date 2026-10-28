@@ -1,0 +1,76 @@
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  padding: 0 8px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-align: center;
+}
+
+.table td {
+  padding: 6px 8px;
+  text-align: center;
+  border-top: 1px solid var(--divider);
+}
+
+.table .left {
+  text-align: left;
+}
+
+.main {
+  font-weight: 800;
+}
+
+.champion {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font: 600 13px var(--font-body);
+  cursor: pointer;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+
+.champion[aria-expanded='true'] {
+  color: var(--accent);
+}
+
+.row:hover td {
+  background: var(--surface-2);
+}
+
+.matchupsRow td {
+  border-top: 0;
+  background: var(--surface-2);
+}
+
+.more {
+  justify-self: start;
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font: 600 12px var(--font-body);
+  cursor: pointer;
+}
+
+.more:hover {
+  color: var(--fg);
+}

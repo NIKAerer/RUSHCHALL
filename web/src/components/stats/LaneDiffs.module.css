@@ -1,0 +1,56 @@
+.grid {
+  display: grid;
+  gap: 10px;
+}
+
+.minute {
+  display: grid;
+  grid-template-columns: 44px repeat(3, 1fr) 1.3fr;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.at {
+  font: 800 18px var(--font-display);
+  color: var(--accent);
+}
+
+.diff {
+  display: grid;
+  gap: 2px;
+}
+
+.value {
+  font: 800 18px var(--font-display);
+}
+
+.ahead {
+  display: grid;
+  gap: 4px;
+}
+
+.aheadBar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--loss-line);
+  overflow: hidden;
+}
+
+.aheadBar span {
+  display: block;
+  height: 100%;
+  background: var(--good);
+}
+
+@media (max-width: 520px) {
+  .minute {
+    grid-template-columns: 40px repeat(3, 1fr);
+  }
+
+  .ahead {
+    grid-column: 1 / -1;
+  }
+}

@@ -109,7 +109,7 @@ const OBJECTIVE_COLORS: Record<string, string> = {
 
 const DRAGONS = ['infernal', 'ocean', 'mountain', 'cloud', 'hextech', 'chemtech', 'elder', 'dragon']
 
-function ObjectiveIcon({ objective }: { objective: string | null }) {
+export function ObjectiveIcon({ objective }: { objective: string | null }) {
   const kind = objective ?? 'dragon'
   const glyph = DRAGONS.includes(kind) ? 'dragon' : kind
   return (
@@ -136,7 +136,7 @@ const ZONE_LABELS: Record<Zone, string> = {
 }
 
 /** Petit plan de la carte avec la zone en surbrillance, comme les icônes de rôle. */
-function ZoneIcon({ zone }: { zone: Zone }) {
+export function ZoneIcon({ zone }: { zone: Zone }) {
   return (
     <svg viewBox="0 0 24 24" className={styles.zone} data-zone={zone} role="img" aria-label={ZONE_LABELS[zone]}>
       <title>{ZONE_LABELS[zone]}</title>

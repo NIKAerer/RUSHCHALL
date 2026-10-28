@@ -1,20 +1,29 @@
 import { useId, useState } from 'react'
-import type { Lineup, MatchSummary } from '../api/types'
+import { useRoutine } from '../api/queries'
+import type { MatchSummary } from '../api/types'
 import { useChampion } from '../ddragon/useStaticData'
-import { formatDuration, formatPercent, formatTimeAgo, kdaRatio } from '../lib/format'
-import { multiKillLabel, queueLabel } from '../lib/riot'
-import { ChampionIcon, ItemSlots, SpellsAndRunes } from './GameIcons'
+import { formatDuration, formatPercent, formatSigned, kdaRatio } from '../lib/format'
+import { multiKillLabel } from '../lib/riot'
+import { ChampionIcon, ItemSlots } from './GameIcons'
 import { MatchDetail } from './MatchDetail'
 import { RatingBadge } from './RatingBadge'
 import styles from './MatchRow.module.css'
 
 type Outcome = 'win' | 'loss' | 'remake'
 
+// Le jour est dans l'en-tête du groupe : la ligne ne garde que l'heure de début.
+const hour = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' })
+
 const OUTCOME_LABELS: Record<Outcome, string> = { win: 'Victoire', loss: 'Défaite', remake: 'Remake' }
 
-export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string }) {
+/**
+ * Une game de l'historique, sur une ligne : champion, score, résultat, build, LP et case « routine ».
+ * `live` : game d'un joueur cherché, sans LP ni routine.
+ */
+export function MatchRow({ match, puuid, live = false }: { match: MatchSummary; puuid: string; live?: boolean }) {
   const [open, setOpen] = useState(false)
   const detailId = useId()
+  const routine = useRoutine()
   const { player } = match
   const outcome: Outcome = match.remake ? 'remake' : player.win ? 'win' : 'loss'
   const champion = useChampion(player.championName)
@@ -23,59 +32,57 @@ export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string 
   return (
     <article className={`${styles.match} ${styles[outcome]}`}>
       <div className={styles.row}>
-        <div className={styles.info}>
-          <span className={styles.queue}>{queueLabel(match.queueId)}</span>
-          <span className={styles.ago}>{formatTimeAgo(match.startedAt + match.durationSeconds * 1000)}</span>
-          <span className={styles.outcome}>{OUTCOME_LABELS[outcome]}</span>
-          <span className={styles.ago}>{formatDuration(match.durationSeconds)}</span>
-        </div>
+        <ChampionIcon championName={player.championName} size={48} />
 
-        <div className={styles.loadout}>
-          <ChampionIcon championName={player.championName} size={52} level={player.championLevel} />
-          <SpellsAndRunes spells={player.summonerSpells} keystone={player.keystone} secondaryStyle={player.secondaryRuneStyle} size={24} />
-        </div>
-
-        <div className={styles.kda}>
-          <div className={styles.score}>
+        <div className={styles.score}>
+          <b>
             {player.kills} <span>/</span> <em>{player.deaths}</em> <span>/</span> {player.assists}
-          </div>
-          <div className={styles.ratio}>{kdaRatio(player.kills, player.deaths, player.assists)} KDA</div>
-          {!match.remake && <RatingBadge rating={player.rating} />}
+          </b>
+          <small>
+            {champion.name} · {kdaRatio(player.kills, player.deaths, player.assists)} KDA
+          </small>
+        </div>
+
+        <div className={styles.result}>
+          <span className={styles.outcome}>{OUTCOME_LABELS[outcome]}</span>
           {multiKill && <span className={styles.multikill}>{multiKill}</span>}
         </div>
 
-        <dl className={styles.stats}>
-          <div>
-            <dt>KP</dt>
-            <dd>{formatPercent(player.killParticipation)}</dd>
-          </div>
-          <div>
-            <dt>CS</dt>
-            <dd>
-              {player.cs} <small>({player.csPerMinute.toFixed(1).replace('.', ',')})</small>
-            </dd>
-          </div>
-          <div>
-            <dt>Vision</dt>
-            <dd>{player.visionScore}</dd>
-          </div>
-        </dl>
+        <ItemSlots items={player.items} trinket={player.trinket} size={30} />
 
-        <div className={styles.items}>
-          <ItemSlots items={player.items} trinket={player.trinket} size={26} />
-        </div>
+        <span className={styles.meta}>
+          <span>
+            KP {formatPercent(player.killParticipation)} · {player.csPerMinute.toFixed(1).replace('.', ',')} cs
+          </span>
+          <small>
+            {formatDuration(match.durationSeconds)} · {hour.format(match.startedAt).replace(':', 'h')}
+          </small>
+        </span>
 
-        <div className={styles.lineup}>
-          {[100, 200].map((teamId) => (
-            <ul key={teamId}>
-              {match.lineup
-                .filter((p) => p.teamId === teamId)
-                .map((p) => (
-                  <LineupEntry key={p.puuid} player={p} isMe={p.puuid === puuid} />
-                ))}
-            </ul>
-          ))}
-        </div>
+        <span
+          className={`${styles.lp} ${match.lpChange === null ? '' : match.lpChange >= 0 ? styles.gain : styles.drop}`}
+          title={match.lpChange === null ? 'LP inconnus : pas de relevé de rang juste avant et après cette game' : 'LP de cette game'}
+        >
+          {match.lpChange === null ? '' : `${formatSigned(match.lpChange)} LP`}
+        </span>
+
+        <div className={styles.rating}>{!match.remake && <RatingBadge rating={player.rating} />}</div>
+
+        {live ? (
+          <span />
+        ) : (
+          <label className={styles.routine} title="Routine respectée sur cette game">
+            <input
+              type="checkbox"
+              checked={match.routine}
+              onChange={(event) => routine.mutate({ matchId: match.matchId, routine: event.target.checked })}
+              aria-label={`Routine respectée sur la game ${champion.name}`}
+            />
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m7.5 12.5 3 3 6-6.5" />
+            </svg>
+          </label>
+        )}
 
         <button
           type="button"
@@ -92,17 +99,8 @@ export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string 
       </div>
 
       <div id={detailId} hidden={!open}>
-        {open && <MatchDetail matchId={match.matchId} puuid={puuid} />}
+        {open && <MatchDetail matchId={match.matchId} puuid={puuid} live={live} />}
       </div>
     </article>
-  )
-}
-
-function LineupEntry({ player, isMe }: { player: Lineup; isMe: boolean }) {
-  return (
-    <li className={isMe ? styles.me : undefined}>
-      <ChampionIcon championName={player.championName} size={16} />
-      <span title={`${player.gameName}#${player.tagLine}`}>{player.gameName}</span>
-    </li>
   )
 }

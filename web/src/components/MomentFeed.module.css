@@ -6,12 +6,12 @@
   min-width: 0;
   padding: 4px 8px;
   border-radius: 7px;
-  background: linear-gradient(90deg, var(--loss-bg), transparent 75%);
+  background: color-mix(in srgb, var(--loss-bg) 75%, transparent);
   box-shadow: inset 2px 0 0 var(--loss);
 }
 
 .feed[data-good] {
-  background: linear-gradient(90deg, var(--win-bg), transparent 75%);
+  background: color-mix(in srgb, var(--win-bg) 75%, transparent);
   box-shadow: inset 2px 0 0 var(--win);
 }
 
@@ -35,7 +35,7 @@
   border-radius: 4px;
   background: color-mix(in srgb, var(--gold) 16%, transparent);
   color: var(--gold);
-  font: 700 10px var(--font-display);
+  font: 700 11px var(--font-display);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -45,8 +45,8 @@
 .badge[data-badge='quadra'],
 .badge[data-badge='penta'],
 .badge[data-badge='ace'] {
-  background: var(--gold);
-  color: var(--bg);
+  background: var(--gold-fill);
+  color: var(--on-fill);
 }
 
 .badge[data-badge='first_blood'] {
@@ -182,7 +182,7 @@
   flex: none;
   margin-left: auto;
   fill: none;
-  stroke: var(--gold);
+  stroke: var(--muted);
   stroke-width: 2.4;
   stroke-linecap: round;
   stroke-linejoin: round;

@@ -1,35 +1,42 @@
 .rating {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--fg);
   white-space: nowrap;
 }
 
+/* Une seule pastille « 6,7 MVP », comme sur la maquette. */
 .rating b {
-  font: 700 15px var(--font-display);
-  color: var(--fg);
+  font: 700 14px var(--font-display);
 }
 
 .tag {
-  padding: 1px 6px;
-  border-radius: 999px;
   font: 700 11px var(--font-display);
   letter-spacing: 0.04em;
   color: var(--muted);
-  background: var(--surface-3);
 }
 
+.mvp {
+  background: var(--mvp-bg);
+}
+
+.mvp b,
 .mvp .tag {
-  color: #1a1305;
-  background: var(--gold);
+  color: var(--mvp-fg);
 }
 
 .ace .tag {
-  color: #12091d;
-  background: var(--path-enemy);
+  color: var(--fg);
+}
+
+.compact {
+  padding: 1px 6px;
 }
 
 .compact .tag {
-  padding: 0 4px;
   font-size: 9px;
 }

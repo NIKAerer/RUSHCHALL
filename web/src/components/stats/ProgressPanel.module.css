@@ -1,0 +1,105 @@
+.trends {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.value {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.value b {
+  font: 700 28px var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.chart {
+  width: 100%;
+  height: 90px;
+  cursor: crosshair;
+}
+
+.area {
+  fill: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.cross {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.days {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.day {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* La ligne du milieu est le zéro : les gains montent, les pertes descendent. */
+.track {
+  position: relative;
+  width: 100%;
+  max-width: 36px;
+  height: 140px;
+  border-radius: 6px;
+  background:
+    linear-gradient(var(--line), var(--line)) center / 100% 1px no-repeat,
+    var(--surface-2);
+}
+
+.up,
+.down {
+  position: absolute;
+  inset-inline: 0;
+  border-radius: 6px;
+}
+
+.up {
+  bottom: 50%;
+  background: var(--win);
+}
+
+.down {
+  top: 50%;
+  background: var(--loss);
+}
+
+.dayLabel {
+  font-weight: 500;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .trends {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--faint);
+}

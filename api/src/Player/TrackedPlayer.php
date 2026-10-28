@@ -8,7 +8,7 @@ use App\Riot\RiotApiClient;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Le seul joueur suivi par l'application (TRACKED_RIOT_ID). Aucune donnée d'un autre joueur n'est demandée à Riot.
+ * Le seul joueur suivi par l'application (TRACKED_RIOT_ID). Seules ses games sont enregistrées : les joueurs cherchés passent par PlayerLookup, sans rien stocker.
  */
 final class TrackedPlayer
 {

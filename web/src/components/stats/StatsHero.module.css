@@ -1,0 +1,134 @@
+.hero {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 14px;
+}
+
+/* Carte foncée dans les deux thèmes, comme la maquette éditoriale. */
+.rank {
+  --fg: var(--on-ink);
+  --muted: #b8b8d0;
+  --accent: #9b9bff;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 22px 24px;
+  border-radius: 18px;
+  background: var(--ink);
+  color: var(--on-ink);
+}
+
+.rankHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.rankHead img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transform: scale(1.6);
+}
+
+.lp {
+  font: 700 72px/1 var(--font-display);
+  letter-spacing: -0.04em;
+}
+
+.lp small {
+  font-size: 20px;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+/* Courbe plus basse que sur une carte normale : le chiffre du LP reste le héros. */
+.rank svg {
+  height: 60px;
+}
+
+.delta {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8be8b2;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.value {
+  font: 700 40px/1 var(--font-display);
+  letter-spacing: -0.03em;
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.profile {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 auto;
+}
+
+.profile dt {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.profile dd {
+  margin: 2px 0 0;
+  font: 700 20px/1.15 var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.profile p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.profile small {
+  font: 500 13px var(--font-body);
+  color: var(--muted);
+}
+
+@media (max-width: 1100px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .value {
+    font-size: 32px;
+  }
+}

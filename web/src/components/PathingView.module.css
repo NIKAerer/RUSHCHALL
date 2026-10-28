@@ -63,16 +63,16 @@
 }
 
 .schematic .river {
-  stroke: color-mix(in srgb, var(--win) 18%, var(--surface-2));
+  stroke: color-mix(in srgb, var(--side-blue) 18%, var(--surface-2));
   stroke-width: 1600;
 }
 
 .blueBase {
-  fill: color-mix(in srgb, var(--win) 25%, var(--surface-2));
+  fill: color-mix(in srgb, var(--side-blue) 25%, var(--surface-2));
 }
 
 .redBase {
-  fill: color-mix(in srgb, var(--loss) 25%, var(--surface-2));
+  fill: color-mix(in srgb, var(--side-red) 25%, var(--surface-2));
 }
 
 .objective rect {
@@ -94,7 +94,7 @@
 
 .timeControls input {
   flex: 1 1 200px;
-  accent-color: var(--gold);
+  accent-color: var(--accent);
 }
 
 .timeControls output {
@@ -211,7 +211,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--gold);
+  background: var(--accent);
   border: none;
   color: var(--bg);
   font-size: 12px;
@@ -228,7 +228,7 @@
 
 .presets button[aria-pressed='true'] {
   color: var(--fg);
-  border-color: var(--gold);
+  border-color: var(--accent);
 }
 
 .mapMoment {
@@ -289,7 +289,7 @@
 }
 
 .moment[data-future] {
-  opacity: 0.4;
+  opacity: 0.6;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -332,7 +332,7 @@
 .track input {
   width: 100%;
   margin: 0;
-  accent-color: var(--gold);
+  accent-color: var(--accent);
 }
 
 .tick {
@@ -356,7 +356,7 @@
   width: 6px;
   height: 6px;
   margin-left: -3px;
-  background: var(--gold);
+  background: var(--gold-fill);
   box-shadow: 0 0 4px var(--gold);
 }
 
@@ -418,7 +418,7 @@
 .speed {
   min-width: 44px;
   background: var(--surface);
-  color: var(--gold);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -448,7 +448,7 @@
 }
 
 .panelTabs button[aria-selected='true'] {
-  border-bottom-color: var(--gold);
+  border-bottom-color: var(--accent);
   color: var(--fg);
 }
 

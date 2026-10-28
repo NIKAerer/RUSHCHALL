@@ -60,7 +60,7 @@
 .emptySlot {
   display: block;
   border-radius: 6px;
-  background: color-mix(in srgb, var(--surface-3) 60%, transparent);
+  background: var(--slot);
 }
 
 .trinket {

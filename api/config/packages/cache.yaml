@@ -4,10 +4,23 @@ framework:
             # Les réponses Riot (une game terminée ne change jamais) sont gardées sur disque.
             cache.riot:
                 adapter: cache.adapter.filesystem
+            # Faits de chaque game pour les stats : calculés une fois, la game ne change plus.
+            cache.stats:
+                adapter: cache.adapter.filesystem
+            # Joueurs cherchés : gardé en mémoire le temps d'une requête, jamais écrit.
+            cache.riot_live:
+                adapter: cache.adapter.array
+            # Seuils GM et Challenger : deux nombres, rafraîchis toutes les heures.
+            cache.ladder:
+                adapter: cache.adapter.filesystem
 
 when@test:
     framework:
         cache:
             pools:
                 cache.riot:
+                    adapter: cache.adapter.array
+                cache.stats:
+                    adapter: cache.adapter.array
+                cache.ladder:
                     adapter: cache.adapter.array

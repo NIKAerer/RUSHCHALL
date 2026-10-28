@@ -1,0 +1,120 @@
+.panel {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  font: 600 16px var(--font-display);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+
+.title small {
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--faint);
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.big {
+  font: 800 22px var(--font-display);
+}
+
+.sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.good {
+  color: var(--good);
+}
+
+.bad {
+  color: var(--loss);
+}
+
+.great {
+  color: var(--accent);
+}
+
+.legendary {
+  color: var(--gold);
+}
+
+.empty {
+  margin: 0;
+  font-size: 13px;
+  color: var(--faint);
+}
+
+/* Barre victoires / défaites, à la OP.GG. */
+.wr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  font-size: 12px;
+}
+
+.wrBar {
+  display: flex;
+  flex: 1;
+  gap: 2px;
+  height: 14px;
+  min-width: 60px;
+}
+
+.wrBar span {
+  display: flex;
+  align-items: center;
+  padding-inline: 4px;
+  font: 600 11px var(--font-body);
+  color: var(--on-result);
+  white-space: nowrap;
+}
+
+.wrBar span:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.wrBar span:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.wrBar .wins {
+  background: var(--win);
+}
+
+.wrBar .losses {
+  justify-content: flex-end;
+  background: var(--loss);
+}
+
+.wrValue {
+  min-width: 42px;
+  white-space: nowrap;
+  text-align: right;
+  font-weight: 600;
+}

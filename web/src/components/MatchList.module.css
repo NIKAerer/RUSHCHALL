@@ -1,12 +1,43 @@
 .list {
   display: grid;
   gap: 8px;
+  padding: 18px 22px 8px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 8px;
+}
+
+.title h2 {
+  font-size: 17px;
+}
+
+.title span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.day {
+  margin: 8px 0 0 4px;
+  font: 600 13px var(--font-body);
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.day:first-of-type {
+  margin-top: 0;
 }
 
 .placeholder {
-  height: 96px;
-  border-radius: var(--radius);
-  background: var(--surface);
+  height: 84px;
+  border-radius: 14px;
+  background: var(--surface-2);
   animation: pulse 1.4s ease-in-out infinite;
 }
 
@@ -17,26 +48,39 @@
 }
 
 .empty {
+  margin: 0;
+  padding: 16px 0;
   color: var(--muted);
 }
 
 .more {
+  margin: 4px 0 10px;
   padding: 11px;
-  border-radius: var(--radius);
-  background: var(--surface);
+  border-radius: 999px;
+  background: var(--surface-2);
   border: 1px solid var(--line);
   color: var(--muted);
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .more:hover {
   color: var(--fg);
-  background: var(--surface-2);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .placeholder {
+  .day {
+  margin: 8px 0 0 4px;
+  font: 600 13px var(--font-body);
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.day:first-of-type {
+  margin-top: 0;
+}
+
+.placeholder {
     animation: none;
   }
 }

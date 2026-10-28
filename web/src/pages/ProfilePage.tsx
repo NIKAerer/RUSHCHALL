@@ -3,7 +3,6 @@ import { useGames, useProfile, useSync } from '../api/queries'
 import { ErrorState } from '../components/ErrorState'
 import { MatchList } from '../components/MatchList'
 import { ProfileHeader } from '../components/ProfileHeader'
-import { RecentSummary } from '../components/RecentSummary'
 import styles from './ProfilePage.module.css'
 
 export function ProfilePage() {
@@ -25,7 +24,12 @@ export function ProfilePage() {
 
   return (
     <div className={styles.page}>
-      <ProfileHeader profile={profile.data} onRefresh={() => sync.mutate()} refreshing={sync.isPending} />
+      <ProfileHeader
+        profile={profile.data}
+        recent={{ games: matches.filter((m) => !m.remake).length, wins: matches.filter((m) => !m.remake && m.player.win).length }}
+        onRefresh={() => sync.mutate()}
+        refreshing={sync.isPending}
+      />
 
       {sync.isError && <ErrorState title="Mise à jour impossible" message={sync.error.message} />}
       {sync.data && sync.data.remaining > 0 && (
@@ -34,17 +38,11 @@ export function ProfilePage() {
         </p>
       )}
 
-      <div className={styles.toolbar}>
-        <h2>Historique Solo/Duo</h2>
-        {sync.data && <span className={styles.count}>{sync.data.total} games en base</span>}
-      </div>
-
-      {matches.length > 0 && <RecentSummary matches={matches} />}
-
       {games.isError ? (
         <ErrorState title="Impossible de charger les games" message={games.error.message} />
       ) : (
         <MatchList
+          caption={sync.data ? `${sync.data.total} games en base` : undefined}
           matches={matches}
           puuid={profile.data.puuid}
           loading={games.isPending}

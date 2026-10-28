@@ -38,3 +38,11 @@ const MULTIKILLS: Record<number, string> = { 2: 'Double kill', 3: 'Triple kill',
 export function multiKillLabel(largest: number): string | null {
   return MULTIKILLS[Math.min(largest, 5)] ?? null
 }
+
+/** « Pseudo#TAG » ; sans tag, on tente EUW, le tag le plus courant du serveur. */
+export function parseRiotId(text: string): { gameName: string; tagLine: string } | null {
+  const hash = text.lastIndexOf('#')
+  const gameName = (hash === -1 ? text : text.slice(0, hash)).trim()
+  const tagLine = (hash === -1 ? '' : text.slice(hash + 1)).trim() || 'EUW'
+  return gameName ? { gameName, tagLine } : null
+}

@@ -1,0 +1,120 @@
+.body {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+}
+
+.radar {
+  width: 100%;
+  overflow: visible;
+}
+
+.ring {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+
+.spoke {
+  stroke: var(--line);
+}
+
+.shape {
+  fill: color-mix(in srgb, var(--accent) 28%, transparent);
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.dot {
+  fill: var(--accent);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.axis {
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--muted);
+}
+
+.overall {
+  font-size: 30px;
+  font-weight: 800;
+  fill: var(--fg);
+}
+
+.scores {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scores li {
+  --tone: var(--muted);
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr) 26px;
+  align-items: center;
+  gap: 2px 8px;
+  font-size: 12px;
+}
+
+/* Trois couleurs seulement, comme le reste du site : vert devant, accent dans la moyenne, rouge derrière. */
+.scores li[data-tier='top'],
+.scores li[data-tier='high'] {
+  --tone: var(--win);
+}
+
+.scores li[data-tier='mid'] {
+  --tone: var(--accent);
+}
+
+.scores li[data-tier='low'] {
+  --tone: var(--loss);
+}
+
+.name {
+  font-weight: 700;
+}
+
+.bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--tone);
+}
+
+.scores b {
+  font-weight: 800;
+  text-align: right;
+  color: var(--tone);
+}
+
+.scores small {
+  grid-column: 2 / -1;
+  margin-top: -2px;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--faint);
+}
+
+@media (max-width: 640px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .radar {
+    max-width: 240px;
+    margin: 0 auto;
+  }
+}

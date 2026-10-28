@@ -75,6 +75,10 @@ export interface MatchSummary {
   remake: boolean
   player: Participant
   lineup: Lineup[]
+  /** LP gagnés ou perdus, null quand les relevés ne permettent pas de les attribuer à la game. */
+  lpChange: number | null
+  /** Case « routine respectée », cochée par le joueur. */
+  routine: boolean
 }
 
 export interface TeamObjectives {
@@ -222,4 +226,187 @@ export interface GoldPoint {
   enemy: number
   allyJungler: number | null
   enemyJungler: number | null
+}
+
+export interface WinRecord {
+  key: string
+  games: number
+  wins: number
+}
+
+export interface MatchupStats {
+  opponent: string
+  games: number
+  wins: number
+  goldDiffAt15: number | null
+}
+
+export interface ChampionStats {
+  championName: string
+  games: number
+  wins: number
+  kills: number
+  deaths: number
+  assists: number
+  csPerMinute: number
+  goldAt15: number | null
+  rating: number
+  matchups: MatchupStats[]
+}
+
+export interface DiffStats {
+  minute: number
+  games: number
+  gold: number
+  xp: number
+  cs: number
+  aheadRate: number
+}
+
+export interface JungleStats {
+  games: number
+  starts: WinRecord[]
+  routes: WinRecord[]
+  firstGanks: WinRecord[]
+  firstGankAt: number | null
+}
+
+export interface ObjectiveStats {
+  type: 'grubs' | 'herald' | 'dragon' | 'atakhan' | 'baron'
+  taken: number
+  lost: number
+  goldDiffTaken: number | null
+  goldDiffLost: number | null
+}
+
+export interface Heatmap {
+  size: number
+  /** colonne, ligne, nombre de relevés */
+  cells: [number, number, number][]
+  deaths: [number, number][]
+}
+
+export interface LpPoint {
+  t: number
+  tier: string
+  division: string | null
+  leaguePoints: number
+  ladder: number
+}
+
+export interface FormStats {
+  streak: number
+  longestWinStreak: number
+  longestLossStreak: number
+  recent: boolean[]
+  byHour: WinRecord[]
+  lp: LpPoint[]
+}
+
+export interface SessionRecord {
+  startedAt: number
+  games: number
+  wins: number
+  minutes: number
+  /** LP nets de la session, null s'ils ne sont connus pour aucune game. */
+  lp: number | null
+  rating: number | null
+}
+
+export interface GameRecord {
+  matchId: string
+  championName: string
+  durationSeconds: number
+  win: boolean
+  startedAt: number
+}
+
+export interface GrindStats {
+  hours: number
+  activeDays: number
+  sessions: number
+  longestSession: SessionRecord | null
+  busiestDay: WinRecord | null
+  bySessionGame: WinRecord[]
+  afterWin: WinRecord
+  afterLoss: WinRecord
+  afterTwoLosses: WinRecord
+  byWeekday: WinRecord[]
+  longestGame: GameRecord | null
+  shortestGame: GameRecord | null
+  winDuration: number | null
+  lossDuration: number | null
+  /** Un par jour joué (clé AAAA-MM-JJ), du plus ancien au plus récent. */
+  calendar: WinRecord[]
+  recentSessions: SessionRecord[]
+  /** Selon la pause avant la game : short (< 5 min), medium (5–15), long (15–45). */
+  byBreak: WinRecord[]
+  routine: WinRecord
+  noRoutine: WinRecord
+  afterTwoLossesLp: number | null
+  /** LP moyens d'une victoire, puis d'une défaite (négatif), sur les games aux LP connus. */
+  lpGain: number | null
+  lpLoss: number | null
+  /** Dernière game d'une session avant que le winrate passe sous 50 %. */
+  stopAfter: number | null
+  /** Selon la durée : lt25, 25-30, 30-35, gt35 (minutes). */
+  byDuration: WinRecord[]
+  /** Les 3 champions les plus joués de la période. */
+  mains: string[]
+  /** Dernières semaines jouées, de la plus ancienne à la plus récente. */
+  pool: PoolWeek[]
+}
+
+export interface PoolWeek {
+  /** Lundi de la semaine, AAAA-MM-JJ. */
+  week: string
+  games: number
+  mainGames: number
+  champions: number
+}
+
+/** Le joueur suivi face aux seuils GM et Challenger d'EUW. */
+export interface Climb {
+  tier: string | null
+  leaguePoints: number | null
+  challenger: number | null
+  grandmaster: number | null
+  /** LP par jour sur la dernière semaine de relevés. */
+  lpPerDay: number | null
+}
+
+export interface PlayerStats {
+  games: number
+  wins: number
+  kills: number
+  deaths: number
+  assists: number
+  rating: number
+  mvp: number
+  ace: number
+  champions: ChampionStats[]
+  matchups: MatchupStats[]
+  diffs: DiffStats[]
+  jungle: JungleStats
+  objectives: ObjectiveStats[]
+  heatmap: Heatmap
+  form: FormStats
+  grind: GrindStats
+  progress: ProgressPoint[]
+}
+
+/** Une game sur les courbes de progression, dans l'ordre chronologique. */
+export interface ProgressPoint {
+  matchId: string
+  t: number
+  win: boolean
+  rating: number
+  kda: number
+  csPerMinute: number
+  lpChange: number | null
+}
+
+export interface StatsFilters {
+  champion?: string
+  days?: number
 }

@@ -32,8 +32,19 @@ services:
             $httpClient: '@riot.client'
             $cache: '@cache.riot'
 
+    # Joueurs cherchés : rien sur disque, le cache ne vit que le temps de la requête.
+    riot.live_client:
+        class: App\Riot\RiotApiClient
+        arguments:
+            $httpClient: '@riot.client'
+            $cache: '@cache.riot_live'
+
     App\Storage\MatchStore:
         arguments: ['%env(resolve:DATABASE_PATH)%']
+
+    App\Stats\StatsProvider:
+        arguments:
+            $statsCache: '@cache.stats'
 
 when@test:
     services:

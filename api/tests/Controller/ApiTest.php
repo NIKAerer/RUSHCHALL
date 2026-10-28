@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use App\Storage\MatchStore;
 use App\Tests\Fixtures\FakeRiotApi;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -32,6 +33,27 @@ final class ApiTest extends WebTestCase
         self::assertNull($profile['ranked'][0]['division']);
         self::assertSame(1290, $profile['ranked'][0]['leaguePoints']);
         self::assertSame('I', $profile['ranked'][1]['division']);
+    }
+
+    public function testRoutineCanBeTickedOnAGame(): void
+    {
+        $this->client->request('POST', '/api/games/sync');
+        $this->client->request('GET', '/api/games');
+        self::assertFalse($this->json()[0]['routine']);
+        self::assertNull($this->json()[0]['lpChange']);
+
+        $this->client->request('PUT', '/api/games/EUW1_7412345678/routine', content: '{"routine": true}');
+        self::assertResponseIsSuccessful();
+
+        $this->client->request('GET', '/api/games');
+        self::assertTrue($this->json()[0]['routine']);
+        self::assertFalse($this->json()[1]['routine']);
+
+        $this->client->request('PUT', '/api/games/EUW1_7412345678/routine', content: '{"routine": "oui"}');
+        self::assertResponseStatusCodeSame(400);
+
+        $this->client->request('PUT', '/api/games/EUW1_1/routine', content: '{"routine": true}');
+        self::assertResponseStatusCodeSame(404);
     }
 
     public function testHistoryIsEmptyUntilTheFirstSync(): void
@@ -83,6 +105,48 @@ final class ApiTest extends WebTestCase
         self::assertSame('dragon', $pathing['objectives'][1]['type']);
     }
 
+    public function testStatsOverAllStoredGames(): void
+    {
+        $this->client->request('GET', '/api/profile');
+        $this->client->request('POST', '/api/games/sync');
+        $this->client->request('GET', '/api/stats');
+
+        self::assertResponseIsSuccessful();
+        $stats = $this->json();
+        self::assertSame(2, $stats['games']);
+        self::assertEqualsCanonicalizing(['LeeSin', 'Lillia'], array_column($stats['champions'], 'championName'));
+        self::assertEqualsCanonicalizing(['XinZhao', 'Viego'], array_column($stats['matchups'], 'opponent'));
+        self::assertSame([10, 15], array_column($stats['diffs'], 'minute'));
+        self::assertSame(['grubs', 'herald', 'dragon', 'atakhan', 'baron'], array_column($stats['objectives'], 'type'));
+        self::assertNotEmpty($stats['heatmap']['cells']);
+        self::assertCount(24, $stats['form']['byHour']);
+        self::assertCount($stats['games'], $stats['progress']);
+        self::assertLessThan($stats['progress'][1]['t'], $stats['progress'][0]['t']);
+        self::assertSame(2800 + 1290, $stats['form']['lp'][0]['ladder']);
+    }
+
+    public function testStatsCanBeFilteredByChampion(): void
+    {
+        $this->client->request('POST', '/api/games/sync');
+        $this->client->request('GET', '/api/stats?champion=LeeSin');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(1, $this->json()['games']);
+        self::assertSame(['LeeSin'], array_column($this->json()['champions'], 'championName'));
+
+        $this->client->request('GET', '/api/stats?champion=Lee%20Sin');
+        self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testLpIsRecordedOnlyWhenItChanges(): void
+    {
+        $this->client->request('GET', '/api/profile');
+        $this->client->request('GET', '/api/profile');
+        $this->client->request('GET', '/api/stats');
+
+        self::assertCount(1, $this->json()['form']['lp']);
+    }
+
     public function testUnknownGameAnswers404(): void
     {
         $this->client->request('GET', '/api/games/EUW1_1');
@@ -96,6 +160,56 @@ final class ApiTest extends WebTestCase
         $this->client->request('GET', '/api/games?count=100');
 
         self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testClimbComparesTheLastSnapshotWithTheApexCutoffs(): void
+    {
+        $this->client->request('GET', '/api/profile');
+        $this->client->request('GET', '/api/climb');
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(['tier' => 'MASTER', 'leaguePoints' => 1290, 'challenger' => 1388, 'grandmaster' => 801, 'lpPerDay' => null], $this->json());
+
+        // Rythme : depuis le relevé d'il y a 7 jours et demi (le plus récent d'au moins une semaine).
+        $store = static::getContainer()->get(MatchStore::class);
+        $now = $store->lpSnapshots(FakeRiotApi::PUUID)[0]['taken_at'];
+        $store->recordLp(FakeRiotApi::PUUID, 'MASTER', null, 1100, 700, 690, $now - 10 * 86400);
+        $store->recordLp(FakeRiotApi::PUUID, 'MASTER', null, 1140, 710, 695, $now - 15 * 43200);
+        $this->client->request('GET', '/api/climb');
+        self::assertEquals(20.0, $this->json()['lpPerDay']);
+    }
+
+    public function testAnotherPlayerIsReadLiveAndNeverStored(): void
+    {
+        $this->client->request('GET', '/api/players/Nyxar/EUW');
+        self::assertResponseIsSuccessful();
+        self::assertSame(FakeRiotApi::OTHER_PUUID, $this->json()['puuid']);
+        self::assertSame(47, $this->json()['ranked'][0]['leaguePoints']);
+
+        $this->client->request('GET', '/api/players/Nyxar/EUW/games');
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $this->json());
+        self::assertSame('Nyxar', $this->json()[0]['player']['gameName']);
+        self::assertNull($this->json()[0]['lpChange']);
+
+        $this->client->request('GET', '/api/matches/EUW1_7412345678');
+        self::assertResponseIsSuccessful();
+        self::assertCount(2, $this->json()['teams']);
+
+        $store = static::getContainer()->get(MatchStore::class);
+        self::assertNull($store->find('EUW1_7412345678'));
+        self::assertSame(0, $store->countForPlayer(FakeRiotApi::OTHER_PUUID));
+        self::assertSame([], $store->lpSnapshots(FakeRiotApi::OTHER_PUUID));
+    }
+
+    public function testSearchedPlayerPagesAreSmallAndUnknownPlayersAnswer404(): void
+    {
+        $this->client->request('GET', '/api/players/Nyxar/EUW/games?count=11');
+        self::assertResponseStatusCodeSame(400);
+
+        $this->client->request('GET', '/api/players/Personne/EUW');
+        self::assertResponseStatusCodeSame(404);
+        self::assertSame('not_found', $this->json()['error']);
     }
 
     private function json(): array
