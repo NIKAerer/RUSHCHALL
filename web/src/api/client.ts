@@ -27,6 +27,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>
 }
 
+const riotId = (gameName: string, tagLine: string) => `${encodeURIComponent(gameName)}/${encodeURIComponent(tagLine)}`
+
 export const api = {
   profile: () => request<Profile>('/api/profile'),
   games: (start: number, count: number) => request<MatchSummary[]>(`/api/games?start=${start}&count=${count}`),
@@ -38,6 +40,10 @@ export const api = {
     if (filters.days) query.set('days', String(filters.days))
     return request<PlayerStats>(`/api/stats${query.size ? `?${query}` : ''}`)
   },
+  player: (gameName: string, tagLine: string) => request<Profile>(`/api/players/${riotId(gameName, tagLine)}`),
+  playerGames: (gameName: string, tagLine: string, start: number, count: number) =>
+    request<MatchSummary[]>(`/api/players/${riotId(gameName, tagLine)}/games?start=${start}&count=${count}`),
+  liveGame: (matchId: string) => request<MatchDetail>(`/api/matches/${encodeURIComponent(matchId)}`),
   sync: () => request<SyncReport>('/api/games/sync', { method: 'POST' }),
   setRoutine: (matchId: string, routine: boolean) =>
     request<{ matchId: string; routine: boolean }>(`/api/games/${encodeURIComponent(matchId)}/routine`, { method: 'PUT', body: JSON.stringify({ routine }) }),

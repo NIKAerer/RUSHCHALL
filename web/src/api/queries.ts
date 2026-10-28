@@ -17,10 +17,11 @@ export function useGames() {
   })
 }
 
-export function useGame(matchId: string) {
+/** `live` : game d'un joueur cherché, lue chez Riot si elle n'est pas en base. */
+export function useGame(matchId: string, live = false) {
   return useQuery({
     queryKey: ['game', matchId],
-    queryFn: () => api.game(matchId),
+    queryFn: () => (live ? api.liveGame(matchId) : api.game(matchId)),
     // Une game terminée ne change plus.
     staleTime: Infinity,
   })
@@ -31,6 +32,22 @@ export function usePathing(matchId: string) {
     queryKey: ['pathing', matchId],
     queryFn: () => api.pathing(matchId),
     staleTime: Infinity,
+  })
+}
+
+/** Joueur cherché : lu en direct chez Riot, gardé en mémoire le temps de la session, jamais enregistré. */
+export function usePlayer(gameName: string, tagLine: string) {
+  return useQuery({ queryKey: ['player', gameName, tagLine], queryFn: () => api.player(gameName, tagLine), staleTime: 120_000 })
+}
+
+export function usePlayerGames(gameName: string, tagLine: string) {
+  return useInfiniteQuery({
+    queryKey: ['player-games', gameName, tagLine],
+    queryFn: ({ pageParam }) => api.playerGames(gameName, tagLine, pageParam, PAGE_SIZE),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, pages) => (lastPage.length < PAGE_SIZE ? undefined : pages.length * PAGE_SIZE),
+    // Chaque page coûte une requête Riot par game : on ne la redemande pas à chaque visite.
+    staleTime: 120_000,
   })
 }
 

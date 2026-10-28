@@ -16,8 +16,11 @@ const hour = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digi
 
 const OUTCOME_LABELS: Record<Outcome, string> = { win: 'Victoire', loss: 'Défaite', remake: 'Remake' }
 
-/** Une game de l'historique, sur une ligne : champion, score, résultat, build, LP et case « routine ». */
-export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string }) {
+/**
+ * Une game de l'historique, sur une ligne : champion, score, résultat, build, LP et case « routine ».
+ * `live` : game d'un joueur cherché, sans LP ni routine.
+ */
+export function MatchRow({ match, puuid, live = false }: { match: MatchSummary; puuid: string; live?: boolean }) {
   const [open, setOpen] = useState(false)
   const detailId = useId()
   const routine = useRoutine()
@@ -65,17 +68,21 @@ export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string 
 
         <div className={styles.rating}>{!match.remake && <RatingBadge rating={player.rating} />}</div>
 
-        <label className={styles.routine} title="Routine respectée sur cette game">
-          <input
-            type="checkbox"
-            checked={match.routine}
-            onChange={(event) => routine.mutate({ matchId: match.matchId, routine: event.target.checked })}
-            aria-label={`Routine respectée sur la game ${champion.name}`}
-          />
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m7.5 12.5 3 3 6-6.5" />
-          </svg>
-        </label>
+        {live ? (
+          <span />
+        ) : (
+          <label className={styles.routine} title="Routine respectée sur cette game">
+            <input
+              type="checkbox"
+              checked={match.routine}
+              onChange={(event) => routine.mutate({ matchId: match.matchId, routine: event.target.checked })}
+              aria-label={`Routine respectée sur la game ${champion.name}`}
+            />
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m7.5 12.5 3 3 6-6.5" />
+            </svg>
+          </label>
+        )}
 
         <button
           type="button"
@@ -92,7 +99,7 @@ export function MatchRow({ match, puuid }: { match: MatchSummary; puuid: string 
       </div>
 
       <div id={detailId} hidden={!open}>
-        {open && <MatchDetail matchId={match.matchId} puuid={puuid} />}
+        {open && <MatchDetail matchId={match.matchId} puuid={puuid} live={live} />}
       </div>
     </article>
   )

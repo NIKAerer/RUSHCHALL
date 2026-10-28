@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useGame } from '../api/queries'
 import type { Participant, Team } from '../api/types'
 import { useChampion } from '../ddragon/useStaticData'
@@ -21,8 +22,17 @@ const OBJECTIVES: { key: keyof Team['objectives']; label: string }[] = [
 
 type Tab = 'scoreboard' | 'pathing'
 
-export function MatchDetail({ matchId, puuid }: { matchId: string; puuid: string }) {
+/** `live` : game d'un joueur cherché ; le pathing demande une timeline en base, il n'est pas proposé. */
+export function MatchDetail({ matchId, puuid, live = false }: { matchId: string; puuid: string; live?: boolean }) {
   const [tab, setTab] = useState<Tab>('scoreboard')
+
+  if (live) {
+    return (
+      <div className={styles.detail}>
+        <Scoreboard matchId={matchId} puuid={puuid} live />
+      </div>
+    )
+  }
 
   return (
     <div className={styles.detail}>
@@ -43,8 +53,8 @@ export function MatchDetail({ matchId, puuid }: { matchId: string; puuid: string
   )
 }
 
-function Scoreboard({ matchId, puuid }: { matchId: string; puuid: string }) {
-  const { data, isPending, isError, error } = useGame(matchId)
+function Scoreboard({ matchId, puuid, live = false }: { matchId: string; puuid: string; live?: boolean }) {
+  const { data, isPending, isError, error } = useGame(matchId, live)
 
   if (isPending) return <p className={styles.loading}>Chargement de la game…</p>
   if (isError) return <ErrorState title="Détail indisponible" message={error.message} />
@@ -149,7 +159,13 @@ function PlayerRow({ player, isMe, maxDamage, remake }: { player: Participant; i
           <ChampionIcon championName={player.championName} size={34} level={player.championLevel} />
           <SpellsAndRunes spells={player.summonerSpells} keystone={player.keystone} secondaryStyle={player.secondaryRuneStyle} size={16} />
           <div className={styles.who}>
-            <span className={styles.gameName} title={`${player.gameName}#${player.tagLine}`}>{player.gameName}</span>
+            <Link
+              to={`/joueur/${encodeURIComponent(player.gameName)}/${encodeURIComponent(player.tagLine)}`}
+              className={styles.gameName}
+              title={`Voir ${player.gameName}#${player.tagLine}`}
+            >
+              {player.gameName}
+            </Link>
             <span>{champion.name}</span>
           </div>
         </div>

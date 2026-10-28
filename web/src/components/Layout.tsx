@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useProfile } from '../api/queries'
 import { useTheme } from '../lib/theme'
+import { PlayerSearch } from './PlayerSearch'
 import styles from './Layout.module.css'
 
 export function Layout() {
@@ -22,6 +23,7 @@ export function Layout() {
               Stats
             </NavLink>
           </nav>
+          <PlayerSearch />
           {profile && (
             <span className={styles.account}>
               {profile.gameName}#{profile.tagLine} · EUW

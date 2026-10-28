@@ -205,8 +205,14 @@
   color: var(--fg);
   font-size: 14px;
   font-weight: 500;
+  text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.who .gameName:hover {
+  color: var(--accent);
+  text-decoration: underline;
 }
 
 .who span,

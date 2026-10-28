@@ -15,8 +15,9 @@ export function ProfileHeader({
   profile: Profile
   /** Bilan des games chargées, affiché sous le rang. */
   recent: { games: number; wins: number }
-  onRefresh: () => void
-  refreshing: boolean
+  /** Absent pour un joueur cherché : rien à synchroniser. */
+  onRefresh?: () => void
+  refreshing?: boolean
 }) {
   const data = useStaticData()
   const [emblemFailed, setEmblemFailed] = useState(false)
@@ -34,12 +35,14 @@ export function ProfileHeader({
             Niveau {profile.summonerLevel} · {profile.platform.replace(/\d+$/, '').toUpperCase()}
           </span>
         </div>
-        <button type="button" className={styles.refresh} onClick={onRefresh} disabled={refreshing}>
-          <svg viewBox="0 0 24 24" aria-hidden="true" className={refreshing ? styles.spinning : undefined}>
-            <path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" />
-          </svg>
-          {refreshing ? 'Mise à jour…' : 'Mettre à jour'}
-        </button>
+        {onRefresh && (
+          <button type="button" className={styles.refresh} onClick={onRefresh} disabled={refreshing}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" className={refreshing ? styles.spinning : undefined}>
+              <path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" />
+            </svg>
+            {refreshing ? 'Mise à jour…' : 'Mettre à jour'}
+          </button>
+        )}
       </div>
 
       <div className={styles.rank}>

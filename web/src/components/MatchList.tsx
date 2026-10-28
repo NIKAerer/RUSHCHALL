@@ -23,9 +23,11 @@ interface Props {
   hasMore: boolean
   loadingMore: boolean
   onLoadMore: () => void
+  /** Games d'un joueur cherché : lecture seule, détail lu chez Riot. */
+  live?: boolean
 }
 
-export function MatchList({ caption, matches, puuid, loading, hasMore, loadingMore, onLoadMore }: Props) {
+export function MatchList({ caption, matches, puuid, loading, hasMore, loadingMore, onLoadMore, live = false }: Props) {
   const title = (
     <div className={styles.title}>
       <h2>Dernières parties</h2>
@@ -47,13 +49,13 @@ export function MatchList({ caption, matches, puuid, loading, hasMore, loadingMo
   return (
     <section className={styles.list}>
       {title}
-      {matches.length === 0 && <p className={styles.empty}>Aucune game en base pour l'instant.</p>}
+      {matches.length === 0 && <p className={styles.empty}>{live ? 'Aucune game Solo/Duo récente.' : "Aucune game en base pour l'instant."}</p>}
       {matches.map((match, i) => {
         const day = dayLabel(match.startedAt)
         return (
           <Fragment key={match.matchId}>
             {(i === 0 || dayLabel(matches[i - 1].startedAt) !== day) && <h3 className={styles.day}>{day}</h3>}
-            <MatchRow match={match} puuid={puuid} />
+            <MatchRow match={match} puuid={puuid} live={live} />
           </Fragment>
         )
       })}

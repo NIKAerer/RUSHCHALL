@@ -7,6 +7,9 @@ framework:
             # Faits de chaque game pour les stats : calculés une fois, la game ne change plus.
             cache.stats:
                 adapter: cache.adapter.filesystem
+            # Joueurs cherchés : gardé en mémoire le temps d'une requête, jamais écrit.
+            cache.riot_live:
+                adapter: cache.adapter.array
 
 when@test:
     framework:

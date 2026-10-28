@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Controller;
 
+use App\Storage\MatchStore;
 use App\Tests\Fixtures\FakeRiotApi;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -159,6 +160,39 @@ final class ApiTest extends WebTestCase
         $this->client->request('GET', '/api/games?count=100');
 
         self::assertResponseStatusCodeSame(400);
+    }
+
+    public function testAnotherPlayerIsReadLiveAndNeverStored(): void
+    {
+        $this->client->request('GET', '/api/players/Nyxar/EUW');
+        self::assertResponseIsSuccessful();
+        self::assertSame(FakeRiotApi::OTHER_PUUID, $this->json()['puuid']);
+        self::assertSame(47, $this->json()['ranked'][0]['leaguePoints']);
+
+        $this->client->request('GET', '/api/players/Nyxar/EUW/games');
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $this->json());
+        self::assertSame('Nyxar', $this->json()[0]['player']['gameName']);
+        self::assertNull($this->json()[0]['lpChange']);
+
+        $this->client->request('GET', '/api/matches/EUW1_7412345678');
+        self::assertResponseIsSuccessful();
+        self::assertCount(2, $this->json()['teams']);
+
+        $store = static::getContainer()->get(MatchStore::class);
+        self::assertNull($store->find('EUW1_7412345678'));
+        self::assertSame(0, $store->countForPlayer(FakeRiotApi::OTHER_PUUID));
+        self::assertSame([], $store->lpSnapshots(FakeRiotApi::OTHER_PUUID));
+    }
+
+    public function testSearchedPlayerPagesAreSmallAndUnknownPlayersAnswer404(): void
+    {
+        $this->client->request('GET', '/api/players/Nyxar/EUW/games?count=11');
+        self::assertResponseStatusCodeSame(400);
+
+        $this->client->request('GET', '/api/players/Personne/EUW');
+        self::assertResponseStatusCodeSame(404);
+        self::assertSame('not_found', $this->json()['error']);
     }
 
     private function json(): array
